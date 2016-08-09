@@ -1,0 +1,18 @@
+body {  
+    background: #1F8B00;  
+}
+
+#bomberman {     
+    border: gray solid 6px;
+    margin: 0 auto;
+}
+
+#github {
+    margin: 5px;
+    float: left;
+}
+
+@font-face {
+    font-family: 'BitBold';
+    src: url('../resources/fonts/BitBold.ttf') format('truetype');
+}
