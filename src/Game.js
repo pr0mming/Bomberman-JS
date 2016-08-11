@@ -1,5 +1,5 @@
 /*
-    This application was developed by @pr0mming with the intention of learning more about the Phaser Framework known. You can help me improve this app or see more of my work: https://github.com/pr0mming
+    This application was developed by @pr0mming with the intention of learning more about the Phaser Framework known. You can see my work at: https://github.com/pr0mming
 */
 Game.Game = function(game) {};
 
@@ -82,6 +82,7 @@ Game.Game.prototype = {
     createMap: function() {
         //Important:
         this.timers = [];
+        this.coords_brick = [];
         
         this.map = this.add.tilemap('world');
         this.map.addTilesetImage('playing-environment');
@@ -91,6 +92,8 @@ Game.Game.prototype = {
             else if (brick.name == 'power') brick.gid = 20;
             else if (brick.name == 'door') brick.gid = 15;
         }, this);
+        
+        this.createCoords(this.coords_brick, 40, 38, 98);
         
         this.map.setCollisionBetween(1, 12, true, 'Map');
 
@@ -136,13 +139,13 @@ Game.Game.prototype = {
         this.hero.physicsBodyType = Phaser.Physics.ARCADE;
         this.hero.createMultiple(1, 'bomberman-dead');
         
-        var seconds_timer_lose = 0,
-            timer_lose = this.time.create(false);
+        var timer_lose = this.time.create(false);
+        timer_lose.seconds = 0;
         
         timer_lose.loop(1000, function() {
-            this.timers[1]++;
-            if (this.timers[1] >= 4) {
-                this.timers[1] = 0;
+            this.timers[0].seconds++;
+            if (this.timers[0].seconds >= 4) {
+                this.timers[0].seconds = 0;
                 this.timers[0].stop(false);
                 localStorage.lives--;
                 localStorage.stage_points = 0;
@@ -154,7 +157,7 @@ Game.Game.prototype = {
             }   
         }, this);
         
-        this.timers.push(timer_lose, seconds_timer_lose);
+        this.timers.push(timer_lose);
 
         this.sound_lose = this.add.audio('lose');
         this.sound_just_died = this.add.audio('just-died');
@@ -262,22 +265,22 @@ Game.Game.prototype = {
         
         this.sound_level_complete = this.add.audio('level-complete');
         this.sound_level_complete.play();
-        this.timers[2].stop(false);
+        this.timers[1].stop(false);
         this.hero.getByName('hero').body.moves = false;
         
-        var seconds_timer_next_stage = 0,
-            timer_next_stage = this.time.create(false);
+        var timer_next_stage = this.time.create(false);
+        timer_next_stage.seconds = 0;
         
         timer_next_stage.loop(1000, function() {
-            this.timers[8]++;
-            if (this.timers[8] > 5) {
-                this.timers[7].stop();
+            this.timers[4].seconds++;
+            if (this.timers[4].seconds > 5) {
+                this.timers[4].stop();
                 this.state.start('ChangeStage', true, false, 'next-stage');
             } 
         }, this);
         
         timer_next_stage.start();
-        this.timers.push(timer_next_stage, seconds_timer_next_stage);
+        this.timers.push(timer_next_stage);
     },
     
     createStatistics: function() {
@@ -291,10 +294,11 @@ Game.Game.prototype = {
         };
 
         var timer_game = this.time.create(false);
+        timer_game.name = 'TimerGame';
         timer_game.loop(1000, function() {
             localStorage.time--;
             if (localStorage.time < 0) {
-                this.timers[2].stop(false);
+                this.timers[1].stop(false);
                 this.replaceEnemies('coin');
             } else
                 this.text.getByName('TIME').setText('TIME: '+localStorage.time);
@@ -355,44 +359,45 @@ Game.Game.prototype = {
         this.sound_put_bomb = this.add.audio('put-bomb');
         this.sound_exploit_bomb = this.add.audio('explosion');
         
-        var seconds_timer_put_bomb = 0,
-            seconds_timer_exploit_bomb = 0;
-        
         var timer_put_bomb = this.game.time.create(false);  
+        timer_put_bomb.seconds = 0;
+        
         timer_put_bomb.loop(1000, function() {
-            this.timers[4]++;
-            if (this.timers[4] >= 5) {
-                this.timers[4] = 0;
-                this.timers[3].stop(false);
+            this.timers[2].seconds++;
+            if (this.timers[2].seconds >= 5) {
+                this.timers[2].seconds = 0;
+                this.timers[2].stop(false);
             }
         }, this);
         
         var timer_exploit_bomb = this.game.time.create(false);
+        timer_exploit_bomb.seconds = 0;
+        
         timer_exploit_bomb.loop(1000, function() {
-            this.timers[6]++;
-            if (this.timers[6] >= 3) {
-                this.timers[6] = 0;
-                this.timers[5].stop(false);
+            this.timers[3].seconds++;
+            if (this.timers[3].seconds >= 3) {
+                this.timers[3].seconds = 0;
+                this.timers[3].stop(false);
             }
         }, this);
         
-        this.timers.push(timer_put_bomb, seconds_timer_put_bomb, timer_exploit_bomb, seconds_timer_exploit_bomb);
+        this.timers.push(timer_put_bomb, timer_exploit_bomb);
     },
     
     putBomb: function(character) {
-        if (!this.timers[3].running && this.bombs.length < this.amount_bombs) {
+        if (!this.timers[2].running && this.bombs.length < this.amount_bombs) {
             var newbomb = this.bombs.create(Math.round(character.body.x), Math.round(character.body.y), 'bomb');
             newbomb.animations.add('wait');
             newbomb.animations.play('wait', 3, true);
             newbomb.body.immovable = true;
             newbomb.scale.setTo(1.8, 1.8);
             this.sound_put_bomb.play();
-            this.timers[3].start();
+            this.timers[2].start();
         }
     },
     
     exploitBomb: function(bomb, chain) {
-        if (!this.timers[5].running || chain) {
+        if (!this.timers[3].running || chain) {
             
             bomb.kill();
             
@@ -432,7 +437,6 @@ Game.Game.prototype = {
         this.enemies.enableBody = true;
         this.enemies.physicsBodyType = Phaser.Physics.ARCADE;
         this.number_enemies = 7;
-        //el string es el key del sprite cargado y el numéro de al lado es la velocidad del sprite
         this.types = ['ballon', 30,
                       'snow', 40,
                       'cookie', 50,
@@ -500,8 +504,6 @@ Game.Game.prototype = {
             enemy.events.onAnimationComplete.add(function() { this.enemies.remove(enemy); }, this);
 
         }, this);
-
-        //Es 1 y no 0 porque cuando la animación se termina apenas elimina el sprite del grupo y al evaluar la condición en ese instante se convierte en falsa
 
         if (this.enemies.length == 1) this.sound_last_enemy.play();
 
@@ -574,9 +576,16 @@ Game.Game.prototype = {
             }
         ];
         
-        for (var i = 0, y = 102; i < rows; i++, y+=distance) 
-            for (var j = 0, x = 45; j < cols; j++, x+=distance) 
-                this.crossroads.push(x+','+y);
+        this.createCoords(this.crossroads, 40, 45, 102);
+    },
+    
+    createCoords: function(array, distance, xi, yi) {
+        var rows = 11,
+            cols = 35;
+        
+        for (var i = 0, y = yi; i < rows; i++, y+=distance) 
+            for (var j = 0, x = xi; j < cols; j++, x+=distance) 
+                array.push(x+','+y);
     },
     
     activeMotionEnemy: function() {
