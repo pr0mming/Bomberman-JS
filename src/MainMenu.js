@@ -17,6 +17,7 @@ Game.MainMenu.prototype = {
         this.start.inputEnabled = true;
         this.start.events.onInputDown.add(function(){
             this.sound.stopAll();
+            localStorage.stage = 1;
             localStorage.lives = 3;
             localStorage.stage_points = 0;
             localStorage.time = 190;

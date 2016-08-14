@@ -5,6 +5,10 @@ Game.Game = function(game) {};
 
 Game.Game.prototype = {
     
+    init: function(objects) {
+        this.objects = objects;
+    },
+    
     create: function() {
         this.createMap();
         this.createControls();
@@ -19,7 +23,6 @@ Game.Game.prototype = {
         var character = this.hero.getByName('hero');
         
         if (this.save.isDown) {
-            
             //possibly save game function
         }
         
@@ -55,7 +58,7 @@ Game.Game.prototype = {
             this.sound_stage.stop();
             this.sound_find_the_door.play();
             this.sound_find_the_door.loopFull();
-            this.explosion_length++;
+            this.updateCharacter(power.TypePower);            
             power.kill();
         }, null, this);
         this.physics.arcade.overlap(character, this.specialties.getByName('door'), function(hero, door) { 
@@ -83,17 +86,18 @@ Game.Game.prototype = {
         //Important:
         this.timers = [];
         this.coords_brick = [];
+        this.brick_position = [];
         
         this.map = this.add.tilemap('world');
         this.map.addTilesetImage('playing-environment');
-
+        
+        if (typeof this.objects != 'undefined') this.map.objects.Objects = this.objects;
+        
         this.map.objects.Objects.forEach(function(brick) {
             if (brick.name == '' || brick.name.includes('brick')) brick.gid = 10;
             else if (brick.name == 'power') brick.gid = 20;
             else if (brick.name == 'door') brick.gid = 15;
         }, this);
-        
-        this.createCoords(this.coords_brick, 40, 38, 98);
         
         this.map.setCollisionBetween(1, 12, true, 'Map');
 
@@ -115,9 +119,6 @@ Game.Game.prototype = {
         this.layer = this.map.createLayer('Map');
         this.layer.resizeWorld();
         
-        //this.map.setCollision([1, 2, 3, 5, 6, 7, 10, 11, 12], true);
-        
-        this.brick_position = [];
         this.map.createFromObjects('Objects', 10, 'brick', 0, true, true, this.brick, Phaser.Sprite, false);
         this.brick.callAll('animations.add', 'animations', 'wait', [0], 10, true);
         this.brick.callAll('animations.add', 'animations', 'destroy', [1, 2, 3, 4, 5, 6], 10, true);
@@ -126,10 +127,24 @@ Game.Game.prototype = {
             brick.body.immovable = true;
             this.brick_position.push(Math.round(brick.body.x)+','+Math.round(brick.body.y));
         }, this);
+        
+        var powers_group = ['power-1', 'ExtendExplosion', 'power-2', 'AddBomb', 'power-3', 'TimeExploitBomb'],
+            index = this.rnd.integerInRange(0, powers_group.length - 1);
+        if (index % 2 != 0) index = 0;
+        
         this.map.createFromObjects('Objects', 15, 'door', 0, true, true, this.specialties, Phaser.Sprite, false);
-        this.map.createFromObjects('Objects', 20, 'power-1', 0, true, true, this.specialties, Phaser.Srpite, false);
+        this.map.createFromObjects('Objects', 20, powers_group[index], 0, true, true, this.specialties, Phaser.Srpite, false);
         this.specialties.getByName('door').kill();
-        this.specialties.getByName('power').kill();
+        var power = this.specialties.getByName('power');
+        power.kill();
+        power.TypePower = powers_group[++index];
+    },
+    
+    createControls: function() {
+        this.directions = this.input.keyboard.createCursorKeys();
+        this.put_bomb = this.input.keyboard.addKey(Phaser.Keyboard.X);
+        this.exploit_bomb = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this.save = this.input.keyboard.addKey(Phaser.Keyboard.S);
     },
     
     createCharacter: function() {
@@ -151,7 +166,7 @@ Game.Game.prototype = {
                 localStorage.stage_points = 0;
                 localStorage.time = 190;
                 if (localStorage.lives >= 0) 
-                    this.state.start('ChangeStage', true, false, 'restart');
+                    this.state.start('ChangeStage', true, false, 'restart', this.map.objects.Objects);
                 else
                     this.state.start('ChangeStage', true, false, 'game-over');
             }   
@@ -174,11 +189,12 @@ Game.Game.prototype = {
         this.camera.follow(bomberman);
     },
     
-    createControls: function() {
-        this.directions = this.input.keyboard.createCursorKeys();
-        this.put_bomb = this.input.keyboard.addKey(Phaser.Keyboard.X);
-        this.exploit_bomb = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        this.save = this.input.keyboard.addKey(Phaser.Keyboard.S);
+    updateCharacter: function(power) {
+        if (power == 'ExtendExplosion')
+            this.explosion_length++;
+        else
+            if (power == 'AddBomb')
+                this.amount_bombs++;
     },
     
     destroyCharacter: function() {
@@ -198,9 +214,6 @@ Game.Game.prototype = {
         this.sound_lose.play();
         
         death_animation.events.onAnimationComplete.add(function() { 
-            this.hero.remove(character);
-            this.camera.follow(null);
-            this.lose = true;
             this.sound_just_died.play();
         }, this);
     },
@@ -275,7 +288,7 @@ Game.Game.prototype = {
             this.timers[4].seconds++;
             if (this.timers[4].seconds > 5) {
                 this.timers[4].stop();
-                this.state.start('ChangeStage', true, false, 'next-stage');
+                this.state.start('ChangeStage', true, false, 'next-stage', this.map.objects.Objects);
             } 
         }, this);
         
@@ -393,6 +406,7 @@ Game.Game.prototype = {
             newbomb.scale.setTo(1.8, 1.8);
             this.sound_put_bomb.play();
             this.timers[2].start();
+            this.timers[3].start();
         }
     },
     
@@ -428,7 +442,7 @@ Game.Game.prototype = {
             this.bombs.remove(bomb);
             
             if (this.bombs.length > 0) 
-                this.timers[5].start();
+                this.timers[3].start();
         }
     },
     
@@ -467,7 +481,7 @@ Game.Game.prototype = {
             
             var enemy = this.enemies.create(parseInt(coords[0]), parseInt(coords[1]), type); 
             
-            if (this.checkOverlap(enemy)) {
+            if (this.checkOverlap(enemy) && !replace) {
                     
                 this.enemies.remove(enemy);
                 this.createEnemies(type, replace, x, y);  
@@ -515,7 +529,8 @@ Game.Game.prototype = {
     
     replaceEnemies: function(type) {
         
-        if (this.enemies.length == 0) {
+        if (this.enemies.length > 0) {
+            
             var positions = [];
 
             this.enemies.forEach(function(enemy) {
@@ -527,9 +542,11 @@ Game.Game.prototype = {
             positions.forEach(function(coords) {
                 this.putEnemy('coin', true, coords[0], coords[1]);
             }, this);
+            
         } else {
+            
             for (var i = 0; i < this.number_enemies; i++)
-                this.createEnemies('coin', true);
+                this.putEnemy('coin', false);
         }
     },
     
@@ -576,16 +593,9 @@ Game.Game.prototype = {
             }
         ];
         
-        this.createCoords(this.crossroads, 40, 45, 102);
-    },
-    
-    createCoords: function(array, distance, xi, yi) {
-        var rows = 11,
-            cols = 35;
-        
-        for (var i = 0, y = yi; i < rows; i++, y+=distance) 
-            for (var j = 0, x = xi; j < cols; j++, x+=distance) 
-                array.push(x+','+y);
+        for (var i = 0, y = 102; i < rows; i++, y+=distance) 
+            for (var j = 0, x = 45; j < cols; j++, x+=distance) 
+                this.crossroads.push(x+','+y);
     },
     
     activeMotionEnemy: function() {

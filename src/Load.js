@@ -10,6 +10,8 @@ Game.Load.prototype = {
         this.load.image('playing-environment', 'resources/game-map/environment.png');
         this.load.image('door', 'resources/specialties/door.png');
         this.load.image('power-1', 'resources/specialties/powers/power1.png');
+        this.load.image('power-2', 'resources/specialties/powers/power2.png');
+        this.load.image('power-3', 'resources/specialties/powers/power3.png');
         this.load.image('menu-title', 'resources/icons/menu-title.png');
         this.load.spritesheet('bomberman-move', 'resources/character/bomberman-move.png', 16, 18);
         this.load.spritesheet('bomberman-dead', 'resources/character/bomberman-dead.png', 16, 21);
