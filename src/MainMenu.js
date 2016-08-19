@@ -9,7 +9,7 @@ Game.MainMenu.prototype = {
         this.title.scale.setTo(3.0, 3.0);
         
         this.start = this.add.text((this.game.world.centerX - 180), (this.game.world.centerY + 170), 'START', {
-            font : '19px BitBold',
+            font: '19px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
@@ -17,11 +17,19 @@ Game.MainMenu.prototype = {
         this.start.inputEnabled = true;
         this.start.events.onInputDown.add(function(){
             this.sound.stopAll();
-            localStorage.stage = 1;
-            localStorage.lives = 3;
-            localStorage.stage_points = 0;
-            localStorage.time = 190;
-            this.state.start('Game');
+            
+            var stage = {
+                stage: 1,
+                lives: 3,
+                points: 0,
+                time: 190,
+                stage_enemies: [['ballon'], ['ballon', 'snow'], ['snow', 'cookie'], ['cookie', 'ghost'], ['barrel', 'bear']]
+            };
+            
+            stage.stage_points = stage.points;
+            stage.stage_time = stage.time;
+            
+            this.state.start('ChangeStage', true, false, 'start', stage);
         }, this);
         
         this.continue = this.add.text((this.game.world.centerX + 90), (this.game.world.centerY + 170), 'CONTINUE', {

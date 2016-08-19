@@ -5,8 +5,8 @@ Game.Game = function(game) {};
 
 Game.Game.prototype = {
     
-    init: function(objects) {
-        this.objects = objects;
+    init: function(stage) {
+        this.stage = stage;
     },
     
     create: function() {
@@ -23,6 +23,7 @@ Game.Game.prototype = {
         var character = this.hero.getByName('hero');
         
         if (this.save.isDown) {
+            this.Win();
             //possibly save game function
         }
         
@@ -83,7 +84,6 @@ Game.Game.prototype = {
     },
     
     createMap: function() {
-        //Important:
         this.timers = [];
         this.coords_brick = [];
         this.brick_position = [];
@@ -91,7 +91,7 @@ Game.Game.prototype = {
         this.map = this.add.tilemap('world');
         this.map.addTilesetImage('playing-environment');
         
-        if (typeof this.objects != 'undefined') this.map.objects.Objects = this.objects;
+        if (typeof this.stage.map != 'undefined') this.map.objects.Objects = this.stage.map;
         
         this.map.objects.Objects.forEach(function(brick) {
             if (brick.name == '' || brick.name.includes('brick')) brick.gid = 10;
@@ -114,7 +114,7 @@ Game.Game.prototype = {
 
         this.sound_stage.loopFull();
         
-        this.stage.backgroundColor = '#1F8B00';
+        this.game.stage.backgroundColor = '#1F8B00';
     
         this.layer = this.map.createLayer('Map');
         this.layer.resizeWorld();
@@ -130,10 +130,12 @@ Game.Game.prototype = {
         
         var powers_group = ['power-1', 'ExtendExplosion', 'power-2', 'AddBomb', 'power-3', 'TimeExploitBomb'],
             index = this.rnd.integerInRange(0, powers_group.length - 1);
+        
         if (index % 2 != 0) index = 0;
         
         this.map.createFromObjects('Objects', 15, 'door', 0, true, true, this.specialties, Phaser.Sprite, false);
         this.map.createFromObjects('Objects', 20, powers_group[index], 0, true, true, this.specialties, Phaser.Srpite, false);
+        
         this.specialties.getByName('door').kill();
         var power = this.specialties.getByName('power');
         power.kill();
@@ -162,11 +164,11 @@ Game.Game.prototype = {
             if (this.timers[0].seconds >= 4) {
                 this.timers[0].seconds = 0;
                 this.timers[0].stop(false);
-                localStorage.lives--;
-                localStorage.stage_points = 0;
-                localStorage.time = 190;
-                if (localStorage.lives >= 0) 
-                    this.state.start('ChangeStage', true, false, 'restart', this.map.objects.Objects);
+                this.stage.lives--;
+                this.stage.points = 0;
+                this.stage.time = 190;
+                if (this.stage.lives >= 0) 
+                    this.state.start('ChangeStage', true, false, 'restart', this.stage);
                 else
                     this.state.start('ChangeStage', true, false, 'game-over');
             }   
@@ -185,37 +187,23 @@ Game.Game.prototype = {
         bomberman.animations.add('up', [9, 10, 11], 10, true);
         bomberman.animations.add('down', [6, 7, 8], 10, true);
         bomberman.scale.setTo(1.9, 1.9);
+        
+        this.stage.hero = { x: bomberman.body.x, y: bomberman.body.y };
 
         this.camera.follow(bomberman);
     },
     
     updateCharacter: function(power) {
-        if (power == 'ExtendExplosion')
+        if (power == 'ExtendExplosion') {
+            this.stage.stage_points += 60;
+            this.text.getByName('SCORE').setText(this.stage.stage_points);
             this.explosion_length++;
-        else
-            if (power == 'AddBomb')
+        } else
+            if (power == 'AddBomb') {
+                this.stage.stage_points += 80;
+                this.text.getByName('SCORE').setText(this.stage.stage_points);
                 this.amount_bombs++;
-    },
-    
-    destroyCharacter: function() {
-        var character = this.hero.getByName('hero');
-        
-        character.body.enable = false;
-        character.kill();
-
-        var death_animation = this.hero.getFirstExists(false);
-        death_animation.reset(character.body.x, character.body.y);
-        death_animation.scale.setTo(character.scale.x, character.scale.y);
-        death_animation.animations.add('die');
-        death_animation.animations.play('die', 8, false, true);
-
-        this.timers[0].start(); 
-        this.game.sound.stopAll();
-        this.sound_lose.play();
-        
-        death_animation.events.onAnimationComplete.add(function() { 
-            this.sound_just_died.play();
-        }, this);
+            }
     },
     
     moveCharacter: function() {
@@ -279,21 +267,53 @@ Game.Game.prototype = {
         this.sound_level_complete = this.add.audio('level-complete');
         this.sound_level_complete.play();
         this.timers[1].stop(false);
-        this.hero.getByName('hero').body.moves = false;
         
-        var timer_next_stage = this.time.create(false);
+        var timer_next_stage = this.time.create(false),
+            character = this.hero.getByName('hero');
+        
         timer_next_stage.seconds = 0;
+        character.body.moves = false;
+        this.stage.map = this.map.objects.Objects;
+        this.stage.points = this.stage.stage_points;
+        
+        this.stage.stage_points += 150;
+        this.text.getByName('SCORE').setText(this.stage.stage_points);
         
         timer_next_stage.loop(1000, function() {
             this.timers[4].seconds++;
             if (this.timers[4].seconds > 5) {
                 this.timers[4].stop();
-                this.state.start('ChangeStage', true, false, 'next-stage', this.map.objects.Objects);
+                this.state.start('ChangeStage', true, false, 'next-stage', this.stage);
             } 
         }, this);
         
         timer_next_stage.start();
         this.timers.push(timer_next_stage);
+    },
+    
+    destroyCharacter: function() {
+        var character = this.hero.getByName('hero');
+        
+        character.body.enable = false;
+        character.kill();
+
+        var dead = this.hero.getFirstExists(false);
+        dead.reset(character.body.x, character.body.y);
+        dead.scale.setTo(character.scale.x, character.scale.y);
+        dead.animations.add('die');
+        dead.animations.play('die', 8, false, true);
+
+        this.timers[1].stop(false);
+        this.stage.stage_points = 0;
+        this.stage.stage_time = this.stage.time;
+        
+        this.timers[0].start();
+        this.game.sound.stopAll();
+        this.sound_lose.play();
+        
+        dead.events.onAnimationComplete.add(function() { 
+            this.sound_just_died.play();
+        }, this);
     },
     
     createStatistics: function() {
@@ -309,35 +329,32 @@ Game.Game.prototype = {
         var timer_game = this.time.create(false);
         timer_game.name = 'TimerGame';
         timer_game.loop(1000, function() {
-            localStorage.time--;
-            if (localStorage.time < 0) {
+            this.stage.stage_time--;
+            if (this.stage.stage_time < 0) {
                 this.timers[1].stop(false);
                 this.replaceEnemies('coin');
             } else
-                this.text.getByName('TIME').setText('TIME: '+localStorage.time);
+                this.text.getByName('TIME').setText('TIME: '+this.stage.stage_time);
         }, this);
         
         this.timers.push(timer_game);
         
-        localStorage.stage_points = localStorage.stage_points || 0;
-        localStorage.lives = localStorage.lives || 3;
-        
         var distance = 22,
             information;
         
-        information  = this.add.text(distance, 22, 'TIME :'+localStorage.time, style);
+        information  = this.add.text(distance, 22, 'TIME: '+this.stage.time, style);
         information.fixedToCamera = true;
         information.name = 'TIME';
         this.text.add(information);
         distance+= 170;
         
-        information = this.add.text(distance, 22, localStorage.stage_points, style);
+        information = this.add.text(distance, 22, this.stage.points, style);
         information.fixedToCamera = true;
         information.name = 'SCORE';
         this.text.add(information);
         distance+= 128;
         
-        information = this.add.text(distance, 22, 'LEFT: '+localStorage.lives, style);
+        information = this.add.text(distance, 22, 'LEFT: '+this.stage.lives, style);
         information.fixedToCamera = true;
         information.name = 'LEFT';
         this.text.add(information);
@@ -369,6 +386,7 @@ Game.Game.prototype = {
 
         this.explosion_length = 0;
         this.amount_bombs = 1;
+        this.time_explosion = 10;
         this.sound_put_bomb = this.add.audio('put-bomb');
         this.sound_exploit_bomb = this.add.audio('explosion');
         
@@ -452,30 +470,32 @@ Game.Game.prototype = {
         this.enemies.physicsBodyType = Phaser.Physics.ARCADE;
         this.number_enemies = 7;
         this.types = ['ballon', 30,
-                      'snow', 40,
-                      'cookie', 50,
+                      'snow', 50,
+                      'cookie', 60,
                       'barrel', 40,
                       'water', 20,
                       'ghost', 25,
-                      'bear', 50,
+                      'bear', 70,
                       'coin', 80];
 
         this.sound_last_enemy = this.add.audio('last-enemy');
+        var stage = this.stage.stage - 1,
+            split = Math.round(this.number_enemies / this.stage.stage_enemies[stage].length); 
         
         for (var i = 0; i < this.number_enemies; i++)
-            this.putEnemy('ballon', false);
+            for (var j = 0; j < split; j++)
+                this.putEnemy(this.stage.stage_enemies[stage][i], false);
     },
     
     putEnemy: function(type, replace, x, y) {
         
-        var coords;
+        var coords,
+            index = this.types.indexOf(type);
         
         if (x == undefined && y == undefined)
             coords = this.randomPosition();
         else
             coords = [x, y];
-
-        var index = this.types.indexOf(type);
 
         if (index != -1) {
             
@@ -522,9 +542,17 @@ Game.Game.prototype = {
         if (this.enemies.length == 1) this.sound_last_enemy.play();
 
         if (enemy.name == 'ballon') {
-            localStorage.stage_points = (parseInt(localStorage.stage_points) + 50);
-            this.text.getByName('SCORE').setText(localStorage.stage_points);
-        }
+            this.stage.stage_points += 50;
+            this.text.getByName('SCORE').setText(this.stage.stage_points);
+        } else
+            if (enemy.name == 'snow') {
+                this.stage.stage_points += 90;
+                this.text.getByName('SCORE').setText(this.stage.stage_points);
+            } else
+                if (enemy.name == 'cookie') {
+                    this.stage.stage_points += 150;
+                    this.text.getByName('SCORE').setText(this.stage.stage_points);
+                }
     },
     
     replaceEnemies: function(type) {
@@ -601,9 +629,10 @@ Game.Game.prototype = {
     activeMotionEnemy: function() {
         this.enemies.forEach(function(enemy) {
             if (enemy.autonomy) {
-                if (enemy.name == 'ballon') {
+                if (enemy.name == 'ballon' || 'snow') {
                     var position = Math.round(enemy.body.x)+','+Math.round(enemy.body.y),
                         index = this.crossroads.indexOf(position);
+                    
                     if ((index != -1 && index % 2 == 0) || enemy.body.speed == 0) {
                         enemy.body.velocity.x = 0;
                         enemy.body.velocity.y = 0;
