@@ -23,7 +23,6 @@ Game.Game.prototype = {
         var character = this.hero.getByName('hero');
         
         if (this.save.isDown) {
-            this.Win();
             //possibly save game function
         }
         
@@ -32,11 +31,11 @@ Game.Game.prototype = {
         this.physics.arcade.collide(character, this.bombs);
         this.physics.arcade.collide(this.enemies, this.bombs);
         this.physics.arcade.collide(this.enemies, this.layer, null, function(enemy) {
-            if (enemy.physics) return true;
+            if (enemy.physicsLayer) return true;
             else return false;
         }, this);
         this.physics.arcade.collide(this.enemies, this.brick, null, function(enemy) {
-            if (enemy.physics) return true;
+            if (enemy.physicsBrick) return true;
             else return false;
         }, this);
         this.physics.arcade.overlap(character, this.enemies, function(hero, enemy) { this.destroyCharacter(); }, null, this);
@@ -56,9 +55,6 @@ Game.Game.prototype = {
             fragment.kill();
         }, null, this);
         this.physics.arcade.overlap(character, this.specialties.getByName('power'), function(hero, power) { 
-            this.sound_stage.stop();
-            this.sound_find_the_door.play();
-            this.sound_find_the_door.loopFull();
             this.updateCharacter(power.TypePower);            
             power.kill();
         }, null, this);
@@ -69,7 +65,8 @@ Game.Game.prototype = {
         this.physics.arcade.overlap(this.explosion, this.specialties.getByName('power'), function(power, fragment) { 
             fragment.events.onAnimationComplete.add(function() {
                 for (var i = 0; i < this.number_enemies; i++)
-                    this.putEnemy('ballon', false, power.body.x, power.body.y);
+                    var stage = this.stage.stage - 1;
+                    this.putEnemy(this.stage.stage_enemies[stage][0], false, power.body.x, power.body.y);
             }, this);
             power.kill();
         }, null, this);
@@ -99,8 +96,8 @@ Game.Game.prototype = {
             else if (brick.name == 'door') brick.gid = 15;
         }, this);
         
-        this.map.setCollisionBetween(1, 12, true, 'Map');
-
+        this.map.setCollisionBetween(0, 14, true, 'Map');
+        
         this.brick = this.add.group();
         this.brick.enableBody = true;
         this.brick.physicsBodyType = Phaser.Physics.ARCADE;
@@ -165,12 +162,13 @@ Game.Game.prototype = {
                 this.timers[0].seconds = 0;
                 this.timers[0].stop(false);
                 this.stage.lives--;
-                this.stage.points = 0;
-                this.stage.time = 190;
-                if (this.stage.lives >= 0) 
-                    this.state.start('ChangeStage', true, false, 'restart', this.stage);
-                else
-                    this.state.start('ChangeStage', true, false, 'game-over');
+                if (this.stage.lives >= 0) {
+                    this.stage.status = 'restart';
+                    this.state.start('ChangeStage', true, false, this.stage);
+                } else {
+                    this.stage.status = 'game-over';
+                    this.state.start('ChangeStage', true, false, this.stage);
+                }
             }   
         }, this);
         
@@ -194,13 +192,17 @@ Game.Game.prototype = {
     },
     
     updateCharacter: function(power) {
+        this.sound_stage.stop();
+        this.sound_find_the_door.play();
+        this.sound_find_the_door.loopFull();
+        
         if (power == 'ExtendExplosion') {
-            this.stage.stage_points += 60;
+            this.stage.stage_points += 160;
             this.text.getByName('SCORE').setText(this.stage.stage_points);
             this.explosion_length++;
         } else
             if (power == 'AddBomb') {
-                this.stage.stage_points += 80;
+                this.stage.stage_points += 180;
                 this.text.getByName('SCORE').setText(this.stage.stage_points);
                 this.amount_bombs++;
             }
@@ -276,14 +278,15 @@ Game.Game.prototype = {
         this.stage.map = this.map.objects.Objects;
         this.stage.points = this.stage.stage_points;
         
-        this.stage.stage_points += 150;
+        this.stage.stage_points += 450;
+        this.stage.status = 'next-stage';
         this.text.getByName('SCORE').setText(this.stage.stage_points);
         
         timer_next_stage.loop(1000, function() {
             this.timers[4].seconds++;
             if (this.timers[4].seconds > 5) {
                 this.timers[4].stop();
-                this.state.start('ChangeStage', true, false, 'next-stage', this.stage);
+                this.state.start('ChangeStage', true, false, this.stage);
             } 
         }, this);
         
@@ -454,6 +457,8 @@ Game.Game.prototype = {
                 explosion_fragment.scale.setTo(1.6, 1.6);
                 explosion_fragment.animations.add('kaboom');
                 explosion_fragment.animations.play('kaboom', 6, false, true);
+                
+                if (this.game.physics.arcade.collide(explosion_fragment, this.layer)) console.log(true);
             }
             
             this.sound_exploit_bomb.play();
@@ -512,13 +517,20 @@ Game.Game.prototype = {
                     enemy.animations.add('left', [7, 8, 9, 10, 11], 6, true);
                     enemy.animations.add('die', [this.rnd.integerInRange(5, 6)], 4, true);
                     enemy.animations.play('right');
-                    enemy.physics = false;
+                    enemy.physicsLayer = false;
+                    enemy.physicsBrick = false;
                 } else {
                     enemy.animations.add('right', [4, 5, 6], 4, true);
                     enemy.animations.add('left', [0, 1, 2], 4, true);
                     enemy.animations.add('die', [3], 4, true);
                     enemy.animations.play('right');
-                    enemy.physics = true;
+                    if (type == 'ghost') {
+                        enemy.physicsBrick = false;
+                        enemy.physicsLayer = true;
+                    } else {
+                        enemy.physicsBrick = true;
+                        enemy.physicsLayer = true;
+                    }
                 }
                 enemy.name = type;
                 enemy.velocity = this.types[++index];
@@ -552,7 +564,19 @@ Game.Game.prototype = {
                 if (enemy.name == 'cookie') {
                     this.stage.stage_points += 150;
                     this.text.getByName('SCORE').setText(this.stage.stage_points);
-                }
+                } else
+                    if (enemy.name == 'ghost') {
+                        this.stage.stage_points += 70;
+                        this.text.getByName('SCORE').setText(this.stage.stage_points);
+                    } else
+                        if (enemy.name == 'bear') {
+                            this.stage.stage_points += 250;
+                            this.text.getByName('SCORE').setText(this.stage.stage_points);
+                        } else
+                            if (enemy.name == 'coin') {
+                                this.stage.stage_points += 350;
+                                this.text.getByName('SCORE').setText(this.stage.stage_points);
+                            }
     },
     
     replaceEnemies: function(type) {
@@ -676,5 +700,5 @@ Game.Game.prototype = {
                     }
             }
         }, this);
-    }
+    } 
 }

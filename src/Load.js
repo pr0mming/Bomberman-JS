@@ -21,6 +21,8 @@ Game.Load.prototype = {
         this.load.spritesheet('snow', 'resources/enemies/snow.png', 16, 16);
         this.load.spritesheet('barrel', 'resources/enemies/barrel.png', 18, 16);
         this.load.spritesheet('cookie', 'resources/enemies/cookie.png', 17, 16);
+        this.load.spritesheet('ghost', 'resources/enemies/ghost.png', 16, 16);
+        this.load.spritesheet('bear', 'resources/enemies/bear.png', 16, 16);
         this.load.spritesheet('coin', 'resources/enemies/money.png', 16, 16);
         this.load.spritesheet('explosion-center', 'resources/bomb/explosion/explosion-center.png', 18, 18);
         this.load.spritesheet('explosion-upper-lenght', 'resources/bomb/explosion/explosion-upper-lenght.png', 18, 18);

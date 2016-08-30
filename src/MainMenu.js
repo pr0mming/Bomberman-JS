@@ -28,8 +28,9 @@ Game.MainMenu.prototype = {
             
             stage.stage_points = stage.points;
             stage.stage_time = stage.time;
+            stage.status = 'start';
             
-            this.state.start('ChangeStage', true, false, 'start', stage);
+            this.state.start('ChangeStage', true, false, stage);
         }, this);
         
         this.continue = this.add.text((this.game.world.centerX + 90), (this.game.world.centerY + 170), 'CONTINUE', {

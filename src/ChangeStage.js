@@ -5,8 +5,7 @@ Game.ChangeStage = function(game) {};
 
 Game.ChangeStage.prototype = {
     
-    init: function(status, stage) {
-        this.status = status;
+    init: function(stage) {
         this.stage = stage;
     },
     
@@ -17,16 +16,16 @@ Game.ChangeStage.prototype = {
         this.start_stage = this.time.create(false);
         this.start_stage.seconds = 0;
 
-        if (this.status == 'restart') {
+        if (this.stage.status == 'restart') {
             this.restartGame();
         } else
-            if (this.status == 'game-over') {
+            if (this.stage.status == 'game-over') {
                 this.endGame();
             } else
-                if (this.status == 'next-stage') {
+                if (this.stage.status == 'next-stage') {
                     this.nextStage();
                 } else
-                    if (this.status == 'start') {
+                    if (this.stage.status == 'start') {
                         this.startGame();
                     }
     },
