@@ -4,68 +4,72 @@
 Game.MainMenu = function(game) {};
 
 Game.MainMenu.prototype = {
+    
     create: function() {
-        this.title = this.add.sprite((this.game.world.centerX - 340), (this.game.world.centerY - 260), 'menu-title');
-        this.title.scale.setTo(3.0, 3.0);
+        this.world.setBounds(0, 0, this.game.width, this.game.height);
         
-        this.start = this.add.text((this.game.world.centerX - 180), (this.game.world.centerY + 170), 'START', {
+        var title = this.add.sprite((this.game.world.centerX - 340), (this.game.world.centerY - 260), 'menu-title');
+            title.smoothed = false;
+            title.scale.setTo(3.0, 3.0);
+        
+        var start = this.add.text((this.game.world.centerX - 180), (this.game.world.centerY + 170), 'START', {
             font: '19px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
-        this.start.inputEnabled = true;
-        this.start.events.onInputDown.add(function(){
+        start.inputEnabled = true;
+        start.events.onInputDown.add(function(){
             this.sound.stopAll();
             
-            var stage = {
+            var stageBomberman = {
                 stage: 1,
                 lives: 3,
                 points: 0,
                 time: 190,
+                status: 'start',
                 stage_enemies: [['ballon'], ['ballon', 'snow'], ['snow', 'cookie'], ['cookie', 'ghost'], ['barrel', 'bear']]
             };
             
-            stage.stage_points = stage.points;
-            stage.stage_time = stage.time;
-            stage.status = 'start';
+            stageBomberman.stage_points = stageBomberman.points;
+            stageBomberman.stage_time = stageBomberman.time;
             
-            this.state.start('ChangeStage', true, false, stage);
+            this.state.start('ChangeStage', true, false, stageBomberman);
         }, this);
         
-        this.continue = this.add.text((this.game.world.centerX + 90), (this.game.world.centerY + 170), 'CONTINUE', {
+        var continueGame = this.add.text((this.game.world.centerX + 90), (this.game.world.centerY + 170), 'CONTINUE', {
             font : '19px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
-        this.continue.inputEnable = true;
-        this.continue.events.onInputDown.add(function() {
+        continueGame.inputEnable = true;
+        continueGame.events.onInputDown.add(function() {
             
         }, this);
         
-        this.top = this.add.text((this.game.world.centerX - 180), (this.game.world.centerY + 200), 'TOP', {
+        var top = this.add.text((this.game.world.centerX - 180), (this.game.world.centerY + 200), 'TOP', {
             font : '19px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
         
-        this.hight_score = this.add.text((this.game.world.centerX + 90), (this.game.world.centerY + 200), (localStorage.getItem('HightScore') || 0), {
+        var hightScore = this.add.text((this.game.world.centerX + 90), (this.game.world.centerY + 200), (localStorage.getItem('HightScore') || 0), {
             font : '19px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
         
-        this.description = this.add.text((this.game.world.centerX - 260), (this.game.world.centerY + 250), 'This application is developed in JavaScript using Phaser.js.\n has not been tested in other browsers except Mozilla Firefox', {
+        var description = this.add.text((this.game.world.centerX - 260), (this.game.world.centerY + 250), 'This application is developed in JavaScript using Phaser.js.\n has not been tested in other browsers except Mozilla Firefox', {
             font : '12px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
         
-        this.sound_title_screen = this.add.audio('title-screen');
-        this.sound_title_screen.loopFull();
+        var soundTitleScreen = this.add.audio('title-screen');
+        soundTitleScreen.loopFull();
     }
 }

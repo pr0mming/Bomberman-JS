@@ -5,73 +5,73 @@ Game.ChangeStage = function(game) {};
 
 Game.ChangeStage.prototype = {
     
-    init: function(stage) {
-        this.stage = stage;
+    init: function(stageBomberman) {
+        this._stageBomberman = stageBomberman;
     },
     
     create: function() {
         this.sound.stopAll();
         this.game.stage.backgroundColor = '#000000';
         
-        this.start_stage = this.time.create(false);
-        this.start_stage.seconds = 0;
+        this._startStage = this.time.create(false);
+        this._startStage.seconds = 0;
 
-        if (this.stage.status == 'restart') {
+        if (this._stageBomberman.status == 'restart') {
             this.restartGame();
         } else
-            if (this.stage.status == 'game-over') {
+            if (this._stageBomberman.status == 'game-over') {
                 this.endGame();
             } else
-                if (this.stage.status == 'next-stage') {
+                if (this._stageBomberman.status == 'next-stage') {
                     this.nextStage();
                 } else
-                    if (this.stage.status == 'start') {
+                    if (this._stageBomberman.status == 'start') {
                         this.startGame();
                     }
     },
     
     startGame: function() {
-        var presentation_stage = this.add.text(this.game.width/2, this.game.height/2, 'STAGE '+this.stage.stage, {
+        var presentation_stage = this.add.text(this.game.width/2, this.game.height/2, 'STAGE '+this._stageBomberman.stage, {
             font: '15px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
         
-        this.sound_level_start = this.add.audio('level-start');
-        this.sound_level_start.play();
+        this._soundLevelStart = this.add.audio('level-start');
+        this._soundLevelStart.play();
         
-        this.start_stage.loop(1000, function() {
-            this.start_stage.seconds++;
-            if (this.start_stage.seconds >= 4) {
-                this.start_stage.stop(false);
-                this.state.start('Game', true, false, this.stage);
+        this._startStage.loop(1000, function() {
+            this._startStage.seconds++;
+            if (this._startStage.seconds >= 4) {
+                this._startStage.stop(false);
+                this.state.start('Game', true, false, this._stageBomberman);
             }
         }, this);
         
-        this.start_stage.start();
+        this._startStage.start();
     },
     
     restartGame: function() {
-        var presentation_stage = this.add.text(this.game.width/2, this.game.height/2, 'STAGE '+this.stage.stage, {
+        var presentation_stage = this.add.text(this.game.width/2, this.game.height/2, 'STAGE '+this._stageBomberman.stage, {
             font: '15px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
         
-        this.sound_level_start = this.add.audio('level-start');
-        this.sound_level_start.play();
+        this._soundLevelStart = this.add.audio('level-start');
+        this._soundLevelStart.play();
             
-        this.start_stage.loop(1000, function() {
-            this.start_stage.seconds++;
-            if (this.start_stage.seconds >= 4) {
-                this.start_stage.stop(false);
-                this.state.start('Game', true, false, this.stage);
+        this._startStage.loop(1000, function() {
+            this._startStage.seconds++;
+            if (this._startStage.seconds >= 4) {
+                this._startStage.stop(false);
+                this.state.start('Game', true, false, this._stageBomberman);
             }
         }, this);
         
-        this.start_stage.start();
+        this._startStage.start();
     },
     
     endGame: function() {
@@ -82,31 +82,32 @@ Game.ChangeStage.prototype = {
             strokeThickness: 2.5
         }); 
         
-        this.sound_game_over = this.add.audio('game-over');
-        this.sound_game_over.play();
+        this._soundGameOver = this.add.audio('game-over');
+        this._soundGameOver.play();
             
-        this.start_stage.loop(1000, function() {
-            this.start_stage.seconds++;
-            if (this.start_stage.seconds >= 7) {
-                this.start_stage.stop(false);
+        this._startStage.loop(1000, function() {
+            this._startStage.seconds++;
+            if (this._startStage.seconds >= 7) {
+                this._startStage.stop(false);
                 this.state.start('MainMenu');
             }
         }, this);
                 
-        this.start_stage.start();
+        this._startStage.start();
     },
     
     nextStage: function() {
-        this.stage.stage++;
-        var presentation_stage = this.add.text(this.game.width/2, this.game.height/2, 'STAGE '+this.stage.stage, {
+        this._stageBomberman.stage++;
+        
+        var presentation_stage = this.add.text(this.game.width/2, this.game.height/2, 'STAGE '+this._stageBomberman.stage, {
             font: '15px BitBold',
             fill: 'white',
             stroke: 'black',
             strokeThickness: 2.5
         });
         
-        this.sound_level_start = this.add.audio('level-start');
-        this.sound_level_start.play();
+        this._soundLevelStart = this.add.audio('level-start');
+        this._soundLevelStart.play();
         
         var rows = 11,
             cols = 35,
@@ -123,30 +124,30 @@ Game.ChangeStage.prototype = {
                     coords.push(x+','+y);
         }
         
-        for (var i in this.stage.map) {
+        for (var i in this._stageBomberman.map) {
             var coord = coords[this.rnd.integerInRange(0, coords.length - 1)].split(','),
-                index = specialities.indexOf(this.stage.map[i].name);
+                index = specialities.indexOf(this._stageBomberman.map[i].name);
             
             if (index != -1) {
-                var brick = this.stage.map.map((object) => { return object.name; }, this).indexOf(specialities[index]+'-brick');
-                this.stage.map[brick].x = parseInt(coord[0]);
-                this.stage.map[brick].y = parseInt(coord[1]);
+                var brick = this._stageBomberman.map.map((object) => { return object.name; }, this).indexOf(specialities[index]+'-brick');
+                this._stageBomberman.map[brick].x = parseInt(coord[0]);
+                this._stageBomberman.map[brick].y = parseInt(coord[1]);
             }
             
-            this.stage.map[i].x = parseInt(coord[0]);
-            this.stage.map[i].y = parseInt(coord[1]);
+            this._stageBomberman.map[i].x = parseInt(coord[0]);
+            this._stageBomberman.map[i].y = parseInt(coord[1]);
             
             coords.splice(coords.indexOf(coord.join(',')), 1);
         }
 
-        this.start_stage.loop(1000, function() {
-            this.start_stage.seconds++;
-            if (this.start_stage.seconds >= 4) {
-                this.start_stage.stop(false);
-                this.state.start('Game', true, false, this.stage);
+        this._startStage.loop(1000, function() {
+            this._startStage.seconds++;
+            if (this._startStage.seconds >= 4) {
+                this._startStage.stop(false);
+                this.state.start('Game', true, false, this._stageBomberman);
             }
         }, this);
 
-        this.start_stage.start();
+        this._startStage.start();
     }
 }

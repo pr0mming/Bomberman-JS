@@ -1,9 +1,9 @@
 /*
     This application was developed by @pr0mming with the intention of learning more about the Phaser Framework known. You can see my work at: https://github.com/pr0mming
 */
-Game.Load = function(game) {};
+Game.Preloader = function(game) {};
 
-Game.Load.prototype = {
+Game.Preloader.prototype = {
     
     preload: function() {
         this.load.tilemap('world', 'resources/game-map/playing-environment.json', null, Phaser.Tilemap.TILED_JSON);

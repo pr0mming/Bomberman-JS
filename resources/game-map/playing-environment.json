@@ -1408,6 +1408,29 @@
          "width":0,
          "x":0,
          "y":0
+        },
+        {
+         "draworder":"topdown",
+         "height":145,
+         "name":"Crossroads",
+         "objects":[
+                {
+                 "height":6.66666666666667,
+                 "id":141,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":13.6666666666667,
+                 "x":55.3333333333333,
+                 "y":116.666666666667
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "width":296,
+         "x":0,
+         "y":0
         }],
  "nextobjectid":137,
  "orientation":"orthogonal",
