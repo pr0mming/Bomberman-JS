@@ -1,3 +1,5 @@
+![gameimg](https://user-images.githubusercontent.com/20020612/43007716-c1ba24e0-8bfe-11e8-85f6-45b7c6da2689.png)
+
 # Bomberman-JS
 A small simulator popular game Bomberman (NES) developed in JavaScript using <a href="http://phaser.io/">Phaser.js (v2.6.1)</a>
 
