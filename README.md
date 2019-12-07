@@ -1,4 +1,4 @@
-![gameimg](https://user-images.githubusercontent.com/20020612/43007716-c1ba24e0-8bfe-11e8-85f6-45b7c6da2689.png)
+![gameimg](https://user-images.githubusercontent.com/20020612/43007716-c1ba24e0-8bfe-11e8-85f6-45b7c6da2689.png)])
 
 # Bomberman-JS
 A small simulator popular game Bomberman (NES) developed in JavaScript using <a href="http://phaser.io/">Phaser.js (v2.6.1)</a>
@@ -17,3 +17,5 @@ open /Applications/Google\ Chrome.app/ --args --allow-file-access-from-files
 **Direction Keys:** Move the character
 **X Key:** Put an bomb
 **Space Bar:** Exploit an bomb 
+
+# Demo: [YouTube](https://www.youtube.com/watch?v=W5vcOb7laG0)
