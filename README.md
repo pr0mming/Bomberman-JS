@@ -18,5 +18,5 @@ open /Applications/Google\ Chrome.app/ --args --allow-file-access-from-files
 **X Key:** Put an bomb
 **Space Bar:** Exploit an bomb 
 
-# Demo: 
-[in YouTube](https://www.youtube.com/watch?v=W5vcOb7laG0)
+# Demo
+Simple demostration in [YouTube](https://www.youtube.com/watch?v=W5vcOb7laG0)
