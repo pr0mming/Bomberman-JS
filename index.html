@@ -1,24 +1,24 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <link rel="icon" type="image/png" href="resources/icons/js.png">
-    <link href="css/Style.css" type="text/css" rel="stylesheet">
-    <script type="text/javascript" src="src/lib/phaser.js"></script>
-    <script type="text/javascript" src="src/Boot.js"></script>
-    <script type="text/javascript" src="src/Preloader.js"></script>
-    <script type="text/javascript" src="src/MainMenu.js"></script>
-    <script type="text/javascript" src="src/Game.js"></script>
-    <script type="text/javascript" src="src/ChangeStage.js"></script>
-    <script type="text/javascript" src="src/Configuration.js"></script>
-    <title>Bomberman</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- Preload font to use in Phaser.js, otherwise it will be taken as a fallback (I don't know the reason) -->
+    <link rel="preload" as="font" href="/fonts/BitBold.ttf" crossorigin />
+    <link rel="stylesheet" href="/styles/global.css" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bomberman (NES)</title>
   </head>
   <body>
-      <div id="bomberman"></div>
-      <div id="icon">
-        <a href="https://github.com/pr0mming">
-            <img src="resources/icons/github.png" id="github" width="40" height="40" alt="GitHub">
-        </a>
+    <main>
+      <div id="bomberman-container"></div>
+
+      <div>
+        <section class="game-controls"></section>
       </div>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

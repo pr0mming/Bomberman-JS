@@ -1,0 +1,37 @@
+{
+  "name": "bomberman-js",
+  "private": true,
+  "version": "2.0.0",
+  "description": "A small simulator popular game Bomberman (NES) developed in JavaScript using Phaser.js",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.mjs",
+    "build": "tsc && vite build --config vite.config.mjs",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pr0mming/Bomberman-JS.git"
+  },
+  "author": "pr0mming",
+  "bugs": {
+    "url": "https://github.com/pr0mming/Bomberman-JS/issues"
+  },
+  "homepage": "https://github.com/pr0mming/Bomberman-JS#readme",
+  "dependencies": {
+    "phaser": "^3.80.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.2.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
+    "eslint": "^8.57.0",
+    "globals": "^15.1.0",
+    "prettier": "3.2.5",
+    "terser": "^5.31.0",
+    "typescript": "^5.2.2",
+    "typescript-eslint": "^7.8.0",
+    "vite": "^5.2.0"
+  }
+}
