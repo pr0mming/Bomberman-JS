@@ -4,6 +4,7 @@ import { Boot } from '@game/Boot';
 import { Preloader } from '@game/Preloader';
 import { MainMenu } from '@game/scenes/MainMenu';
 import { ChangeStage } from '@game/scenes/ChangeStage';
+import { Game as BombermanGame } from '@game/scenes/Game';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
@@ -11,11 +12,12 @@ const config: Phaser.Types.Core.GameConfig = {
   height: 680,
   parent: 'bomberman-container',
   backgroundColor: '#000000',
+  antialias: true,
   physics: {
     default: 'arcade',
     arcade: { debug: false }
   },
-  scene: [Boot, Preloader, MainMenu, ChangeStage]
+  scene: [Boot, Preloader, MainMenu, ChangeStage, BombermanGame]
 };
 
 export default new Game(config);

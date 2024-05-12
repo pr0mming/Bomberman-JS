@@ -3,7 +3,6 @@ import { IBombermanStage } from '@game/common/IBombermanStage';
 import { IPrepareUIParameters } from '@game/common/IPrepareUIParameters';
 
 export class ChangeStage extends Scene {
-  _sceneDelay: number = 0;
   _stageBomberman?: IBombermanStage;
 
   constructor() {
@@ -70,21 +69,19 @@ export class ChangeStage extends Scene {
 
     this.sound.play(soundKey);
 
-    const sceneTimer = new Phaser.Time.TimerEvent({
+    const _sceneTimer = this.time.addEvent({
       delay: 1000,
+      repeat: delay,
       callback: () => {
-        this._sceneDelay++;
+        const { repeatCount } = _sceneTimer;
 
-        if (this._sceneDelay >= delay) {
-          sceneTimer.remove();
+        if (repeatCount <= 0) {
+          _sceneTimer.paused = true;
           this.scene.start('Game', this._stageBomberman);
         }
       },
-      callbackScope: this,
-      loop: true
+      callbackScope: this
     });
-
-    this.time.addEvent(sceneTimer);
   }
 
   recalculateNextMap() {

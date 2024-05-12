@@ -43,6 +43,6 @@ npm run preview
 
 ## References :books:
 
-- [Phaser Vite + TypeScript Template](https://github.com/phaserjs/template-vite/tree/main)
+- [Phaser Vite Template](https://github.com/phaserjs/template-vite/tree/main)
 - [Phaser v3 Games Demo](https://labs.phaser.io/index.html?dir=games/&q=)
 - [TiledMap Editor](https://www.mapeditor.org/)

@@ -24,7 +24,7 @@ export class MainMenu extends Scene {
       .setOrigin(0.5)
       .setScale(2.5);
 
-    const start = this.add
+    const startButton = this.add
       .text(
         this.cameras.main.centerX - 180,
         this.cameras.main.centerY + 160,
@@ -33,36 +33,53 @@ export class MainMenu extends Scene {
       .setFontFamily('"BitBold", "Tahoma"')
       .setFontSize(20)
       .setColor('white')
-      .setStroke('black', 2.5);
+      .setStroke('black', 2.5)
+      .setInteractive({ useHandCursor: true })
+      // Event to start a new game
+      .on(
+        Phaser.Input.Events.POINTER_OVER,
+        () => {
+          startButton.setFontSize(21).setColor('#bdbd16');
+        },
+        this
+      )
+      .on(
+        Phaser.Input.Events.POINTER_OUT,
+        () => {
+          startButton.setFontSize(20).setColor('white');
+        },
+        this
+      )
+      .on(
+        Phaser.Input.Events.POINTER_DOWN,
+        () => {
+          this.sound.stopAll();
 
-    // Event to start a new game
-    start.on(
-      Phaser.Input.Events.POINTER_DOWN,
-      () => {
-        this.sound.stopAll();
+          const stageBomberman: IBombermanStage = {
+            stage: 1,
+            lives: 3,
+            points: 0,
+            time: 190,
+            status: 'start',
+            stage_enemies: [
+              ['ballon'],
+              ['ballon', 'snow'],
+              ['snow', 'cookie'],
+              ['cookie', 'ghost'],
+              ['barrel', 'bear']
+            ],
+            stage_points: 0,
+            stage_time: 0,
+            map: []
+          };
 
-        const stageBomberman: IBombermanStage = {
-          stage: 1,
-          lives: 3,
-          points: 0,
-          time: 190,
-          status: 'start',
-          stage_enemies: [
-            ['ballon'],
-            ['ballon', 'snow'],
-            ['snow', 'cookie'],
-            ['cookie', 'ghost'],
-            ['barrel', 'bear']
-          ]
-        };
-
-        this.scene.start('ChangeStage', stageBomberman);
-      },
-      this
-    );
+          this.scene.start('ChangeStage', stageBomberman);
+        },
+        this
+      );
 
     // New feature
-    this.add
+    const continueButton = this.add
       .text(
         this.cameras.main.centerX + 90,
         this.cameras.main.centerY + 160,
@@ -71,7 +88,22 @@ export class MainMenu extends Scene {
       .setFontFamily('"BitBold", "Tahoma"')
       .setFontSize(20)
       .setColor('white')
-      .setStroke('black', 2.5);
+      .setStroke('black', 2.5)
+      .setInteractive({ useHandCursor: true })
+      .on(
+        Phaser.Input.Events.POINTER_OVER,
+        () => {
+          continueButton.setFontSize(21).setColor('#bdbd16');
+        },
+        this
+      )
+      .on(
+        Phaser.Input.Events.POINTER_OUT,
+        () => {
+          continueButton.setFontSize(20).setColor('white');
+        },
+        this
+      );
 
     //continueGame.events.onInputDown.add(function () {}, this);
 
