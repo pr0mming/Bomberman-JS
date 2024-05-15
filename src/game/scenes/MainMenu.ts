@@ -1,5 +1,5 @@
-import { IBombermanStage } from '@game/common/IBombermanStage';
 import { Scene, VERSION } from 'phaser';
+import getInitialBombermanStage from '@game/common/functions/getInitialBombermanStage';
 
 /**
  * The menu screen to choose any option to start the game
@@ -18,16 +18,15 @@ export class MainMenu extends Scene {
     this.add
       .sprite(
         this.cameras.main.centerX,
-        this.cameras.main.centerY - 50,
+        this.cameras.main.centerY - 80,
         'menu-title'
       )
-      .setOrigin(0.5)
-      .setScale(2.5);
+      .setScale(2.4);
 
     const startButton = this.add
       .text(
         this.cameras.main.centerX - 180,
-        this.cameras.main.centerY + 160,
+        this.cameras.main.centerY + 120,
         'START'
       )
       .setFontFamily('"BitBold", "Tahoma"')
@@ -35,7 +34,7 @@ export class MainMenu extends Scene {
       .setColor('white')
       .setStroke('black', 2.5)
       .setInteractive({ useHandCursor: true })
-      // Event to start a new game
+      // UI effects
       .on(
         Phaser.Input.Events.POINTER_OVER,
         () => {
@@ -50,28 +49,13 @@ export class MainMenu extends Scene {
         },
         this
       )
+      // Event to start a new game
       .on(
         Phaser.Input.Events.POINTER_DOWN,
         () => {
           this.sound.stopAll();
 
-          const stageBomberman: IBombermanStage = {
-            stage: 1,
-            lives: 3,
-            points: 0,
-            time: 190,
-            status: 'start',
-            stage_enemies: [
-              ['ballon'],
-              ['ballon', 'snow'],
-              ['snow', 'cookie'],
-              ['cookie', 'ghost'],
-              ['barrel', 'bear']
-            ],
-            stage_points: 0,
-            stage_time: 0,
-            map: []
-          };
+          const stageBomberman = getInitialBombermanStage();
 
           this.scene.start('ChangeStage', stageBomberman);
         },
@@ -82,7 +66,7 @@ export class MainMenu extends Scene {
     const continueButton = this.add
       .text(
         this.cameras.main.centerX + 90,
-        this.cameras.main.centerY + 160,
+        this.cameras.main.centerY + 120,
         'CONTINUE'
       )
       .setFontFamily('"BitBold", "Tahoma"')
@@ -110,7 +94,7 @@ export class MainMenu extends Scene {
     this.add
       .text(
         this.cameras.main.centerX - 180,
-        this.cameras.main.centerY + 190,
+        this.cameras.main.centerY + 150,
         'TOP'
       )
       .setFontFamily('"BitBold", "Tahoma"')
@@ -124,7 +108,7 @@ export class MainMenu extends Scene {
     this.add
       .text(
         this.cameras.main.centerX + 90,
-        this.cameras.main.centerY + 190,
+        this.cameras.main.centerY + 150,
         highScore.toString()
       )
       .setFontFamily('"BitBold", "Tahoma"')
@@ -135,7 +119,7 @@ export class MainMenu extends Scene {
     this.add
       .text(
         this.cameras.main.centerX,
-        this.cameras.main.centerY + 260,
+        this.cameras.main.centerY + 220,
         `This little game was born as an inspiration \n to learn about the awesome universe of the Web Game Development`
       )
       .setOrigin(0.5)
@@ -148,7 +132,7 @@ export class MainMenu extends Scene {
     this.add
       .text(
         this.cameras.main.centerX,
-        this.cameras.main.centerY + 290,
+        this.cameras.main.centerY + 250,
         `Phaser ${VERSION} ❤️`
       )
       .setOrigin(0.5)

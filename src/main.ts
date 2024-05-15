@@ -9,7 +9,7 @@ import { Game as BombermanGame } from '@game/scenes/Game';
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
   width: 1024,
-  height: 680,
+  height: 580,
   parent: 'bomberman-container',
   backgroundColor: '#000000',
   antialias: true,
