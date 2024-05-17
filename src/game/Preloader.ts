@@ -15,9 +15,9 @@ export class Preloader extends Scene {
     // Load spritesheets and other assets
     this.load.image('playing-environment', '/game/map/environment.png');
     this.load.image('door', '/game/images/door.png');
-    this.load.image('power-1', '/game/images/powers/power1.png');
-    this.load.image('power-2', '/game/images/powers/power2.png');
-    this.load.image('power-3', '/game/images/powers/power3.png');
+    this.load.image('bomb-up', '/game/images/powers/bomb-up.png');
+    this.load.image('fire-up', '/game/images/powers/fire-up.png');
+    this.load.image('remote-control', '/game/images/powers/remote-control.png');
     this.load.image('menu-title', '/game/images/menu-title.png');
 
     this.load.spritesheet(
@@ -44,31 +44,31 @@ export class Preloader extends Scene {
       frameWidth: 18,
       frameHeight: 18
     });
-    this.load.spritesheet('ballon', '/game/sprites/enemies/ballon.png', {
+    this.load.spritesheet('ballom', '/game/sprites/enemies/ballom.png', {
       frameWidth: 16,
       frameHeight: 18
     });
-    this.load.spritesheet('snow', '/game/sprites/enemies/snow.png', {
+    this.load.spritesheet('onil', '/game/sprites/enemies/onil.png', {
       frameWidth: 16,
       frameHeight: 16
     });
-    this.load.spritesheet('barrel', '/game/sprites/enemies/barrel.png', {
-      frameWidth: 18,
-      frameHeight: 16
-    });
-    this.load.spritesheet('cookie', '/game/sprites/enemies/cookie.png', {
+    this.load.spritesheet('minvo', '/game/sprites/enemies/minvo.png', {
       frameWidth: 17,
       frameHeight: 16
     });
-    this.load.spritesheet('ghost', '/game/sprites/enemies/ghost.png', {
+    this.load.spritesheet('dahl', '/game/sprites/enemies/dahl.png', {
+      frameWidth: 18,
+      frameHeight: 16
+    });
+    this.load.spritesheet('ovape', '/game/sprites/enemies/ovape.png', {
       frameWidth: 16,
       frameHeight: 16
     });
-    this.load.spritesheet('bear', '/game/sprites/enemies/bear.png', {
+    this.load.spritesheet('pass', '/game/sprites/enemies/pass.png', {
       frameWidth: 16,
       frameHeight: 16
     });
-    this.load.spritesheet('coin', '/game/sprites/enemies/money.png', {
+    this.load.spritesheet('pontan', '/game/sprites/enemies/pontan.png', {
       frameWidth: 16,
       frameHeight: 16
     });

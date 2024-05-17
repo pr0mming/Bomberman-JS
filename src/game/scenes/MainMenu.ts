@@ -1,5 +1,5 @@
 import { Scene, VERSION } from 'phaser';
-import getInitialBombermanStage from '@game/common/functions/getInitialBombermanStage';
+import getInitialBombermanStage from '@src/game/common/helpers/getInitialBombermanStage';
 
 /**
  * The menu screen to choose any option to start the game
