@@ -9,12 +9,14 @@ interface IBombGroupProps {
 
 export class BombGroup extends Physics.Arcade.Group {
   private _timers: Map<number, Time.TimerEvent>;
+
   private _explosionLength: number;
   private _maxAmountBombs: number;
 
   private _timePutBomb: number;
   private _timeExplosion: number;
 
+  private _explosion: Physics.Arcade.Group;
   private _explosionProperties: any;
   private _explosionLengthProperties: any;
 
@@ -37,6 +39,8 @@ export class BombGroup extends Physics.Arcade.Group {
     this._timeExplosion = 10 * 1000;
 
     const distance = 23;
+
+    this._explosion = this.scene.physics.add.group();
 
     this._explosionProperties = [
       [0, 0, 'explosion-center'],
@@ -66,10 +70,6 @@ export class BombGroup extends Physics.Arcade.Group {
 
       this.add(newBomb, true);
 
-      // this._brickPosition.push(
-      //   Math.round(_element.body.x) + ',' + Math.round(_element.body.y)
-      // );
-
       const _timerPutBomb = this._timers.get(TIMER_GAME_ENUM.PUT_BOMB);
       const _timerExloitBomb = this._timers.get(TIMER_GAME_ENUM.EXPLOIT_BOMB);
 
@@ -89,8 +89,6 @@ export class BombGroup extends Physics.Arcade.Group {
       const bomb = this.getFirstAlive();
 
       bomb.active = false;
-
-      const _explosion = this.scene.add.group();
 
       for (let i = 0; i < this._explosionProperties.length; i++) {
         let x = bomb.body.x + this._explosionProperties[i][0];
@@ -123,7 +121,7 @@ export class BombGroup extends Physics.Arcade.Group {
           x += this._explosionProperties[i][0];
           y += this._explosionProperties[i][1];
 
-          _explosion.add(explosion_extension);
+          this._explosion.add(explosion_extension);
         }
 
         const explosion_fragment = this.scene.physics.add.sprite(
@@ -198,6 +196,10 @@ export class BombGroup extends Physics.Arcade.Group {
     const _timerExloitBomb = this._timers.get(TIMER_GAME_ENUM.EXPLOIT_BOMB);
 
     return _timerExloitBomb?.paused;
+  }
+
+  public get explosion() {
+    return this._explosion;
   }
 
   public get explosionLength() {

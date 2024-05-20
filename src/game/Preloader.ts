@@ -15,9 +15,12 @@ export class Preloader extends Scene {
     // Load spritesheets and other assets
     this.load.image('playing-environment', '/game/map/environment.png');
     this.load.image('door', '/game/images/door.png');
-    this.load.image('bomb-up', '/game/images/powers/bomb-up.png');
-    this.load.image('fire-up', '/game/images/powers/fire-up.png');
-    this.load.image('remote-control', '/game/images/powers/remote-control.png');
+    this.load.image('bomb-up', '/game/images/power-up/bomb-up.png');
+    this.load.image('fire-up', '/game/images/power-up/fire-up.png');
+    this.load.image(
+      'remote-control',
+      '/game/images/power-up/remote-control.png'
+    );
     this.load.image('menu-title', '/game/images/menu-title.png');
 
     this.load.spritesheet(
@@ -40,7 +43,7 @@ export class Preloader extends Scene {
       frameWidth: 18,
       frameHeight: 18
     });
-    this.load.spritesheet('brick', '/game/sprites/brick/brick.png', {
+    this.load.spritesheet('wall', '/game/sprites/wall/wall.png', {
       frameWidth: 18,
       frameHeight: 18
     });

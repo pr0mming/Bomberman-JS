@@ -1,12 +1,12 @@
-import { Physics, Scene, Types } from 'phaser';
+import { Physics, Scene } from 'phaser';
 import { Enemy } from '@src/game/sprites/enemy/Enemy';
 import { LEVEL_ENUM } from '@src/game/common/enums/LevelEnum';
 import getEnemyLevels from '@src/game/common/helpers/getEnemyLevels';
 import getEnemies from '@src/game/common/helpers/getEnemies';
-import { IEnemy } from '@src/game/common/interfaces/IEnemy';
-import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
 import { IMapPosition } from '@src/game/common/interfaces/IMapPosition';
 import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
+import { IEnemy } from '@src/game/common/interfaces/IEnemy';
+import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
 
 interface IEnemyGroupProps {
   world: Physics.Arcade.World;
@@ -21,7 +21,7 @@ export class EnemyGroup extends Physics.Arcade.Group {
   private _directions: ENEMY_DIRECTION_ENUM[];
 
   constructor({ world, scene, level, positions }: IEnemyGroupProps) {
-    super(world, scene, {});
+    super(world, scene);
 
     this._level = level;
     this._positions = positions;
@@ -55,8 +55,10 @@ export class EnemyGroup extends Physics.Arcade.Group {
         enemy = Array.from(enemies.values())[0];
       }
 
+      this._createAnimations(enemyInput.type, enemy);
+
       for (let i = 0; i < enemyInput.quantity; i++) {
-        const index = Math.floor(Math.random() * this._positions.length);
+        const index = Phaser.Math.RND.between(0, this._positions.length - 1);
         const chosenPos = this._positions[index];
 
         const newEnemy = new Enemy({
@@ -67,7 +69,7 @@ export class EnemyGroup extends Physics.Arcade.Group {
           enemy
         });
 
-        this.add(newEnemy);
+        this.add(newEnemy, true);
       }
     }
 
@@ -78,20 +80,53 @@ export class EnemyGroup extends Physics.Arcade.Group {
     });
   }
 
-  private _executeRandomDecision(enemy: Physics.Arcade.Sprite) {
-    const index = Math.floor(Math.random() * this._directions.length);
+  private _createAnimations(type: ENEMY_ENUM, enemy: IEnemy) {
+    const framesLeft = type === ENEMY_ENUM.PONTAN ? [0, 1, 2, 3, 4] : [0, 1, 2];
+    const framesRight =
+      type === ENEMY_ENUM.PONTAN ? [7, 8, 9, 10, 11] : [0, 1, 2];
+    const framesDead = type === ENEMY_ENUM.PONTAN ? [5, 6] : [3];
+
+    this.scene.anims.create({
+      key: `${type}-left`,
+      frames: this.scene.anims.generateFrameNumbers(enemy.textureKey, {
+        frames: framesLeft
+      }),
+      frameRate: 6,
+      repeat: -1
+    });
+
+    this.scene.anims.create({
+      key: `${type}-right`,
+      frames: this.scene.anims.generateFrameNumbers(enemy.textureKey, {
+        frames: framesRight
+      }),
+      frameRate: 6,
+      repeat: -1
+    });
+
+    this.scene.anims.create({
+      key: `${type}-dead`,
+      frames: this.scene.anims.generateFrameNumbers(enemy.textureKey, {
+        frames: framesDead
+      }),
+      frameRate: 6
+    });
+  }
+
+  executeRandomDecision(enemy: Physics.Arcade.Sprite) {
+    const index = Phaser.Math.RND.between(0, this._directions.length - 1);
 
     const directionToTake = this._directions[index];
 
     switch (directionToTake) {
       case ENEMY_DIRECTION_ENUM.LEFT:
       case ENEMY_DIRECTION_ENUM.DOWN:
-        enemy.anims.play('left');
+        enemy.play(enemy.getData('animLeftKey'));
         break;
 
       case ENEMY_DIRECTION_ENUM.RIGH:
       case ENEMY_DIRECTION_ENUM.UP:
-        enemy.anims.play('right');
+        enemy.play(enemy.getData('animRightKey'));
         break;
 
       default:

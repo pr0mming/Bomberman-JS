@@ -1,4 +1,4 @@
-import { GameObjects, Scene, Time } from 'phaser';
+import { GameObjects, Physics, Scene, Time } from 'phaser';
 
 // Common types
 import { IBombermanStage } from '@game/common/interfaces/IBombermanStage';
@@ -45,7 +45,8 @@ export class Game extends Scene {
 
   create() {
     this._mapManager = new MapManager({
-      scene: this
+      scene: this,
+      world: this.physics.world
     });
 
     this._bombGroup = new BombGroup({
@@ -65,59 +66,74 @@ export class Game extends Scene {
       scene: this,
       world: this.physics.world,
       level: LEVEL_ENUM.ONE,
-      positions: []
+      positions: this._mapManager.freePositions
     });
 
     this.createStatistics();
 
     this.physics.add.collider(this._player, this._mapManager.mapLayer);
-    this.physics.add.collider(this._player, this._mapManager.bricks);
+    this.physics.add.collider(this._player, this._mapManager.wallsGroup);
     this.physics.add.collider(this._player, this._bombGroup);
     this.physics.add.collider(this._enemiesGroup, this._bombGroup);
 
-    // this.physics.add.collider(
-    //   this._enemies,
-    //   this._layer,
-    //   undefined,
-    //   (enemy) => {
-    //     const _enemy = enemy as Types.Physics.Arcade.SpriteWithDynamicBody;
+    this.physics.add.collider(
+      this._enemiesGroup,
+      this._mapManager.mapLayer,
+      undefined,
+      (enemy) => {
+        const _enemy = enemy as Physics.Arcade.Sprite;
 
-    //     return _enemy.getData('physicsLayer') as boolean;
-    //   },
-    //   this
-    // );
+        return !(_enemy.getData('hasWallPassPowerUp') as boolean);
+      },
+      this
+    );
 
-    // this.physics.add.collider(
-    //   this._enemies,
-    //   this._brick,
-    //   undefined,
-    //   (enemy) => {
-    //     const _enemy = enemy as Types.Physics.Arcade.SpriteWithDynamicBody;
+    this.physics.add.collider(
+      this._enemiesGroup,
+      this._mapManager.wallsGroup,
+      undefined,
+      (enemy) => {
+        const _enemy = enemy as Physics.Arcade.Sprite;
 
-    //     return _enemy.getData('physicsLaphysicsBrickyer') as boolean;
-    //   },
-    //   this
-    // );
+        return !(_enemy.getData('hasWallPassPowerUp') as boolean);
+      },
+      this
+    );
 
-    // this.physics.add.overlap(
-    //   this._bomberman,
-    //   this._enemies,
-    //   () => {
-    //     this.lose();
-    //   },
-    //   undefined,
-    //   this
-    // );
+    this.physics.add.overlap(
+      this._player,
+      this._enemiesGroup,
+      () => {
+        this.lose();
+      },
+      undefined,
+      this
+    );
 
-    // this.physics.add.overlap(
-    //   this._bomberman,
-    //   this._explosion,
-    //   () => {
-    //     this.lose();
-    //   },
-    //   undefined,
-    //   this
-    // );
+    this.physics.add.overlap(
+      this._player,
+      this._bombGroup.explosion,
+      () => {
+        this.lose();
+      },
+      undefined,
+      this
+    );
+
+    this.physics.add.overlap(
+      this._enemiesGroup,
+      this._mapManager.crossroads,
+      (enemy, b) => {
+        const _b = b as Physics.Arcade.Sprite;
+        const _enemy = enemy as Physics.Arcade.Sprite;
+
+        // console.log(_b.x, _b.y, _b.body?.x);
+
+        this._enemiesGroup.executeRandomDecision(_enemy);
+      },
+      undefined,
+      this
+    );
 
     // this.physics.add.overlap(
     //   this._explosion,
@@ -316,7 +332,6 @@ export class Game extends Scene {
 
     this._player.setImmovable(true);
 
-    //this._stageBomberman.map = this._map.objects;
     this._stageBomberman.points = this._stageBomberman.stage_points;
     this._stageBomberman.stage_points += 450;
     this._stageBomberman.status = 'next-stage';
@@ -366,7 +381,6 @@ export class Game extends Scene {
 
     const _timerLose = new Phaser.Time.TimerEvent({
       delay: 1000,
-      paused: true,
       repeat: 4,
       callback: () => {
         const { repeatCount } = _timerLose;

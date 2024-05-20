@@ -36,82 +36,10 @@ export class Player extends Physics.Arcade.Sprite {
     this.scene.cameras.main.startFollow(this);
   }
 
-  addControlsListener() {
-    if (this.body) {
-      this.setVelocity(0);
-
-      // Set up cursor keys to move the player on the "update" function of the Scene
-      if (this._controlsManager?.cursorKeys?.right.isDown) {
-        this.setVelocityX(this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.RIGH);
-
-        return;
-      }
-
-      if (this._controlsManager?.cursorKeys?.left.isDown) {
-        this.setVelocityX(-this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.LEFT);
-
-        return;
-      }
-
-      if (this._controlsManager?.cursorKeys?.up.isDown) {
-        this.setVelocityY(-this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.UP);
-
-        return;
-      }
-
-      if (this._controlsManager?.cursorKeys?.down.isDown) {
-        this.setVelocityY(this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.DOWN);
-
-        return;
-      }
-
-      // Set up put bomb control
-      if (this._controlsManager?.putBombControl?.isDown) {
-        this._bombGroup.putBomb(this.x, this.y);
-      }
-
-      // Set up exploit bomb control
-      if (this._controlsManager?.exploitBombControl?.isDown) {
-        this._bombGroup.exploitBomb();
-      }
-
-      // Stop current animation to avoid infinite loop ("walking")
-      if (this._direction != PLAYER_DIRECTION_ENUM.IDLE) {
-        this.anims.stop();
-        this._direction = PLAYER_DIRECTION_ENUM.IDLE;
-      }
-    }
-  }
-
-  // Destroy player with "style" of the scene
-  kill() {
-    this.enableBody(false);
-
-    this.anims.play({
-      key: 'die',
-      hideOnComplete: true
-    });
-
-    this.scene.game.sound.stopAll();
-    this.scene.sound.play('lose');
-
-    this.on(
-      Animations.Events.ANIMATION_COMPLETE_KEY,
-      () => {
-        this.scene.sound.play('just-died');
-      },
-      this
-    );
-  }
-
   // Play animation or frame by movement (left, right, up, down)
   private _playAnimationByKey(key: string) {
     if (this._direction != key) {
-      this.anims.play(key);
+      this.play(key);
       this._direction = key;
 
       return;
@@ -168,5 +96,78 @@ export class Player extends Physics.Arcade.Sprite {
       frames: this.anims.generateFrameNumbers('bomberman-dead'),
       frameRate: 8
     });
+  }
+
+  addControlsListener() {
+    if (!this.body?.immovable) {
+      this.setVelocity(0);
+
+      // Set up cursor keys to move the player on the "update" function of the Scene
+      if (this._controlsManager?.cursorKeys?.right.isDown) {
+        this.setVelocityX(this._speed);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.RIGH);
+
+        return;
+      }
+
+      if (this._controlsManager?.cursorKeys?.left.isDown) {
+        this.setVelocityX(-this._speed);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.LEFT);
+
+        return;
+      }
+
+      if (this._controlsManager?.cursorKeys?.up.isDown) {
+        this.setVelocityY(-this._speed);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.UP);
+
+        return;
+      }
+
+      if (this._controlsManager?.cursorKeys?.down.isDown) {
+        this.setVelocityY(this._speed);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.DOWN);
+
+        return;
+      }
+
+      // Set up put bomb control
+      if (this._controlsManager?.putBombControl?.isDown) {
+        this._bombGroup.putBomb(this.x, this.y);
+      }
+
+      // Set up exploit bomb control
+      if (this._controlsManager?.exploitBombControl?.isDown) {
+        this._bombGroup.exploitBomb();
+      }
+
+      // Stop current animation to avoid infinite loop ("walking")
+      if (this._direction != PLAYER_DIRECTION_ENUM.IDLE) {
+        this.anims.stop();
+        this._direction = PLAYER_DIRECTION_ENUM.IDLE;
+      }
+    }
+  }
+
+  // Destroy player with "style" of the scene
+  kill() {
+    this.setVelocity(0);
+    this.setImmovable(true);
+
+    this.anims.play({
+      key: 'die',
+      hideOnComplete: true
+    });
+
+    this.scene.game.sound.stopAll();
+    this.scene.sound.play('lose');
+
+    this.on(
+      Animations.Events.ANIMATION_COMPLETE_KEY,
+      () => {
+        this.scene.sound.play('just-died');
+      },
+      this
+    );
   }
 }

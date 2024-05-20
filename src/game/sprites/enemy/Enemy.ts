@@ -17,9 +17,9 @@ export class Enemy extends Physics.Arcade.Sprite {
   private _enemy: IEnemy;
 
   constructor({ scene, x, y, type, enemy }: IEnemyProps) {
-    super(scene, x, y, 'bomb');
+    super(scene, x, y, enemy.textureKey);
 
-    scene.add.existing(this);
+    //scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this._type = type;
@@ -28,69 +28,37 @@ export class Enemy extends Physics.Arcade.Sprite {
 
     this.setVelocity(enemy.velocity);
     this.setScale(2.0);
-    this.setOrigin(0.5, 0.5);
+    //this.setOrigin(0.5, 0.5);
     this.setSize(this.width - 2, this.height - 2);
+
+    this.setData('animLeftKey', `${this._type}-left`);
+    this.setData('animRightKey', `${this._type}-right`);
     this.setData('hasWallPassPowerUp', enemy.hasWallPassPowerUp);
     this.setData('enemyType', this._type);
 
-    this._createAnimations();
     this._setUpDirection();
     this._setUpMotion();
-  }
-
-  private _createAnimations() {
-    const framesLeft =
-      this._type === ENEMY_ENUM.PONTAN ? [0, 1, 2, 3, 4] : [0, 1, 2];
-    const framesRight =
-      this._type === ENEMY_ENUM.PONTAN ? [7, 8, 9, 10, 11] : [0, 1, 2];
-    const framesDead = this._type === ENEMY_ENUM.PONTAN ? [5, 6] : [3];
-
-    this.scene.anims.create({
-      key: 'left',
-      frames: this.scene.anims.generateFrameNumbers(this._enemy.textureKey, {
-        frames: framesLeft
-      }),
-      frameRate: 6,
-      repeat: -1
-    });
-
-    this.scene.anims.create({
-      key: 'right',
-      frames: this.scene.anims.generateFrameNumbers(this._enemy.textureKey, {
-        frames: framesRight
-      }),
-      frameRate: 6,
-      repeat: -1
-    });
-
-    this.scene.anims.create({
-      key: 'dead',
-      frames: this.scene.anims.generateFrameNumbers(this._enemy.textureKey, {
-        frames: framesDead
-      }),
-      frameRate: 6
-    });
   }
 
   private _setUpMotion() {
     switch (this._direction) {
       case ENEMY_DIRECTION_ENUM.LEFT:
-        this.anims.play('left');
+        this.play(this.getData('animLeftKey'));
         this.setVelocityX(-this._enemy.velocity);
         break;
 
       case ENEMY_DIRECTION_ENUM.DOWN:
-        this.anims.play('left');
+        this.play(this.getData('animLeftKey'));
         this.setVelocityX(this._enemy.velocity);
         break;
 
       case ENEMY_DIRECTION_ENUM.RIGH:
-        this.anims.play('right');
+        this.play(this.getData('animRightKey'));
         this.setVelocityX(this._enemy.velocity);
         break;
 
       case ENEMY_DIRECTION_ENUM.UP:
-        this.anims.play('right');
+        this.play(this.getData('animRightKey'));
         this.setVelocityX(-this._enemy.velocity);
         break;
 
@@ -107,7 +75,7 @@ export class Enemy extends Physics.Arcade.Sprite {
       ENEMY_DIRECTION_ENUM.DOWN
     ];
 
-    const index = Math.floor(Math.random() * direction.length);
+    const index = Phaser.Math.RND.between(0, direction.length - 1);
 
     this._direction = direction[index];
   }

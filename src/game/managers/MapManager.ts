@@ -1,30 +1,42 @@
-import { Physics, Scene, Tilemaps, Types } from 'phaser';
+import { Physics, Scene, Tilemaps } from 'phaser';
 import getPlayerPowerUps from '../common/helpers/getPlayerPowerUps';
+import { WallGroup } from '../sprites/wall/WallGroup';
+import { Wall } from '../sprites/wall/Wall';
+import { WallBuilderManager } from './WallBuilderManager';
+import { IMapPosition } from '../common/interfaces/IMapPosition';
 
 interface IMapManager {
   scene: Scene;
+  world: Physics.Arcade.World;
 }
 
 export class MapManager {
+  private _scene: Scene;
+  private _world: Physics.Arcade.World;
+
   private _map!: Tilemaps.Tilemap;
   private _mapLayer!: Tilemaps.TilemapLayer;
 
-  private _bricks!: Physics.Arcade.Group;
+  private _wallBuilderManager!: WallBuilderManager;
+  private _wallsGroup!: WallGroup;
+
   private _crossroads!: Physics.Arcade.Group;
 
   private _powerUp!: Physics.Arcade.Sprite;
   private _door!: Physics.Arcade.Sprite;
-  private _bricksPosition: string[] = [];
 
-  constructor({ scene }: IMapManager) {
+  constructor({ scene, world }: IMapManager) {
     scene.cameras.main.backgroundColor =
       Phaser.Display.Color.HexStringToColor('#1F8B00');
 
-    this._createMap(scene);
+    this._scene = scene;
+    this._world = world;
+
+    this._createMap();
   }
 
-  private _createMap(scene: Scene) {
-    const mapResult = this._createMapLayer(scene);
+  private _createMap() {
+    const mapResult = this._createMapLayer();
 
     if (mapResult === null) {
       throw new Error('Map Layer is null to continue');
@@ -33,43 +45,25 @@ export class MapManager {
     this._map = mapResult._map;
     this._mapLayer = mapResult._mapLayer;
 
-    this._setUpBricks(scene);
-    this._setUpCrossroads(scene);
+    this._setUpWalls();
+    this._setUpCrossroads();
 
     this._setUpDoor();
     this._setUpPowerUp();
 
-    scene.cameras.main.setBounds(
+    this._scene.cameras.main.setBounds(
       0,
       0,
       this._map.widthInPixels,
       this._map.heightInPixels
     );
 
-    scene.sound.play('stage-theme', { loop: true, volume: 0.5 });
+    this._scene.sound.play('stage-theme', { loop: true, volume: 0.5 });
   }
 
-  private _createMapLayer(scene: Scene) {
-    const _map = scene.add.tilemap('world');
-    const tilesMap = this._map.addTilesetImage('playing-environment');
-
-    //if (this._stageBomberman.map.length > 0)
-    //  this._map.objects = this._stageBomberman.map;
-
-    const _tiles = _map.objects.find((object) => object.name === 'Objects');
-
-    if (_tiles) {
-      _tiles.objects.forEach((brick) => {
-        if (brick.name == '') brick.gid = 10;
-        else if (brick.name == 'power') brick.gid = 20;
-        else if (brick.name == 'door') brick.gid = 15;
-      }, this);
-
-      _map.objects = [
-        ..._map.objects.filter((object) => object.name !== 'Objects'),
-        _tiles
-      ];
-    }
+  private _createMapLayer() {
+    const _map = this._scene.add.tilemap('world');
+    const tilesMap = _map.addTilesetImage('playing-environment');
 
     if (tilesMap) {
       const _mapLayer = _map.createLayer('Map', tilesMap);
@@ -84,51 +78,41 @@ export class MapManager {
     return null;
   }
 
-  private _setUpBricks(scene: Scene) {
-    this._bricks = scene.physics.add.group();
+  private _setUpWalls() {
+    const roads =
+      this._map.objects.find((object) => object.name === 'Roads')?.objects ??
+      [];
 
-    const _bricks = this._map.createFromObjects('Objects', {
-      gid: 10,
-      key: 'brick',
-      frame: 0
+    const crossroads =
+      this._map.objects.find((object) => object.name === 'Crossroads')
+        ?.objects ?? [];
+
+    const freePositions: IMapPosition[] = [
+      ...roads.map((item) => ({ x: item.x ?? 0, y: item.y ?? 0 })),
+      ...crossroads.map((item) => ({ x: item.x ?? 0, y: item.y ?? 0 }))
+    ];
+
+    this._wallsGroup = new WallGroup({
+      scene: this._scene,
+      world: this._world
     });
 
-    this._bricks.addMultiple(_bricks);
+    this._wallBuilderManager = new WallBuilderManager(freePositions);
 
-    scene.anims.create({
-      key: 'brick-wait',
-      frames: scene.anims.generateFrameNumbers('brick', {
-        frames: [0]
-      }),
-      frameRate: 10
-    });
-
-    scene.anims.create({
-      key: 'brick-destroy',
-      frames: scene.anims.generateFrameNumbers('brick', {
-        frames: [1, 2, 3, 4, 5, 6]
-      }),
-      frameRate: 10
-    });
-
-    this._bricks.getChildren().forEach((element) => {
-      const _element = element as Types.Physics.Arcade.SpriteWithDynamicBody;
-
-      // Set the anchor of each brick
-      // This is to allocate correctly all the elements,
-      // Otherwise they'll be appear overlaped the enemies or metal blocks
-      _element.setOrigin(0.5, -0.5);
-      _element.body.setSize(16, 16, true);
-      _element.body.immovable = true;
-
-      this._bricksPosition.push(
-        Math.round(_element.body.x) + ',' + Math.round(_element.body.y)
+    this._wallBuilderManager.buildWalls((x: number, y: number) => {
+      this._wallsGroup.add(
+        new Wall({
+          scene: this._scene,
+          x,
+          y
+        }),
+        true
       );
-    }, this);
+    });
   }
 
-  private _setUpCrossroads(scene: Scene) {
-    this._crossroads = scene.physics.add.group();
+  private _setUpCrossroads() {
+    this._crossroads = this._scene.physics.add.group();
 
     const _crossroadsTmp = this._map.createFromObjects('Crossroads', {
       gid: 30,
@@ -139,33 +123,43 @@ export class MapManager {
   }
 
   private _setUpDoor() {
-    this._door = this._map.createFromObjects('Objects', {
-      gid: 20,
-      key: 'door',
-      frame: 0
-    })[0] as Types.Physics.Arcade.SpriteWithDynamicBody;
+    const indexTmp = Phaser.Math.RND.between(
+      0,
+      this.wallsGroup.getLength() - 1
+    );
 
-    this._door.setOrigin(0.5, 0.6).setVisible(false).setData('isDoor', true);
+    const wall = this.wallsGroup.getChildren()[
+      indexTmp
+    ] as Physics.Arcade.Sprite;
+
+    this._door = this._scene.physics.add
+      .sprite(wall.x, wall.y, 'door')
+      .setScale(2.0);
+    //.setVisible(false);
   }
 
   private _setUpPowerUp() {
     const powerUpType = this._pickPowerUp();
 
-    this._powerUp = this._map.createFromObjects('Objects', {
-      gid: 15,
-      key: powerUpType.textureKey,
-      frame: 0
-    })[0] as Types.Physics.Arcade.SpriteWithDynamicBody;
+    const indexTmp = Phaser.Math.RND.between(
+      0,
+      this.wallsGroup.getLength() - 1
+    );
 
-    this._powerUp
-      .setOrigin(0.5, 0.6)
-      .setVisible(false)
+    const wall = this.wallsGroup.getChildren()[
+      indexTmp
+    ] as Physics.Arcade.Sprite;
+
+    this._powerUp = this._scene.physics.add
+      .sprite(wall.x, wall.y, powerUpType.textureKey)
+      .setScale(2.0)
       .setData('powerUp', powerUpType.id);
+    //.setVisible(false);
   }
 
   private _pickPowerUp() {
     const powerUps = getPlayerPowerUps();
-    const index = Math.floor(Math.random() * powerUps.length);
+    const index = Phaser.Math.RND.between(0, powerUps.length - 1);
 
     return powerUps[index];
   }
@@ -178,11 +172,15 @@ export class MapManager {
     return this._mapLayer;
   }
 
-  public get bricks() {
-    return this._bricks;
+  public get wallsGroup() {
+    return this._wallsGroup;
   }
 
   public get crossroads() {
     return this._crossroads;
+  }
+
+  public get freePositions() {
+    return this._wallBuilderManager.freePositions;
   }
 }
