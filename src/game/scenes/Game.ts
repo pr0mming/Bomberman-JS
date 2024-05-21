@@ -129,7 +129,7 @@ export class Game extends Scene {
 
         // console.log(_b.x, _b.y, _b.body?.x);
 
-        this._enemiesGroup.executeRandomDecision(_enemy);
+        // this._enemiesGroup.executeRandomDecision(_enemy);
       },
       undefined,
       this
@@ -176,7 +176,7 @@ export class Game extends Scene {
     //         fragment as Types.Physics.Arcade.SpriteWithDynamicBody;
 
     //       _fragment.on(
-    //         Animations.Events.ANIMATION_COMPLETE_KEY,
+    //         Animations.Events.ANIMATION_COMPLETE,
     //         () => {
     //           if (this._stageBomberman) {
     //             const stage = this._stageBomberman.stage - 1;

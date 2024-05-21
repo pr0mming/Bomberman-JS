@@ -26,11 +26,11 @@ export class MapManager {
   private _door!: Physics.Arcade.Sprite;
 
   constructor({ scene, world }: IMapManager) {
-    scene.cameras.main.backgroundColor =
-      Phaser.Display.Color.HexStringToColor('#1F8B00');
-
     this._scene = scene;
     this._world = world;
+
+    this._scene.cameras.main.backgroundColor =
+      Phaser.Display.Color.HexStringToColor('#1F8B00');
 
     this._createMap();
   }
@@ -134,7 +134,7 @@ export class MapManager {
 
     this._door = this._scene.physics.add
       .sprite(wall.x, wall.y, 'door')
-      .setScale(2.0);
+      .setScale(2.5);
     //.setVisible(false);
   }
 
@@ -152,7 +152,7 @@ export class MapManager {
 
     this._powerUp = this._scene.physics.add
       .sprite(wall.x, wall.y, powerUpType.textureKey)
-      .setScale(2.0)
+      .setScale(2.5)
       .setData('powerUp', powerUpType.id);
     //.setVisible(false);
   }

@@ -3,7 +3,6 @@ import { IMapPosition } from '../common/interfaces/IMapPosition';
 
 interface IAllocateWallsInAxisParams {
   posWall: IMapPosition;
-  posWallIndex: number;
   posWallsInAxis: IMapPosition[];
   addWallSpriteFn: (x: number, y: number) => void;
 }
@@ -18,8 +17,8 @@ export class WallBuilderManager {
   constructor(freePositions: IMapPosition[]) {
     this._freePositions = this._excludeIllegalPositions(freePositions);
 
-    this._minWalls = 5;
-    this._maxWalls = 10;
+    this._minWalls = 90;
+    this._maxWalls = 130;
 
     this._wallTypes = [
       WALL_TO_BUILD_ENUM.ISOLATED,
@@ -32,15 +31,17 @@ export class WallBuilderManager {
     return positions.filter(
       (pos) =>
         !(pos.x === 60 && pos.y === 120) &&
-        !(pos.x === 140 && pos.y === 120) &&
-        !(pos.x === 60 && pos.y === 200)
+        !(pos.x === 60 && pos.y === 160) &&
+        !(pos.x === 100 && pos.y === 120)
     );
   }
 
   buildWalls(addWallSpriteFn: (x: number, y: number) => void) {
     const wallNumber = Phaser.Math.RND.between(this._minWalls, this._maxWalls);
 
-    for (let i = 0; i < wallNumber; i++) {
+    let i = 0;
+
+    while (i < wallNumber) {
       const indexTmp = Phaser.Math.RND.between(0, this._wallTypes.length - 1);
       const wallTypeToBuild = this._wallTypes[indexTmp];
 
@@ -55,11 +56,12 @@ export class WallBuilderManager {
           addWallSpriteFn(posWall.x, posWall.y);
 
           this._freePositions.splice(posWallIndex, 1);
+          i++;
+
           break;
 
         case WALL_TO_BUILD_ENUM.ROW:
-          this._allocateWallsInAxis({
-            posWallIndex,
+          i += this._allocateWallsInAxis({
             posWall,
             posWallsInAxis: this._freePositions.filter(
               (wall) => wall.y === posWall.y
@@ -70,8 +72,7 @@ export class WallBuilderManager {
           break;
 
         case WALL_TO_BUILD_ENUM.COLUMN:
-          this._allocateWallsInAxis({
-            posWallIndex,
+          i += this._allocateWallsInAxis({
             posWall,
             posWallsInAxis: this._freePositions.filter(
               (wall) => wall.x === posWall.x
@@ -88,8 +89,7 @@ export class WallBuilderManager {
   }
 
   private _allocateWallsInAxis(parameters: IAllocateWallsInAxisParams) {
-    const { posWall, posWallIndex, posWallsInAxis, addWallSpriteFn } =
-      parameters;
+    const { posWall, posWallsInAxis, addWallSpriteFn } = parameters;
 
     let blockLenght = Phaser.Math.RND.between(2, 4);
 
@@ -101,23 +101,39 @@ export class WallBuilderManager {
       (wall) => wall.x === posWall.x && wall.y === posWall.y
     );
 
+    let blockLenghtTmp = blockLenght;
+
     for (
       let i = startIndex;
-      i < posWallsInAxis.length && blockLenght > 0;
+      i < posWallsInAxis.length && blockLenghtTmp > 0;
       i++
     ) {
       addWallSpriteFn(posWallsInAxis[i].x, posWallsInAxis[i].y);
-      this._freePositions.splice(posWallIndex, 1);
 
-      blockLenght--;
+      const indexToDelete = this.freePositions.findIndex(
+        (wall) =>
+          wall.x === posWallsInAxis[i].x && wall.y === posWallsInAxis[i].y
+      );
+
+      this._freePositions.splice(indexToDelete, 1);
+
+      blockLenghtTmp--;
     }
 
-    for (let i = startIndex; i >= 0 && blockLenght > 0; i--) {
+    for (let i = startIndex; i >= 0 && blockLenghtTmp > 0; i--) {
       addWallSpriteFn(posWallsInAxis[i].x, posWallsInAxis[i].y);
-      this._freePositions.splice(posWallIndex, 1);
 
-      blockLenght--;
+      const indexToDelete = this.freePositions.findIndex(
+        (wall) =>
+          wall.x === posWallsInAxis[i].x && wall.y === posWallsInAxis[i].y
+      );
+
+      this._freePositions.splice(indexToDelete, 1);
+
+      blockLenghtTmp--;
     }
+
+    return blockLenght;
   }
 
   public get freePositions() {

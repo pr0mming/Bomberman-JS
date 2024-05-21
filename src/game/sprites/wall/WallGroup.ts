@@ -6,16 +6,9 @@ interface IWallGroupProps {
   scene: Scene;
 }
 
-export class WallGroup extends Physics.Arcade.Group {
+export class WallGroup extends Physics.Arcade.StaticGroup {
   constructor({ world, scene }: IWallGroupProps) {
-    super(
-      world,
-      scene,
-      {},
-      {
-        immovable: true
-      }
-    );
+    super(world, scene);
 
     this.classType = Wall;
 

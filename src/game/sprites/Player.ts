@@ -27,7 +27,6 @@ export class Player extends Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.setScale(2.0);
-    this.setMass(0);
     this.setSize(this.width - 5, this.height - 2);
 
     this._setUpAnimations();
@@ -143,7 +142,7 @@ export class Player extends Physics.Arcade.Sprite {
 
       // Stop current animation to avoid infinite loop ("walking")
       if (this._direction != PLAYER_DIRECTION_ENUM.IDLE) {
-        this.anims.stop();
+        this.stop();
         this._direction = PLAYER_DIRECTION_ENUM.IDLE;
       }
     }
@@ -151,19 +150,23 @@ export class Player extends Physics.Arcade.Sprite {
 
   // Destroy player with "style" of the scene
   kill() {
+    // Stop motion!
     this.setVelocity(0);
-    this.setImmovable(true);
 
-    this.anims.play({
-      key: 'die',
-      hideOnComplete: true
-    });
+    // Disable events from colliders or overlaps
+    this.disableBody(false);
+
+    // Fix player to screen and also disable control keys
+    this.setImmovable(true);
 
     this.scene.game.sound.stopAll();
     this.scene.sound.play('lose');
 
-    this.on(
-      Animations.Events.ANIMATION_COMPLETE_KEY,
+    this.play({
+      key: 'die',
+      hideOnComplete: true
+    }).on(
+      Animations.Events.ANIMATION_COMPLETE,
       () => {
         this.scene.sound.play('just-died');
       },

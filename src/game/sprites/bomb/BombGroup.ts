@@ -7,7 +7,7 @@ interface IBombGroupProps {
   scene: Scene;
 }
 
-export class BombGroup extends Physics.Arcade.Group {
+export class BombGroup extends Physics.Arcade.StaticGroup {
   private _timers: Map<number, Time.TimerEvent>;
 
   private _explosionLength: number;
@@ -21,14 +21,7 @@ export class BombGroup extends Physics.Arcade.Group {
   private _explosionLengthProperties: any;
 
   constructor({ world, scene }: IBombGroupProps) {
-    super(
-      world,
-      scene,
-      {},
-      {
-        immovable: true
-      }
-    );
+    super(world, scene);
 
     this.classType = Bomb;
 
@@ -195,7 +188,7 @@ export class BombGroup extends Physics.Arcade.Group {
   private _canExploitBomb() {
     const _timerExloitBomb = this._timers.get(TIMER_GAME_ENUM.EXPLOIT_BOMB);
 
-    return _timerExloitBomb?.paused;
+    return _timerExloitBomb?.paused && this.getTotalUsed() > 0;
   }
 
   public get explosion() {
