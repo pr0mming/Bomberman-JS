@@ -83,42 +83,4 @@ export class ChangeStage extends Scene {
       callbackScope: this
     });
   }
-
-  recalculateNextMap() {
-    let rows = 11,
-      cols = 35,
-      distance = 40,
-      coords = [],
-      specialities = ['door', 'power'];
-
-    for (let i = 0, y = 98; i < rows; i++, y += distance) {
-      if (i % 2 == 0)
-        for (let j = 0, x = 38; j < cols; j++, x += distance)
-          coords.push(x + ',' + y);
-      else
-        for (let j = 0, x = 38; j < cols; j++, x += distance * 2)
-          coords.push(x + ',' + y);
-    }
-
-    // for (var i in this._stageBomberman?.map) {
-    //   var coord =
-    //       coords[this.rnd.integerInRange(0, coords.length - 1)].split(','),
-    //     index = specialities.indexOf(this._stageBomberman.map[i].name);
-
-    //   if (index != -1) {
-    //     var brick = this._stageBomberman.map
-    //       .map((object) => {
-    //         return object.name;
-    //       }, this)
-    //       .indexOf(specialities[index] + '-brick');
-    //     this._stageBomberman.map[brick].x = parseInt(coord[0]);
-    //     this._stageBomberman.map[brick].y = parseInt(coord[1]);
-    //   }
-
-    //   this._stageBomberman.map[i].x = parseInt(coord[0]);
-    //   this._stageBomberman.map[i].y = parseInt(coord[1]);
-
-    //   coords.splice(coords.indexOf(coord.join(',')), 1);
-    // }
-  }
 }

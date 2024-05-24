@@ -15,7 +15,7 @@ const config: Phaser.Types.Core.GameConfig = {
   antialias: true,
   physics: {
     default: 'arcade',
-    arcade: { debug: false }
+    arcade: { debug: true }
   },
   scene: [Boot, Preloader, MainMenu, ChangeStage, BombermanGame]
 };

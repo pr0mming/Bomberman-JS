@@ -17,8 +17,8 @@ export class WallBuilderManager {
   constructor(freePositions: IMapPosition[]) {
     this._freePositions = this._excludeIllegalPositions(freePositions);
 
-    this._minWalls = 90;
-    this._maxWalls = 130;
+    this._minWalls = 1;
+    this._maxWalls = 2;
 
     this._wallTypes = [
       WALL_TO_BUILD_ENUM.ISOLATED,

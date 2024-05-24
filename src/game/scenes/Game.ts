@@ -9,13 +9,17 @@ import getInitialBombermanStage from '@game/common/helpers/getInitialBombermanSt
 import getItemFromPhaserGroup from '@game/common/helpers/getItemFromPhaserGroup';
 
 // Sprites
-import { Player } from '@game/sprites/Player';
+import { Player } from '@game/sprites/player/Player';
 import { BombGroup } from '@game/sprites/bomb/BombGroup';
+import { Enemy } from '@game/sprites/enemy/Enemy';
 
 // Managers
 import { MapManager } from '@game/managers/MapManager';
-import { EnemyGroup } from '../sprites/enemy/EnemyGroup';
-import { LEVEL_ENUM } from '../common/enums/LevelEnum';
+import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
+
+// Enums
+import { LEVEL_ENUM } from '@game/common/enums/LevelEnum';
+import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 
 export class Game extends Scene {
   _stageBomberman: IBombermanStage;
@@ -66,7 +70,8 @@ export class Game extends Scene {
       scene: this,
       world: this.physics.world,
       level: LEVEL_ENUM.ONE,
-      positions: this._mapManager.freePositions
+      freePositions: this._mapManager.freePositions,
+      player: this._player
     });
 
     this.createStatistics();
@@ -81,9 +86,9 @@ export class Game extends Scene {
       this._mapManager.mapLayer,
       undefined,
       (enemy) => {
-        const _enemy = enemy as Physics.Arcade.Sprite;
+        const _enemy = enemy as Enemy;
 
-        return !(_enemy.getData('hasWallPassPowerUp') as boolean);
+        return !_enemy.enemyData.hasWallPassPowerUp;
       },
       this
     );
@@ -93,9 +98,9 @@ export class Game extends Scene {
       this._mapManager.wallsGroup,
       undefined,
       (enemy) => {
-        const _enemy = enemy as Physics.Arcade.Sprite;
+        const _enemy = enemy as Enemy;
 
-        return !(_enemy.getData('hasWallPassPowerUp') as boolean);
+        return !_enemy.enemyData.hasWallPassPowerUp;
       },
       this
     );
@@ -120,18 +125,91 @@ export class Game extends Scene {
       this
     );
 
+    // this.physics.add.overlap(
+    //   this._player,
+    //   this._mapManager.crossroads,
+    //   (enemy, crossroad) => {
+    //     const _crossroad = crossroad as Physics.Arcade.Sprite;
+
+    //     console.log(_crossroad.body?.x, _crossroad.body?.y);
+    //   },
+    //   undefined,
+    //   this
+    // );
+
     this.physics.add.overlap(
       this._enemiesGroup,
       this._mapManager.crossroads,
-      (enemy, b) => {
-        const _b = b as Physics.Arcade.Sprite;
-        const _enemy = enemy as Physics.Arcade.Sprite;
+      (enemy, crossroad) => {
+        const _crossroad = crossroad as Physics.Arcade.Sprite;
+        const _enemy = enemy as Enemy;
 
-        // console.log(_b.x, _b.y, _b.body?.x);
+        // Stop the motion ...
+        _enemy.setVelocity(0);
 
-        // this._enemiesGroup.executeRandomDecision(_enemy);
+        const crossroadPos = {
+          x: _crossroad.body?.x ?? 0,
+          y: _crossroad.body?.y ?? 0
+        };
+
+        // So important: Reset the enemy position according to the crossroad it's on
+        // Otherwise it'll be a huge offset to detect the next crossroad
+        // and the enemys will never execute a new movement
+        _enemy.setPosition(crossroadPos.x, crossroadPos.y);
+
+        _enemy.lastCrossroadTouched = {
+          x: crossroadPos.x,
+          y: crossroadPos.y
+        };
+
+        // Perform movement so that the enemy isn't immovable
+        _enemy.dispatchMotion();
       },
-      undefined,
+      (enemy, crossroad) => {
+        const _crossroad = crossroad as Physics.Arcade.Sprite;
+        const _enemy = enemy as Enemy;
+
+        // If we are performig or even calculating the new direction of the enemy it should be immovable
+        // This is to avoid execute the rest of the logic in this scenario
+        if (_enemy.body?.velocity.x === 0 && _enemy.body?.velocity.y === 0)
+          return false;
+
+        const crossroadPos = {
+          x: _crossroad.body?.x ?? 0,
+          y: _crossroad.body?.y ?? 0
+        };
+
+        const enemyCrossroadPos = {
+          x: _enemy.lastCrossroadTouched?.x ?? 0,
+          y: _enemy.lastCrossroadTouched?.y ?? 0
+        };
+
+        // This is to avoid change the direction multiple times if the enemy is on the same crossroad
+        // so that I save the last crossroad passed to verify
+        if (
+          crossroadPos &&
+          crossroadPos.x === enemyCrossroadPos?.x &&
+          crossroadPos.y === enemyCrossroadPos?.y
+        )
+          return false;
+
+        const enemyPos = {
+          x: _enemy.body?.center.x ?? 0,
+          y: _enemy.body?.center.y ?? 0
+        };
+
+        // This validation asserts the enemy reaches the approximately x, y position of the crossroad
+        // If this is true so we can tell to the enemy perform a new or the same movement (direction)
+        // Note: Idk but it wasn't good enough with "crossroadPos.x === enemyPos.x" because the enemy takes a decimals-offset positions
+        return (
+          crossroadPos &&
+          enemyPos &&
+          (crossroadPos.x === Math.floor(enemyPos.x) ||
+            crossroadPos.x === Math.round(enemyPos.x)) &&
+          (crossroadPos.y === Math.floor(enemyPos.y) ||
+            crossroadPos.y === Math.round(enemyPos.y))
+        );
+      },
       this
     );
 
@@ -148,24 +226,20 @@ export class Game extends Scene {
     //   this
     // );
 
-    // const powerSpeciality = this.getItemFromPhaserGroup(
-    //   this._specialties.getChildren(),
-    //   'power'
-    // );
+    this.physics.add.overlap(
+      this._player,
+      this._mapManager.powerUp,
+      (_, powerUp) => {
+        const _powerUp = powerUp as Physics.Arcade.Sprite;
+        const powerUpId = _powerUp.getData('powerUpId') as number;
 
-    // if (powerSpeciality) {
-    //   this.physics.add.overlap(
-    //     this._bomberman,
-    //     powerSpeciality as Types.Physics.Arcade.SpriteWithDynamicBody,
-    //     (_, power) => {
-    //       const _power = power as Types.Physics.Arcade.SpriteWithDynamicBody;
+        this.addPowerUp(powerUpId);
 
-    //       this.updateCharacter(_power.getData('TypePower'));
-    //       _power.active = false;
-    //     },
-    //     undefined,
-    //     this
-    //   );
+        _powerUp.destroy();
+      },
+      undefined,
+      this
+    );
 
     //   this.physics.add.overlap(
     //     this._explosion,
@@ -289,37 +363,17 @@ export class Game extends Scene {
     //}
 
     this._player?.addControlsListener();
-    //this.activeMotionEnemy();
   }
 
-  render() {
-    //this.game.debug.body(this._bomberman);
-    /*if (this._bombs != undefined) {
-            this._bombs.forEach(function(brick) {
-                this.game.debug.body(brick);
-            }, this);
-        }*/
-    //this.game.debug.spriteInfo(this.hero.getByName('hero'), 50, 50);
-  }
+  addPowerUp(powerUp: PLAYER_POWER_UP_ENUM) {
+    const extraPoints = this._player.addPowerUp(powerUp);
 
-  updateCharacter(power: string) {
-    this.sound.stopByKey('stage-theme');
-    this.sound.play('find-the-door', { loop: true });
-
-    if (power == 'ExtendExplosion') {
-      this._stageBomberman.stage_points += 160;
-
-      this._bombGroup.setExplosionLength = this._bombGroup.explosionLength + 1;
-    } else if (power == 'AddBomb') {
-      this._stageBomberman.stage_points += 180;
-
-      this._bombGroup.setMaxAmountBombs = this._bombGroup.maxAmountBombs + 1;
-    }
+    this._stageBomberman.stage_points += extraPoints;
 
     this._labels
       .getChildren()
       .find((obj) => obj.name === 'SCORE')
-      ?.setState(this._stageBomberman?.stage_points);
+      ?.setState(this._stageBomberman.stage_points);
   }
 
   win() {

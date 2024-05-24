@@ -115,11 +115,10 @@ export class MapManager {
     this._crossroads = this._scene.physics.add.group();
 
     const _crossroadsTmp = this._map.createFromObjects('Crossroads', {
-      gid: 30,
       frame: 0
     });
 
-    this._crossroads.addMultiple(_crossroadsTmp).setVisible(false);
+    this._crossroads.addMultiple(_crossroadsTmp);
   }
 
   private _setUpDoor() {
@@ -153,7 +152,7 @@ export class MapManager {
     this._powerUp = this._scene.physics.add
       .sprite(wall.x, wall.y, powerUpType.textureKey)
       .setScale(2.5)
-      .setData('powerUp', powerUpType.id);
+      .setData('powerUpId', powerUpType.id);
     //.setVisible(false);
   }
 
@@ -182,5 +181,13 @@ export class MapManager {
 
   public get freePositions() {
     return this._wallBuilderManager.freePositions;
+  }
+
+  public get door() {
+    return this._door;
+  }
+
+  public get powerUp() {
+    return this._powerUp;
   }
 }

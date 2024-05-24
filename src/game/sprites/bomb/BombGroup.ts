@@ -199,7 +199,7 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     return this._explosionLength;
   }
 
-  public set setExplosionLength(v: number) {
+  public set explosionLength(v: number) {
     this._explosionLength = v;
   }
 
@@ -207,7 +207,7 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     return this._maxAmountBombs;
   }
 
-  public set setMaxAmountBombs(v: number) {
+  public set maxAmountBombs(v: number) {
     this._maxAmountBombs = v;
   }
 }
