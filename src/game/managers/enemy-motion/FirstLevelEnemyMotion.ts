@@ -1,11 +1,14 @@
 import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
 import { BaseEnemyMotion } from './BaseEnemyMotion';
-import { Player } from '@src/game/sprites/Player';
-import { Enemy } from '@src/game/sprites/enemy/Enemy';
+import { Player } from '@src/game/sprites/player/Player';
+import { Physics } from 'phaser';
 
 export class FirstLevelEnemyMotion extends BaseEnemyMotion {
-  constructor(player: Player, enemy: Enemy) {
-    super(player, enemy);
+  constructor(
+    player: Player,
+    enemyBody: Physics.Arcade.Body | Physics.Arcade.StaticBody | null
+  ) {
+    super(player, enemyBody);
   }
 
   computeNewDirection(): ENEMY_DIRECTION_ENUM {

@@ -10,7 +10,7 @@ import { IEnemy } from '@src/game/common/interfaces/IEnemy';
 import getEnemyLevels from '@src/game/common/helpers/getEnemyLevels';
 import getEnemies from '@src/game/common/helpers/getEnemies';
 
-import { Player } from '../player/Player';
+import { Player } from '@src/game/sprites/player/Player';
 import { ENEMY_MOTION_ENUM } from '@src/game/common/enums/EnemyMotionEnum';
 
 interface IEnemyGroupProps {

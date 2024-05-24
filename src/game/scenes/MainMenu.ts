@@ -65,7 +65,7 @@ export class MainMenu extends Scene {
     // New feature
     const continueButton = this.add
       .text(
-        this.cameras.main.centerX + 90,
+        this.cameras.main.centerX + 50,
         this.cameras.main.centerY + 120,
         'CONTINUE'
       )
@@ -107,7 +107,7 @@ export class MainMenu extends Scene {
 
     this.add
       .text(
-        this.cameras.main.centerX + 90,
+        this.cameras.main.centerX + 50,
         this.cameras.main.centerY + 150,
         highScore.toString()
       )

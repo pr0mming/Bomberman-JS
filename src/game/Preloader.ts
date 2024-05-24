@@ -25,15 +25,15 @@ export class Preloader extends Scene {
 
     this.load.spritesheet(
       'bomberman-move',
-      '/game/sprites/character/bomberman-move.png',
+      '/game/sprites/player/walking.png',
       {
         frameWidth: 16,
-        frameHeight: 18
+        frameHeight: 16
       }
     );
     this.load.spritesheet(
       'bomberman-dead',
-      '/game/sprites/character/bomberman-dead.png',
+      '/game/sprites/player/killing.png',
       {
         frameWidth: 16,
         frameHeight: 21
@@ -44,9 +44,17 @@ export class Preloader extends Scene {
       frameHeight: 18
     });
     this.load.spritesheet('wall', '/game/sprites/wall/wall.png', {
-      frameWidth: 18,
-      frameHeight: 18
+      frameWidth: 16,
+      frameHeight: 16
     });
+    this.load.spritesheet(
+      'wall-explosion',
+      '/game/sprites/wall/wall-explosion.png',
+      {
+        frameWidth: 18,
+        frameHeight: 16
+      }
+    );
     this.load.spritesheet('ballom', '/game/sprites/enemies/ballom.png', {
       frameWidth: 16,
       frameHeight: 18

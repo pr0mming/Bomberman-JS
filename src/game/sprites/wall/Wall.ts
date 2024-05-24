@@ -14,9 +14,13 @@ export class Wall extends Physics.Arcade.Sprite {
   }
 
   kill() {
-    this.play('destroy-wall');
-    this.once(Animations.Events.ANIMATION_COMPLETE, () => {
-      this.destroy(true);
-    });
+    this.enableBody(false);
+
+    this.play('wall-explosion').once(
+      Animations.Events.ANIMATION_COMPLETE,
+      () => {
+        this.destroy(true);
+      }
+    );
   }
 }
