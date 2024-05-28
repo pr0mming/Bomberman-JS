@@ -1,35 +1,44 @@
 import { Animations, Physics, Scene } from 'phaser';
-import { PLAYER_DIRECTION_ENUM } from '@game/common/enums/PlayerDirectionEnum';
+import BombGroup from '@game/sprites/bomb/BombGroup';
+
 import PlayerControlsManager from '@game/managers/PlayerControlsManager';
-import BombGroup from '../bomb/BombGroup';
-import { PLAYER_POWER_UP_ENUM } from '@src/game/common/enums/PlayerPowerUpEnum';
+
+import { PLAYER_DIRECTION_ENUM } from '@game/common/enums/PlayerDirectionEnum';
 
 interface IPlayerProps {
   scene: Scene;
   x: number;
   y: number;
-  speed: number;
   bombGroup: BombGroup;
 }
 
 export class Player extends Physics.Arcade.Sprite {
   private _controlsManager?: PlayerControlsManager;
+  private _direction: PLAYER_DIRECTION_ENUM;
+
   private _speed: number;
-  private _direction: string;
+  private _hasWallPassPowerUp: boolean;
+  private _hasBombPassPowerUp: boolean;
+  private _hasFlamePassPowerUp: boolean;
 
   private _bombGroup: BombGroup;
 
-  constructor({ scene, x, y, speed, bombGroup }: IPlayerProps) {
+  constructor({ scene, x, y, bombGroup }: IPlayerProps) {
     super(scene, x, y, 'bomberman-move');
 
-    this._speed = speed;
     this._direction = PLAYER_DIRECTION_ENUM.LEFT;
+
+    this._speed = 150;
+    this._hasWallPassPowerUp = false;
+    this._hasBombPassPowerUp = false;
+    this._hasFlamePassPowerUp = false;
+
     this._bombGroup = bombGroup;
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setScale(1.8);
+    this.setScale(2.0);
 
     this._setUpControls();
     this._setUpAnimations();
@@ -89,7 +98,7 @@ export class Player extends Physics.Arcade.Sprite {
   }
 
   // Play animation or frame by movement (left, right, up, down)
-  private _playAnimationByKey(key: string) {
+  private _playAnimationByKey(key: PLAYER_DIRECTION_ENUM) {
     if (this._direction != key) {
       this.play(key);
       this._direction = key;
@@ -101,7 +110,7 @@ export class Player extends Physics.Arcade.Sprite {
   }
 
   addControlsListener() {
-    if (!this.body?.immovable) {
+    if (this.body?.enable) {
       this.setVelocity(0);
 
       // Set up cursor keys to move the player on the "update" function of the Scene
@@ -140,7 +149,7 @@ export class Player extends Physics.Arcade.Sprite {
 
       // Set up exploit bomb control
       if (this._controlsManager?.exploitBombControl?.isDown) {
-        this._bombGroup.exploitBomb();
+        this._bombGroup.exploitNextBomb();
       }
 
       // Stop current animation to avoid infinite loop ("walking")
@@ -148,22 +157,6 @@ export class Player extends Physics.Arcade.Sprite {
         this.stop();
         this._direction = PLAYER_DIRECTION_ENUM.IDLE;
       }
-    }
-  }
-
-  addPowerUp(powerUp: PLAYER_POWER_UP_ENUM): number {
-    this.scene.sound.stopByKey('stage-theme');
-    this.scene.sound.play('find-the-door', { loop: true });
-
-    switch (powerUp) {
-      case PLAYER_POWER_UP_ENUM.BOMB_UP:
-        return 180;
-
-      case PLAYER_POWER_UP_ENUM.FIRE_UP:
-        return 160;
-
-      default:
-        throw new Error('Power Up invalid');
     }
   }
 
@@ -191,5 +184,37 @@ export class Player extends Physics.Arcade.Sprite {
       },
       this
     );
+  }
+
+  public get speed() {
+    return this._speed;
+  }
+
+  public set speed(v: number) {
+    this.speed = v;
+  }
+
+  public get hasWallPassPowerUp() {
+    return this._hasWallPassPowerUp;
+  }
+
+  public set hasWallPassPowerUp(v: boolean) {
+    this._hasWallPassPowerUp = v;
+  }
+
+  public get hasBombPassPowerUp() {
+    return this._hasBombPassPowerUp;
+  }
+
+  public set hasBombPassPowerUp(v: boolean) {
+    this._hasBombPassPowerUp = v;
+  }
+
+  public get hasFlamePassPowerUp() {
+    return this._hasFlamePassPowerUp;
+  }
+
+  public set hasFlamePassPowerUp(v: boolean) {
+    this._hasFlamePassPowerUp = v;
   }
 }

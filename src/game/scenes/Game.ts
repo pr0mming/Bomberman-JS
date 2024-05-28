@@ -1,8 +1,7 @@
 import { GameObjects, Physics, Scene, Time } from 'phaser';
 
-// Common types
+// Interfaces
 import { IBombermanStage } from '@game/common/interfaces/IBombermanStage';
-import { TIMER_GAME_ENUM } from '@game/common/enums/TimerGameEnum';
 
 // Helpers
 import getInitialBombermanStage from '@game/common/helpers/getInitialBombermanStage';
@@ -10,24 +9,29 @@ import getItemFromPhaserGroup from '@game/common/helpers/getItemFromPhaserGroup'
 
 // Sprites
 import { Player } from '@game/sprites/player/Player';
+import { Wall } from '@game/sprites/wall/Wall';
+import { Bomb } from '@game/sprites/bomb/Bomb';
 import { BombGroup } from '@game/sprites/bomb/BombGroup';
 import { Enemy } from '@game/sprites/enemy/Enemy';
+import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
 
 // Managers
 import { MapManager } from '@game/managers/MapManager';
-import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
+import { PowerUpManager } from '@game/managers/PowerUpManager';
 
 // Enums
 import { LEVEL_ENUM } from '@game/common/enums/LevelEnum';
+import { TIMER_GAME_ENUM } from '@game/common/enums/TimerGameEnum';
 import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 
 export class Game extends Scene {
   _stageBomberman: IBombermanStage;
 
-  _playerSpeed: number;
-
   _timers: Map<number, Time.TimerEvent>;
+
   _mapManager!: MapManager;
+  _powerUpManager!: PowerUpManager;
+
   _player!: Player;
   _bombGroup!: BombGroup;
   _enemiesGroup!: EnemyGroup;
@@ -40,7 +44,6 @@ export class Game extends Scene {
     this._stageBomberman = getInitialBombermanStage();
 
     this._timers = new Map<number, Time.TimerEvent>();
-    this._playerSpeed = 150;
   }
 
   init(stageBomberman: IBombermanStage) {
@@ -62,7 +65,6 @@ export class Game extends Scene {
       scene: this,
       x: 60,
       y: 120,
-      speed: this._playerSpeed,
       bombGroup: this._bombGroup
     });
 
@@ -74,12 +76,86 @@ export class Game extends Scene {
       player: this._player
     });
 
+    this._powerUpManager = new PowerUpManager({
+      scene: this,
+      player: this._player,
+      bombGroup: this._bombGroup
+    });
+
     this.createStatistics();
 
     this.physics.add.collider(this._player, this._mapManager.mapLayer);
-    this.physics.add.collider(this._player, this._mapManager.wallsGroup);
-    this.physics.add.collider(this._player, this._bombGroup);
-    this.physics.add.collider(this._enemiesGroup, this._bombGroup);
+    this.physics.add.collider(
+      this._player,
+      this._bombGroup,
+      undefined,
+      (player, _) => {
+        const _player = player as Player;
+
+        return !_player.hasBombPassPowerUp;
+      },
+      this
+    );
+
+    this.physics.add.collider(
+      this._player,
+      this._mapManager.wallsGroup,
+      undefined,
+      (player, _) => {
+        const _player = player as Player;
+
+        return !_player.hasWallPassPowerUp;
+      },
+      this
+    );
+
+    this.physics.add.overlap(
+      this._player,
+      this._enemiesGroup,
+      () => {
+        this.lose();
+      },
+      undefined,
+      this
+    );
+
+    this.physics.add.overlap(
+      this._player,
+      this._bombGroup.explosionGroup,
+      () => {
+        this.lose();
+      },
+      (player, _) => {
+        const _player = player as Player;
+
+        return !_player.hasFlamePassPowerUp;
+      },
+      this
+    );
+
+    // this.physics.add.overlap(
+    //   this._player,
+    //   this._mapManager.crossroads,
+    //   (enemy, crossroad) => {
+    //     const _crossroad = crossroad as Physics.Arcade.Sprite;
+
+    //     console.log(_crossroad.body?.x, _crossroad.body?.y);
+    //   },
+    //   undefined,
+    //   this
+    // );
+
+    this.physics.add.collider(
+      this._enemiesGroup,
+      this._bombGroup,
+      (enemy) => {
+        const _enemy = enemy as Enemy;
+
+        _enemy.retraceMotion();
+      },
+      undefined,
+      this
+    );
 
     this.physics.add.collider(
       this._enemiesGroup,
@@ -108,38 +184,6 @@ export class Game extends Scene {
       },
       this
     );
-
-    this.physics.add.overlap(
-      this._player,
-      this._enemiesGroup,
-      () => {
-        this.lose();
-      },
-      undefined,
-      this
-    );
-
-    this.physics.add.overlap(
-      this._player,
-      this._bombGroup.explosion,
-      () => {
-        this.lose();
-      },
-      undefined,
-      this
-    );
-
-    // this.physics.add.overlap(
-    //   this._player,
-    //   this._mapManager.crossroads,
-    //   (enemy, crossroad) => {
-    //     const _crossroad = crossroad as Physics.Arcade.Sprite;
-
-    //     console.log(_crossroad.body?.x, _crossroad.body?.y);
-    //   },
-    //   undefined,
-    //   this
-    // );
 
     this.physics.add.overlap(
       this._enemiesGroup,
@@ -178,18 +222,17 @@ export class Game extends Scene {
       this
     );
 
-    // this.physics.add.overlap(
-    //   this._explosion,
-    //   this._bombs,
-    //   (_, detected_bomb) => {
-    //     const _detected_bomb =
-    //       detected_bomb as Types.Physics.Arcade.SpriteWithDynamicBody;
+    this.physics.add.overlap(
+      this._bombGroup.explosionGroup,
+      this._bombGroup,
+      (_, bomb) => {
+        const _bomb = bomb as Bomb;
 
-    //     this.exploitBomb(_detected_bomb);
-    //   },
-    //   undefined,
-    //   this
-    // );
+        this._bombGroup.exploitByBomb(_bomb);
+      },
+      undefined,
+      this
+    );
 
     this.physics.add.overlap(
       this._player,
@@ -202,124 +245,101 @@ export class Game extends Scene {
 
         _powerUp.destroy();
       },
+      (player, powerUp) => {
+        const _player = player as Player;
+        const _powerUp = powerUp as Physics.Arcade.Sprite;
+
+        return (
+          _player.body &&
+          _powerUp.body &&
+          Math.floor(_player.body.center.x) ===
+            Math.floor(_powerUp.body.center.x) &&
+          Math.floor(_player.body.center.y) ===
+            Math.floor(_powerUp.body.center.y)
+        );
+      },
+      this
+    );
+
+    this.physics.add.overlap(
+      this._player,
+      this._mapManager.door,
+      () => {
+        if (this._enemiesGroup.getLength() === 0) this.win();
+      },
+      (player, door) => {
+        const _player = player as Player;
+        const _door = door as Physics.Arcade.Sprite;
+
+        return (
+          _player.body &&
+          _door.body &&
+          Math.floor(_player.body.center.x) ===
+            Math.floor(_door.body.center.x) &&
+          Math.floor(_player.body.center.y) === Math.floor(_door.body.center.y)
+        );
+      },
+      this
+    );
+
+    this.physics.add.overlap(
+      this._bombGroup.explosionGroup,
+      this._mapManager.door,
+      (_, door) => {
+        const _door = door as Physics.Arcade.Sprite;
+
+        _door.disableBody(false);
+
+        setTimeout(() => {
+          _door.enableBody(false);
+        }, 2000);
+
+        if (_door.body) {
+          this._enemiesGroup.addRndEnemiesByPosition(
+            _door.body.center.x,
+            _door.body.center.y
+          );
+        }
+      },
+      (_, door) => {
+        const _door = door as Physics.Arcade.Sprite;
+
+        return _door.body?.enable && _door.visible;
+      },
+      this
+    );
+
+    this.physics.add.overlap(
+      this._bombGroup.explosionGroup,
+      this._enemiesGroup,
+      (_, enemy) => {
+        const _enemy = enemy as Enemy;
+
+        _enemy.kill();
+      },
       undefined,
       this
     );
 
-    //   this.physics.add.overlap(
-    //     this._explosion,
-    //     powerSpeciality as Types.Physics.Arcade.SpriteWithDynamicBody,
-    //     (power, fragment) => {
-    //       const _power = power as Types.Physics.Arcade.SpriteWithDynamicBody;
-    //       const _fragment =
-    //         fragment as Types.Physics.Arcade.SpriteWithDynamicBody;
+    this.physics.add.collider(
+      this._bombGroup.explosionGroup,
+      this._mapManager.wallsGroup,
+      (_, wall) => {
+        const _wall = wall as Wall;
 
-    //       _fragment.on(
-    //         Animations.Events.ANIMATION_COMPLETE,
-    //         () => {
-    //           if (this._stageBomberman) {
-    //             const stage = this._stageBomberman.stage - 1;
+        _wall.kill();
 
-    //             for (let i = 0; i < this._numberEnemies; i++) {
-    //               this.putEnemy(
-    //                 this._stageBomberman.stage_enemies[stage][0],
-    //                 false,
-    //                 _power.body.x,
-    //                 _power.body.y
-    //               );
-    //             }
-    //           }
-    //         },
-    //         this
-    //       );
+        if (_wall.getData('hasDoor')) {
+          this._mapManager.door.setVisible(true);
+        }
 
-    //       _power.active = false;
-    //     },
-    //     undefined,
-    //     this
-    //   );
-    // }
-
-    // const doorSpeciality = this.getItemFromPhaserGroup(
-    //   this._specialties.getChildren(),
-    //   'door'
-    // );
-
-    // if (doorSpeciality) {
-    //   this.physics.add.overlap(
-    //     this._bomberman,
-    //     doorSpeciality as Types.Physics.Arcade.SpriteWithDynamicBody,
-    //     (_, door) => {
-    //       const _door = door as Types.Physics.Arcade.SpriteWithDynamicBody;
-
-    //       if (
-    //         this._enemies.getLength() == 0 &&
-    //         // this._timerGame.running &&
-    //         Math.round(this._player.x) == Math.round(_door.body.x) &&
-    //         Math.round(this._player.y) == Math.round(_door.body.y)
-    //       )
-    //         this.win();
-    //     },
-    //     undefined,
-    //     this
-    //   );
-    // }
-
-    // /*
-    //     this.physics.add.collider(this._explosion, this._layer, null, function(explosion, layer) {
-    //         explosion.kill();
-    //     }, this);*/
-
-    // this.physics.add.overlap(
-    //   this._explosion,
-    //   this._enemies,
-    //   (_, enemy) => {
-    //     const _enemy = enemy as Types.Physics.Arcade.SpriteWithDynamicBody;
-
-    //     _enemy.setData('autonomy', false);
-    //     _enemy.body.enable = false;
-
-    //     this.destroyEnemy(_enemy);
-    //   },
-    //   undefined,
-    //   this
-    // );
-
-    // this.physics.add.overlap(
-    //   this._explosion,
-    //   this._brick,
-    //   (fragment, brick) => {
-    //     const _fragment =
-    //       fragment as Types.Physics.Arcade.SpriteWithDynamicBody;
-    //     const _brick = brick as Types.Physics.Arcade.SpriteWithDynamicBody;
-
-    //     _brick.anims.play('destroy');
-
-    //     if (_brick.name == 'door-brick') {
-    //       const _speciality = this.getItemFromPhaserGroup(
-    //         this._specialties.getChildren(),
-    //         'door'
-    //       );
-
-    //       if (_speciality) {
-    //         _speciality.active = true;
-    //       }
-    //     } else if (_brick.name == 'power-brick') {
-    //       const _speciality = this.getItemFromPhaserGroup(
-    //         this._specialties.getChildren(),
-    //         'power'
-    //       );
-
-    //       if (_speciality) {
-    //         _speciality.active = true;
-    //       }
-    //     }
-
-    //     _fragment.active = false;
-    //   },
-    //   undefined,
-    //   this
-    // );
+        if (_wall.getData('hasPowerUp')) {
+          this._mapManager.powerUp.setVisible(true);
+        }
+      },
+      undefined,
+      this
+    );
   }
 
   update() {
@@ -331,7 +351,7 @@ export class Game extends Scene {
   }
 
   addPowerUp(powerUp: PLAYER_POWER_UP_ENUM) {
-    const extraPoints = this._player.addPowerUp(powerUp);
+    const extraPoints = this._powerUpManager.addPowerUp(powerUp);
 
     this._stageBomberman.stage_points += extraPoints;
 

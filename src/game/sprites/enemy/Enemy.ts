@@ -1,4 +1,4 @@
-import { Physics, Scene } from 'phaser';
+import { Animations, Physics, Scene } from 'phaser';
 import { Player } from '@src/game/sprites/player/Player';
 import { IEnemy } from '@src/game/common/interfaces/IEnemy';
 
@@ -28,6 +28,8 @@ export class Enemy extends Physics.Arcade.Sprite {
 
   private _animLeftKey: string;
   private _animRightKey: string;
+  private _animDeadKey: string;
+
   private _retracedMotionsAmmount: number;
   private _mapCrossroadOffset: number;
   private _lastCrossroadTouched?: ISpritePosition;
@@ -46,6 +48,8 @@ export class Enemy extends Physics.Arcade.Sprite {
 
     this._animLeftKey = `${this._type}-left`;
     this._animRightKey = `${this._type}-right`;
+    this._animDeadKey = `${this._type}-dead`;
+
     this._retracedMotionsAmmount = 0;
     this._mapCrossroadOffset = 50;
     this._lastCrossroadTouched = { x, y };
@@ -54,53 +58,55 @@ export class Enemy extends Physics.Arcade.Sprite {
   }
 
   private _updateSpriteMotion(fromPosition: ISpritePosition) {
-    switch (this._direction) {
-      case ENEMY_DIRECTION_ENUM.LEFT:
-        this.play(this._animLeftKey);
-        this.scene.physics.moveTo(
-          this,
-          fromPosition.x - this._mapCrossroadOffset,
-          fromPosition.y,
-          this._enemyData.velocity
-        );
+    if (this.body?.enable) {
+      switch (this._direction) {
+        case ENEMY_DIRECTION_ENUM.LEFT:
+          this.play(this._animLeftKey);
+          this.scene.physics.moveTo(
+            this,
+            fromPosition.x - this._mapCrossroadOffset,
+            fromPosition.y,
+            this._enemyData.velocity
+          );
 
-        break;
+          break;
 
-      case ENEMY_DIRECTION_ENUM.RIGH:
-        this.play(this._animRightKey);
-        this.scene.physics.moveTo(
-          this,
-          fromPosition.x + this._mapCrossroadOffset,
-          fromPosition.y,
-          this._enemyData.velocity
-        );
+        case ENEMY_DIRECTION_ENUM.RIGH:
+          this.play(this._animRightKey);
+          this.scene.physics.moveTo(
+            this,
+            fromPosition.x + this._mapCrossroadOffset,
+            fromPosition.y,
+            this._enemyData.velocity
+          );
 
-        break;
+          break;
 
-      case ENEMY_DIRECTION_ENUM.DOWN:
-        this.play(this._animLeftKey);
-        this.scene.physics.moveTo(
-          this,
-          fromPosition.x,
-          fromPosition.y + this._mapCrossroadOffset,
-          this._enemyData.velocity
-        );
+        case ENEMY_DIRECTION_ENUM.DOWN:
+          this.play(this._animLeftKey);
+          this.scene.physics.moveTo(
+            this,
+            fromPosition.x,
+            fromPosition.y + this._mapCrossroadOffset,
+            this._enemyData.velocity
+          );
 
-        break;
+          break;
 
-      case ENEMY_DIRECTION_ENUM.UP:
-        this.play(this._animRightKey);
-        this.scene.physics.moveTo(
-          this,
-          fromPosition.x,
-          fromPosition.y - this._mapCrossroadOffset,
-          this._enemyData.velocity
-        );
+        case ENEMY_DIRECTION_ENUM.UP:
+          this.play(this._animRightKey);
+          this.scene.physics.moveTo(
+            this,
+            fromPosition.x,
+            fromPosition.y - this._mapCrossroadOffset,
+            this._enemyData.velocity
+          );
 
-        break;
+          break;
 
-      default:
-        break;
+        default:
+          break;
+      }
     }
   }
 
@@ -191,6 +197,23 @@ export class Enemy extends Physics.Arcade.Sprite {
       );
 
     return false;
+  }
+
+  kill() {
+    this.disableBody(false);
+    this.setImmovable(true);
+
+    this.play(this._animDeadKey).once(
+      Animations.Events.ANIMATION_COMPLETE,
+      () => {
+        this.play('destroy-enemy').once(
+          Animations.Events.ANIMATION_COMPLETE,
+          () => {
+            this.destroy(true);
+          }
+        );
+      }
+    );
   }
 
   public get enemyData() {

@@ -1,6 +1,11 @@
 import { Scene } from 'phaser';
 import { IBombermanStage } from '@src/game/common/interfaces/IBombermanStage';
-import { IPrepareUIParameters } from '@src/game/common/interfaces/IPrepareUIParameters';
+
+interface IPrepareUIParameters {
+  text: string;
+  delay: number;
+  soundKey: string;
+}
 
 export class ChangeStage extends Scene {
   _stageBomberman?: IBombermanStage;

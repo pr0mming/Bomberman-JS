@@ -1,7 +1,8 @@
 import { ENEMY_ENUM } from '../enums/EnemyEnum';
+import { ENEMY_MOTION_ENUM } from '../enums/EnemyMotionEnum';
 import { IEnemy } from '../interfaces/IEnemy';
 
-const getEnemies = () => {
+const getEnemyData = () => {
   return new Map<ENEMY_ENUM, IEnemy>([
     [
       ENEMY_ENUM.BALLOM,
@@ -9,7 +10,8 @@ const getEnemies = () => {
         textureKey: 'ballom',
         velocity: 30,
         hasWallPassPowerUp: false,
-        rewardPoints: 50
+        rewardPoints: 50,
+        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
     [
@@ -18,7 +20,8 @@ const getEnemies = () => {
         textureKey: 'onil',
         velocity: 50,
         hasWallPassPowerUp: false,
-        rewardPoints: 60
+        rewardPoints: 60,
+        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
     [
@@ -27,7 +30,8 @@ const getEnemies = () => {
         textureKey: 'minvo',
         velocity: 60,
         hasWallPassPowerUp: false,
-        rewardPoints: 100
+        rewardPoints: 100,
+        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
     [
@@ -36,7 +40,8 @@ const getEnemies = () => {
         textureKey: 'dahl',
         velocity: 60,
         hasWallPassPowerUp: false,
-        rewardPoints: 150
+        rewardPoints: 150,
+        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
     [
@@ -45,7 +50,8 @@ const getEnemies = () => {
         textureKey: 'ovape',
         velocity: 20,
         hasWallPassPowerUp: true,
-        rewardPoints: 180
+        rewardPoints: 180,
+        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
     [
@@ -54,7 +60,8 @@ const getEnemies = () => {
         textureKey: 'pass',
         velocity: 80,
         hasWallPassPowerUp: false,
-        rewardPoints: 200
+        rewardPoints: 200,
+        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
     [
@@ -63,10 +70,11 @@ const getEnemies = () => {
         textureKey: 'pontan',
         velocity: 90,
         hasWallPassPowerUp: true,
-        rewardPoints: 250
+        rewardPoints: 250,
+        motionEnemyType: ENEMY_MOTION_ENUM.SECOND_LEVEL
       }
     ]
   ]);
 };
 
-export default getEnemies;
+export default getEnemyData;

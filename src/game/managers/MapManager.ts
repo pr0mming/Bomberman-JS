@@ -131,10 +131,12 @@ export class MapManager {
       indexTmp
     ] as Physics.Arcade.Sprite;
 
+    wall.setData('hasDoor', true);
+
     this._door = this._scene.physics.add
       .sprite(wall.x, wall.y, 'door')
-      .setScale(2.5);
-    //.setVisible(false);
+      .setScale(2.5)
+      .setVisible(false);
   }
 
   private _setUpPowerUp() {
@@ -149,11 +151,13 @@ export class MapManager {
       indexTmp
     ] as Physics.Arcade.Sprite;
 
+    wall.setData('hasPowerUp', true);
+
     this._powerUp = this._scene.physics.add
       .sprite(wall.x, wall.y, powerUpType.textureKey)
       .setScale(2.5)
-      .setData('powerUpId', powerUpType.id);
-    //.setVisible(false);
+      .setData('powerUpId', powerUpType.id)
+      .setVisible(false);
   }
 
   private _pickPowerUp() {
