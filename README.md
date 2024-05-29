@@ -2,7 +2,7 @@
 
 ## Bomberman JS
 
-A small simulator about the popular game Bomberman (NES), this little game was born as an inspiration to learn about the awesome universe of the Web Game Development using [Phaser 3](https://phaser.io)
+A small simulator about the popular game Bomberman (NES), this little game was born as an inspiration to learn about the awesome universe of the Web Game Development using [Phaser 3](https://phaser.io).
 
 ## Technologies :fire:
 
@@ -11,6 +11,14 @@ A small simulator about the popular game Bomberman (NES), this little game was b
 - [TypeScript](https://www.typescriptlang.org) - to improve the development experience
 
 ## Run it! :rocket:
+
+From the root folder of the project you can fallow these commands:
+
+- First of all, install all dependencies:
+
+```bash
+npm i
+```
 
 - Run the development server:
 
@@ -44,5 +52,5 @@ npm run preview
 ## References :books:
 
 - [Phaser Vite Template](https://github.com/phaserjs/template-vite/tree/main)
-- [Phaser v3 Games Demo](https://labs.phaser.io/index.html?dir=games/&q=)
+- [Phaser 3 Games Demo](https://labs.phaser.io/index.html?dir=games/&q=)
 - [TiledMap Editor](https://www.mapeditor.org/)

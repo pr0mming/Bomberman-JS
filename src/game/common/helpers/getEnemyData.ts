@@ -18,7 +18,7 @@ const getEnemyData = () => {
       ENEMY_ENUM.ONIL,
       {
         textureKey: 'onil',
-        velocity: 50,
+        velocity: 60,
         hasWallPassPowerUp: false,
         rewardPoints: 60,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
@@ -28,7 +28,7 @@ const getEnemyData = () => {
       ENEMY_ENUM.MINVO,
       {
         textureKey: 'minvo',
-        velocity: 60,
+        velocity: 90,
         hasWallPassPowerUp: false,
         rewardPoints: 100,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL

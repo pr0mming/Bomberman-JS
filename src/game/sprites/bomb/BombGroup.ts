@@ -1,7 +1,11 @@
 import { Physics, Scene, Time } from 'phaser';
+
+// Sprites
+import { Bomb } from '@game/sprites/bomb/Bomb';
+import { ExplosionGroup } from '@game/sprites/explosion/ExplosionGroup';
+
+// Enums
 import { TIMER_GAME_ENUM } from '@game/common/enums/TimerGameEnum';
-import { Bomb } from '@src/game/sprites/bomb/Bomb';
-import { ExplosionGroup } from '../explosion/ExplosionGroup';
 
 interface IBombGroupProps {
   world: Physics.Arcade.World;
@@ -91,8 +95,6 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
 
         this.scene.time.addEvent(_timerExloitBomb);
       }
-
-      //this._bombs.sort('y', Phaser.Group.SORT_ASCENDING);
     }
   }
 

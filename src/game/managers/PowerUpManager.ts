@@ -1,6 +1,10 @@
 import { Scene } from 'phaser';
+
+// Sprites
 import BombGroup from '@game/sprites/bomb/BombGroup';
 import { Player } from '@game/sprites/player/Player';
+
+// Enums
 import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 
 interface IPowerUpManagerProps {

@@ -1,5 +1,7 @@
 import { Physics, Scene } from 'phaser';
-import { Wall } from './Wall';
+
+// Sprites
+import { Wall } from '@game/sprites/wall/Wall';
 
 interface IWallGroupProps {
   world: Physics.Arcade.World;

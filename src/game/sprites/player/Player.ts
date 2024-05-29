@@ -1,8 +1,12 @@
 import { Animations, Physics, Scene } from 'phaser';
+
+// Sprites
 import BombGroup from '@game/sprites/bomb/BombGroup';
 
+// Helpers
 import PlayerControlsManager from '@game/managers/PlayerControlsManager';
 
+// Enums
 import { PLAYER_DIRECTION_ENUM } from '@game/common/enums/PlayerDirectionEnum';
 
 interface IPlayerProps {
@@ -191,7 +195,7 @@ export class Player extends Physics.Arcade.Sprite {
   }
 
   public set speed(v: number) {
-    this.speed = v;
+    this._speed = v;
   }
 
   public get hasWallPassPowerUp() {

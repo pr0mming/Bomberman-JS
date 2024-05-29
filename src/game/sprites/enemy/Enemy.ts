@@ -1,12 +1,17 @@
 import { Animations, Physics, Scene } from 'phaser';
-import { Player } from '@src/game/sprites/player/Player';
-import { IEnemy } from '@src/game/common/interfaces/IEnemy';
 
+// Sprites
+import { Player } from '@src/game/sprites/player/Player';
+
+// Interfaces
+import { IEnemy } from '@src/game/common/interfaces/IEnemy';
 import { IEnemyMotion } from '@src/game/common/interfaces/IEnemyMotion';
 import { ISpritePosition } from '@src/game/common/interfaces/ISpritePosition';
 
+// Helpers
 import { EnemyMotionFactory } from '@src/game/managers/enemy-motion/EnemyMotionFactory';
 
+// Enums
 import { ENEMY_MOTION_ENUM } from '@src/game/common/enums/EnemyMotionEnum';
 import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
 import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
@@ -71,7 +76,7 @@ export class Enemy extends Physics.Arcade.Sprite {
 
           break;
 
-        case ENEMY_DIRECTION_ENUM.RIGH:
+        case ENEMY_DIRECTION_ENUM.RIGHT:
           this.play(this._animRightKey);
           this.scene.physics.moveTo(
             this,

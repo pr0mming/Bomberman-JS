@@ -18,7 +18,7 @@ export class BaseEnemyMotion implements IEnemyMotion {
 
     this.directions = [
       ENEMY_DIRECTION_ENUM.LEFT,
-      ENEMY_DIRECTION_ENUM.RIGH,
+      ENEMY_DIRECTION_ENUM.RIGHT,
       ENEMY_DIRECTION_ENUM.UP,
       ENEMY_DIRECTION_ENUM.DOWN
     ];
@@ -31,9 +31,9 @@ export class BaseEnemyMotion implements IEnemyMotion {
   getOppositeDirection(direction: ENEMY_DIRECTION_ENUM): ENEMY_DIRECTION_ENUM {
     switch (direction) {
       case ENEMY_DIRECTION_ENUM.LEFT:
-        return ENEMY_DIRECTION_ENUM.RIGH;
+        return ENEMY_DIRECTION_ENUM.RIGHT;
 
-      case ENEMY_DIRECTION_ENUM.RIGH:
+      case ENEMY_DIRECTION_ENUM.RIGHT:
         return ENEMY_DIRECTION_ENUM.LEFT;
 
       case ENEMY_DIRECTION_ENUM.UP:

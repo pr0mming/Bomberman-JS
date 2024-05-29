@@ -1,4 +1,4 @@
-export enum LEVEL_ENUM {
+export enum GAME_STAGE_ENUM {
   ONE,
   TWO,
   THREE,

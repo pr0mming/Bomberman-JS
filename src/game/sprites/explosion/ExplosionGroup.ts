@@ -1,7 +1,13 @@
 import { Physics, Scene } from 'phaser';
-import { ExplosionFragment } from './ExplosionFragment';
-import { IExplosionFragment } from '@src/game/common/interfaces/IExplosionFragment';
-import getExplosionData from '@src/game/common/helpers/getExplosionData';
+
+// Sprites
+import { ExplosionFragment } from '@game/sprites/explosion/ExplosionFragment';
+
+// Interfaces
+import { IExplosionFragment } from '@game/common/interfaces/IExplosionFragment';
+
+// Helpers
+import getExplosionData from '@game/common/helpers/getExplosionData';
 
 interface IExplosionGroupProps {
   world: Physics.Arcade.World;

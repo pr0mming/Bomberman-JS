@@ -1,21 +1,15 @@
-import { IBombermanStage } from '../interfaces/IBombermanStage';
+import { GAME_STAGE_ENUM } from '../enums/GameStageEnum';
+import { GAME_STATUS_ENUM } from '../enums/GameStatusEnum';
+import { IGameStage } from '../interfaces/IGameStage';
 
-const getInitialBombermanStage = (): IBombermanStage => {
+const getInitialBombermanStage = (): IGameStage => {
   return {
-    stage: 1,
+    stage: GAME_STAGE_ENUM.ONE,
     lives: 3,
-    points: 0,
     time: 190,
-    status: 'start',
-    stage_enemies: [
-      ['ballon'],
-      ['ballon', 'snow'],
-      ['snow', 'cookie'],
-      ['cookie', 'ghost'],
-      ['barrel', 'bear']
-    ],
-    stage_points: 0,
-    stage_time: 0,
+    status: GAME_STATUS_ENUM.START,
+    totalScore: 0,
+    stageScore: 0,
     map: []
   };
 };

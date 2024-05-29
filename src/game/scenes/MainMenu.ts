@@ -1,4 +1,6 @@
 import { Scene, VERSION } from 'phaser';
+
+// Helpers
 import getInitialBombermanStage from '@src/game/common/helpers/getInitialBombermanStage';
 
 /**

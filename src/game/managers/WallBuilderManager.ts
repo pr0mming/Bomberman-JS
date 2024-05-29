@@ -1,5 +1,8 @@
-import { WALL_TO_BUILD_ENUM } from '../common/enums/WallToBuildEnum';
+// Interfaces
 import { IMapPosition } from '../common/interfaces/IMapPosition';
+
+// Enums
+import { WALL_TO_BUILD_ENUM } from '../common/enums/WallToBuildEnum';
 
 interface IAllocateWallsInAxisParams {
   posWall: IMapPosition;

@@ -1,9 +1,17 @@
 import { Physics, Scene, Tilemaps } from 'phaser';
-import getPlayerPowerUps from '../common/helpers/getPlayerPowerUps';
-import { WallGroup } from '../sprites/wall/WallGroup';
-import { Wall } from '../sprites/wall/Wall';
-import { WallBuilderManager } from './WallBuilderManager';
-import { IMapPosition } from '../common/interfaces/IMapPosition';
+
+// Sprites
+import { WallGroup } from '@game/sprites/wall/WallGroup';
+import { Wall } from '@game/sprites/wall/Wall';
+
+// Interfaces
+import { IMapPosition } from '@game/common/interfaces/IMapPosition';
+
+// Helpers
+import getPlayerPowerUps from '@game/common/helpers/getPlayerPowerUps';
+
+// Managers
+import { WallBuilderManager } from '@game/managers/WallBuilderManager';
 
 interface IMapManager {
   scene: Scene;

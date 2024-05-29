@@ -6,8 +6,8 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build --config vite/config.prod.mjs",
+    "dev": "vite --config vite/config.dev.js",
+    "build": "tsc && vite build --config vite/config.prod.js",
     "preview": "vite preview"
   },
   "repository": {

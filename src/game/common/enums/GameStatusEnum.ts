@@ -1,0 +1,6 @@
+export enum GAME_STATUS_ENUM {
+  START,
+  RESTART,
+  GAME_OVER,
+  NEXT_STAGE
+}

@@ -1,6 +1,6 @@
 import { Physics } from 'phaser';
-import { BaseEnemyMotion } from './BaseEnemyMotion';
 import { Player } from '@src/game/sprites/player/Player';
+import { BaseEnemyMotion } from '@src/game/managers/enemy-motion/BaseEnemyMotion';
 import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
 
 export class SecondLevelEnemyMotion extends BaseEnemyMotion {
@@ -12,41 +12,33 @@ export class SecondLevelEnemyMotion extends BaseEnemyMotion {
   }
 
   computeNewDirection(): ENEMY_DIRECTION_ENUM {
-    if (this.enemyBody) {
-      if (
-        Math.round(this.player.x) > Math.round(this.enemyBody.center.x) &&
-        Math.round(this.player.y) != Math.round(this.enemyBody.center.y)
-      ) {
-        return ENEMY_DIRECTION_ENUM.RIGH;
-      } else if (
-        Math.round(this.player.x) < Math.round(this.enemyBody.center.x) &&
-        Math.round(this.player.y) != Math.round(this.enemyBody.center.y)
-      ) {
-        return ENEMY_DIRECTION_ENUM.LEFT;
-      } else if (
-        Math.round(this.player.y) > Math.round(this.enemyBody.center.y) &&
-        Math.round(this.player.x) != Math.round(this.enemyBody.center.x)
-      ) {
-        return ENEMY_DIRECTION_ENUM.UP;
-      } else if (
-        Math.round(this.player.y) < Math.round(this.enemyBody.center.y) &&
-        Math.round(this.player.x) != Math.round(this.enemyBody.center.x)
-      ) {
-        return ENEMY_DIRECTION_ENUM.DOWN;
-      } else if (
-        Math.round(this.player.x) == Math.round(this.enemyBody.center.x) &&
-        Math.round(this.player.y) != Math.round(this.enemyBody.center.y)
-      ) {
-        if (Math.round(this.player.y) > Math.round(this.enemyBody.center.y))
-          return ENEMY_DIRECTION_ENUM.UP;
-        else return ENEMY_DIRECTION_ENUM.DOWN;
-      } else if (
-        Math.round(this.player.y) == Math.round(this.enemyBody.center.y) &&
-        Math.round(this.player.x) != Math.round(this.enemyBody.center.x)
-      ) {
-        if (Math.round(this.player.x) > Math.round(this.enemyBody.center.x))
-          return ENEMY_DIRECTION_ENUM.RIGH;
-        else return ENEMY_DIRECTION_ENUM.LEFT;
+    if (this.enemyBody && this.player.body) {
+      const playerCenterX = Math.round(this.player.body.center.x);
+      const playerCenterY = Math.round(this.player.body.center.y);
+      const enemyCenterX = Math.round(this.enemyBody.center.x);
+      const enemyCenterY = Math.round(this.enemyBody.center.y);
+
+      const deltaX = playerCenterX - enemyCenterX;
+      const deltaY = playerCenterY - enemyCenterY;
+
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        return deltaX > 0
+          ? ENEMY_DIRECTION_ENUM.RIGHT
+          : ENEMY_DIRECTION_ENUM.LEFT;
+      } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        return deltaY > 0 ? ENEMY_DIRECTION_ENUM.UP : ENEMY_DIRECTION_ENUM.DOWN;
+      } else {
+        // If the player is exactly aligned in one direction
+        if (deltaX !== 0) {
+          return deltaX > 0
+            ? ENEMY_DIRECTION_ENUM.RIGHT
+            : ENEMY_DIRECTION_ENUM.LEFT;
+        }
+        if (deltaY !== 0) {
+          return deltaY > 0
+            ? ENEMY_DIRECTION_ENUM.UP
+            : ENEMY_DIRECTION_ENUM.DOWN;
+        }
       }
     }
 

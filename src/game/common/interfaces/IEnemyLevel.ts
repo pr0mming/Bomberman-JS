@@ -1,6 +1,6 @@
 import { ENEMY_ENUM } from '../enums/EnemyEnum';
 
-export interface ILevel {
+export interface IEnemyLevel {
   quantity: number;
   type: ENEMY_ENUM;
 }

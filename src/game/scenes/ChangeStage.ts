@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
-import { IBombermanStage } from '@src/game/common/interfaces/IBombermanStage';
+import { IGameStage } from '../common/interfaces/IGameStage';
+import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
 
 interface IPrepareUIParameters {
   text: string;
@@ -8,14 +9,14 @@ interface IPrepareUIParameters {
 }
 
 export class ChangeStage extends Scene {
-  _stageBomberman?: IBombermanStage;
+  gameStage?: IGameStage;
 
   constructor() {
     super('ChangeStage');
   }
 
-  init(stageBomberman: IBombermanStage) {
-    this._stageBomberman = stageBomberman;
+  init(gameStage: IGameStage) {
+    this.gameStage = gameStage;
   }
 
   create() {
@@ -23,36 +24,40 @@ export class ChangeStage extends Scene {
     this.cameras.main.backgroundColor =
       Phaser.Display.Color.HexStringToColor('#000000');
 
-    switch (this._stageBomberman?.status) {
-      case 'start':
-      case 'restart':
-        this.prepareUI({
-          text: `STAGE ${this._stageBomberman?.stage}`,
-          delay: 4,
-          soundKey: 'level-start'
-        });
+    if (this.gameStage) {
+      switch (this.gameStage?.status) {
+        case GAME_STATUS_ENUM.START:
+        case GAME_STATUS_ENUM.RESTART:
+          this.prepareUI({
+            text: `STAGE ${this.gameStage?.stage + 1}`,
+            delay: 4,
+            soundKey: 'level-start'
+          });
 
-        break;
+          break;
 
-      case 'game-over':
-        this.prepareUI({
-          text: 'GAME OVER',
-          delay: 7,
-          soundKey: 'game-over'
-        });
+        case GAME_STATUS_ENUM.GAME_OVER:
+          this.prepareUI({
+            text: 'GAME OVER',
+            delay: 7,
+            soundKey: 'game-over'
+          });
 
-        break;
+          break;
 
-      case 'next-stage':
-        this.prepareUI({
-          text: `STAGE ${this._stageBomberman?.stage + 1}`,
-          delay: 4,
-          soundKey: 'level-start'
-        });
-        break;
+        case GAME_STATUS_ENUM.NEXT_STAGE:
+          this.gameStage.stage++;
 
-      default:
-        break;
+          this.prepareUI({
+            text: `STAGE ${this.gameStage?.stage + 1}`,
+            delay: 4,
+            soundKey: 'level-start'
+          });
+          break;
+
+        default:
+          break;
+      }
     }
   }
 
@@ -82,7 +87,7 @@ export class ChangeStage extends Scene {
 
         if (repeatCount <= 0) {
           _sceneTimer.paused = true;
-          this.scene.start('Game', this._stageBomberman);
+          this.scene.start('Game', this.gameStage);
         }
       },
       callbackScope: this

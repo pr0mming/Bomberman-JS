@@ -7,34 +7,34 @@ import getEnemyData from '@src/game/common/helpers/getEnemyData';
 
 import { IMapPosition } from '@src/game/common/interfaces/IMapPosition';
 import { IEnemy } from '@src/game/common/interfaces/IEnemy';
-import { ILevel } from '@src/game/common/interfaces/ILevel';
+import { IEnemyLevel } from '@src/game/common/interfaces/IEnemyLevel';
 
-import { LEVEL_ENUM } from '@src/game/common/enums/LevelEnum';
 import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
+import { GAME_STAGE_ENUM } from '@src/game/common/enums/GameStageEnum';
 
 interface IEnemyGroupProps {
   world: Physics.Arcade.World;
   scene: Scene;
-  level: LEVEL_ENUM;
+  stage: GAME_STAGE_ENUM;
   freePositions: IMapPosition[];
   player: Player;
 }
 
 export class EnemyGroup extends Physics.Arcade.Group {
-  private enemyLevel: ILevel[];
+  private _enemyLevel: IEnemyLevel[];
   private _freePositions: IMapPosition[];
   private _player: Player;
 
   constructor({
     world,
     scene,
-    level,
+    stage,
     freePositions,
     player
   }: IEnemyGroupProps) {
     super(world, scene);
 
-    this.enemyLevel = this._getEnemyLevelByKey(level);
+    this._enemyLevel = this._getEnemyLevelByKey(stage);
 
     this._freePositions = freePositions;
     this._player = player;
@@ -44,7 +44,7 @@ export class EnemyGroup extends Physics.Arcade.Group {
     this._setUp();
   }
 
-  private _getEnemyLevelByKey(key: LEVEL_ENUM) {
+  private _getEnemyLevelByKey(key: GAME_STAGE_ENUM) {
     const enemyLevels = getEnemyLevels();
     const enemyLevel = enemyLevels.get(key);
 
@@ -67,7 +67,7 @@ export class EnemyGroup extends Physics.Arcade.Group {
   }
 
   private _setUp() {
-    for (const enemyInput of this.enemyLevel) {
+    for (const enemyInput of this._enemyLevel) {
       const enemyData = this._getEnemyDataByKey(enemyInput.type);
 
       this._createAnimations(enemyInput.type, enemyData);
@@ -93,6 +93,15 @@ export class EnemyGroup extends Physics.Arcade.Group {
         newEnemy.setMotionManager(enemyData.motionEnemyType);
         newEnemy.dispatchMotion();
       }
+    }
+
+    if (
+      this._enemyLevel.find((item) => item.type === ENEMY_ENUM.PONTAN) ===
+      undefined
+    ) {
+      const enemyData = this._getEnemyDataByKey(ENEMY_ENUM.PONTAN);
+
+      this._createAnimations(ENEMY_ENUM.PONTAN, enemyData);
     }
 
     this.scene.anims.create({
@@ -137,9 +146,9 @@ export class EnemyGroup extends Physics.Arcade.Group {
     });
   }
 
-  addRndEnemiesByPosition(x: number, y: number) {
+  addRandomByPosition(x: number, y: number) {
     const enemiesNumber = Phaser.Math.RND.between(3, 6);
-    const enemyType = this.enemyLevel[this.enemyLevel.length - 1];
+    const enemyType = this._enemyLevel[this._enemyLevel.length - 1];
     const enemyData = this._getEnemyDataByKey(enemyType.type);
 
     for (let i = 0; i < enemiesNumber; i++) {
@@ -148,6 +157,36 @@ export class EnemyGroup extends Physics.Arcade.Group {
         x,
         y,
         type: enemyType.type,
+        enemyData,
+        player: this._player
+      });
+
+      this.add(newEnemy, true);
+
+      newEnemy.setMotionManager(enemyData.motionEnemyType);
+      newEnemy.dispatchMotion();
+    }
+  }
+
+  replaceAllByType(type: ENEMY_ENUM) {
+    const enemyData = this._getEnemyDataByKey(type);
+    const enemyPositions = this.getChildren().map((enemy) => {
+      const _enemy = enemy as Enemy;
+
+      return {
+        x: Math.floor(_enemy.body?.center.x ?? 0),
+        y: Math.floor(_enemy.body?.center.y ?? 0)
+      };
+    });
+
+    this.clear(true);
+
+    for (const enemyPos of enemyPositions) {
+      const newEnemy = new Enemy({
+        scene: this.scene,
+        x: enemyPos.x,
+        y: enemyPos.y,
+        type: type,
         enemyData,
         player: this._player
       });
