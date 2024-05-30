@@ -30,8 +30,8 @@ export class MapManager {
 
   private _crossroads!: Physics.Arcade.Group;
 
-  private _powerUp!: Physics.Arcade.Sprite;
-  private _door!: Physics.Arcade.Sprite;
+  private _powerUp!: Physics.Arcade.Image;
+  private _door!: Physics.Arcade.Image;
 
   constructor({ scene, world }: IMapManager) {
     this._scene = scene;
@@ -130,19 +130,12 @@ export class MapManager {
   }
 
   private _setUpDoor() {
-    const indexTmp = Phaser.Math.RND.between(
-      0,
-      this.wallsGroup.getLength() - 1
-    );
-
-    const wall = this.wallsGroup.getChildren()[
-      indexTmp
-    ] as Physics.Arcade.Sprite;
+    const wall = this._pickRndWall();
 
     wall.setData('hasDoor', true);
 
     this._door = this._scene.physics.add
-      .sprite(wall.x, wall.y, 'door')
+      .image(wall.x, wall.y, 'door')
       .setScale(2.5)
       .setVisible(false);
   }
@@ -150,19 +143,12 @@ export class MapManager {
   private _setUpPowerUp() {
     const powerUpType = this._pickPowerUp();
 
-    const indexTmp = Phaser.Math.RND.between(
-      0,
-      this.wallsGroup.getLength() - 1
-    );
-
-    const wall = this.wallsGroup.getChildren()[
-      indexTmp
-    ] as Physics.Arcade.Sprite;
+    const wall = this._pickRndWall();
 
     wall.setData('hasPowerUp', true);
 
     this._powerUp = this._scene.physics.add
-      .sprite(wall.x, wall.y, powerUpType.textureKey)
+      .image(wall.x, wall.y, powerUpType.textureKey)
       .setScale(2.5)
       .setData('powerUpId', powerUpType.id)
       .setVisible(false);
@@ -173,6 +159,26 @@ export class MapManager {
     const index = Phaser.Math.RND.between(0, powerUps.length - 1);
 
     return powerUps[index];
+  }
+
+  private _pickRndWall(): Physics.Arcade.Sprite {
+    const indexTmp = Phaser.Math.RND.between(
+      0,
+      this.wallsGroup.getLength() - 1
+    );
+
+    const wall = this.wallsGroup.getChildren()[
+      indexTmp
+    ] as Physics.Arcade.Sprite;
+
+    if (
+      (wall.getData('hasPowerUp') as boolean) ||
+      (wall.getData('hasDoor') as boolean)
+    ) {
+      return this._pickRndWall();
+    }
+
+    return wall;
   }
 
   public get map() {
@@ -191,8 +197,8 @@ export class MapManager {
     return this._crossroads;
   }
 
-  public get freePositions() {
-    return this._wallBuilderManager.freePositions;
+  public get wallBuilderManager() {
+    return this._wallBuilderManager;
   }
 
   public get door() {

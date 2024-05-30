@@ -1,3 +1,16 @@
+@font-face {
+  font-family: 'BitBold';
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url(/fonts/BitBold.ttf) format('truetype');
+}
+
+* {
+  font-family: 'BitBold', sans-serif;
+  font-size: 16px;
+}
+
 body {
   display: grid;
   height: 100vh;
@@ -6,6 +19,7 @@ body {
 
 main {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -18,10 +32,22 @@ canvas {
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
 }
 
-@font-face {
-  font-family: 'BitBold';
-  font-style: normal;
-  font-weight: normal;
-  font-display: swap;
-  src: url(/fonts/BitBold.ttf) format('truetype');
+button {
+  background-color: #8e001c;
+  border: 0px;
+  border-radius: 5px;
+  color: white;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 500ms;
+}
+
+#game-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: 30px;
+  padding-top: 30px;
 }

@@ -1,8 +1,14 @@
 import { Physics } from 'phaser';
-import { Player } from '@src/game/sprites/player/Player';
-import { IEnemyMotion } from '@src/game/common/interfaces/IEnemyMotion';
-import { ISpritePosition } from '@src/game/common/interfaces/ISpritePosition';
-import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
+
+// Sprites
+import { Player } from '@game/sprites/player/Player';
+
+// Interfaces
+import { IEnemyMotion } from '@game/common/interfaces/IEnemyMotion';
+import { ISpritePosition } from '@game/common/interfaces/ISpritePosition';
+
+// Enums
+import { ENEMY_DIRECTION_ENUM } from '@game/common/enums/EnemyDirectionEnum';
 
 export class BaseEnemyMotion implements IEnemyMotion {
   player: Player;

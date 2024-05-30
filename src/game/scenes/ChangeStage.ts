@@ -1,5 +1,9 @@
 import { Scene } from 'phaser';
+
+// Interfaces
 import { IGameStage } from '../common/interfaces/IGameStage';
+
+// Enums
 import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
 
 interface IPrepareUIParameters {

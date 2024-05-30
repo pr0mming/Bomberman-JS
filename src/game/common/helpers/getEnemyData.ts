@@ -10,7 +10,7 @@ const getEnemyData = () => {
         textureKey: 'ballom',
         velocity: 30,
         hasWallPassPowerUp: false,
-        rewardPoints: 50,
+        rewardPoints: 100,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
@@ -20,7 +20,7 @@ const getEnemyData = () => {
         textureKey: 'onil',
         velocity: 60,
         hasWallPassPowerUp: false,
-        rewardPoints: 60,
+        rewardPoints: 150,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
@@ -30,7 +30,7 @@ const getEnemyData = () => {
         textureKey: 'minvo',
         velocity: 90,
         hasWallPassPowerUp: false,
-        rewardPoints: 100,
+        rewardPoints: 200,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
@@ -40,7 +40,7 @@ const getEnemyData = () => {
         textureKey: 'dahl',
         velocity: 60,
         hasWallPassPowerUp: false,
-        rewardPoints: 150,
+        rewardPoints: 250,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
@@ -50,7 +50,7 @@ const getEnemyData = () => {
         textureKey: 'ovape',
         velocity: 20,
         hasWallPassPowerUp: true,
-        rewardPoints: 180,
+        rewardPoints: 300,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
@@ -60,7 +60,7 @@ const getEnemyData = () => {
         textureKey: 'pass',
         velocity: 80,
         hasWallPassPowerUp: false,
-        rewardPoints: 200,
+        rewardPoints: 350,
         motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
       }
     ],
@@ -70,7 +70,7 @@ const getEnemyData = () => {
         textureKey: 'pontan',
         velocity: 90,
         hasWallPassPowerUp: true,
-        rewardPoints: 250,
+        rewardPoints: 400,
         motionEnemyType: ENEMY_MOTION_ENUM.SECOND_LEVEL
       }
     ]

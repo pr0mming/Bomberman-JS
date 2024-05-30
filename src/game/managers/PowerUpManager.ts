@@ -26,6 +26,8 @@ export class PowerUpManager {
 
   addPowerUp(powerUp: PLAYER_POWER_UP_ENUM): number {
     this._scene.sound.stopByKey('stage-theme');
+
+    this._scene.sound.play('power-up');
     this._scene.sound.play('find-the-door', { loop: true });
 
     switch (powerUp) {

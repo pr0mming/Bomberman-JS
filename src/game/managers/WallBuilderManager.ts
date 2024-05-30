@@ -30,7 +30,7 @@ export class WallBuilderManager {
     ];
   }
 
-  private _excludeIllegalPositions(positions: IMapPosition[]) {
+  private _excludeIllegalPositions(positions: IMapPosition[]): IMapPosition[] {
     return positions.filter(
       (pos) =>
         !(pos.x === 60 && pos.y === 120) &&
@@ -91,7 +91,7 @@ export class WallBuilderManager {
     }
   }
 
-  private _allocateWallsInAxis(parameters: IAllocateWallsInAxisParams) {
+  private _allocateWallsInAxis(parameters: IAllocateWallsInAxisParams): number {
     const { posWall, posWallsInAxis, addWallSpriteFn } = parameters;
 
     let blockLenght = Phaser.Math.RND.between(2, 4);
@@ -141,5 +141,9 @@ export class WallBuilderManager {
 
   public get freePositions() {
     return this._freePositions;
+  }
+
+  public set freePositions(v: IMapPosition[]) {
+    this._freePositions = v;
   }
 }

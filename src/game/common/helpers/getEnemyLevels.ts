@@ -4,7 +4,7 @@ import { IEnemyLevel } from '../interfaces/IEnemyLevel';
 
 const getEnemyLevels = () => {
   return new Map<GAME_STAGE_ENUM, IEnemyLevel[]>([
-    [GAME_STAGE_ENUM.ONE, [{ quantity: 12, type: ENEMY_ENUM.BALLOM }]],
+    [GAME_STAGE_ENUM.ONE, [{ quantity: 10, type: ENEMY_ENUM.BALLOM }]],
     [
       GAME_STAGE_ENUM.TWO,
       [

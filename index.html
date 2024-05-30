@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <!-- Preload font to use in Phaser.js, otherwise it will be taken as a fallback (I don't know the reason) -->
     <link
@@ -12,19 +14,74 @@
       crossorigin
     />
     <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/dialog.css" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bomberman (NES)</title>
   </head>
   <body>
     <main>
       <div id="bomberman-container"></div>
 
-      <div>
-        <section class="game-controls"></section>
+      <div id="game-controls">
+        <button onclick="constrolsModal.showModal()">How to play?</button>
+        <a
+          class="github-button"
+          href="https://github.com/pr0mming/Bomberman-JS"
+          data-color-scheme="no-preference: light_high_contrast; light: light; dark: light;"
+          data-size="large"
+          data-show-count="true"
+          aria-label="Star pr0mming/Bomberman-JS on GitHub"
+          >Star</a
+        >
       </div>
+
+      <dialog id="constrolsModal">
+        <form method="dialog" class="btn-close">
+          <button type="submit" autofocus>x</button>
+        </form>
+
+        <div class="dialog-body">
+          <section>
+            <div>
+              <img
+                src="/images/arrow-keys.png"
+                width="90"
+                height="60"
+                alt="Key Up"
+              />
+            </div>
+
+            <p>To move your player</p>
+          </section>
+
+          <section>
+            <img src="/images/x-key.png" width="60" height="60" alt="Key Up" />
+
+            <p>To put any bomb</p>
+          </section>
+
+          <section>
+            <img
+              src="/images/space-key.png"
+              width="60"
+              height="60"
+              alt="Key Up"
+            />
+
+            <p>To explode your bomb</p>
+          </section>
+
+          <section>
+            <img src="/images/s-key.png" width="60" height="60" alt="Key Up" />
+
+            <p>To save the game</p>
+          </section>
+        </div>
+      </dialog>
     </main>
 
     <script type="module" src="/src/main.ts"></script>
+    <!-- Github Button -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
   </body>
 </html>

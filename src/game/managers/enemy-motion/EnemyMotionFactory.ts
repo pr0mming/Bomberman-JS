@@ -1,8 +1,14 @@
 import { Physics } from 'phaser';
-import { Player } from '@src/game/sprites/player/Player';
-import { FirstLevelEnemyMotion } from './FirstLevelEnemyMotion';
-import { SecondLevelEnemyMotion } from './SecondLevelEnemyMotion';
-import { ENEMY_MOTION_ENUM } from '@src/game/common/enums/EnemyMotionEnum';
+
+// Sprites
+import { Player } from '@game/sprites/player/Player';
+
+// Managers
+import { FirstLevelEnemyMotion } from '@game/managers/enemy-motion/FirstLevelEnemyMotion';
+import { SecondLevelEnemyMotion } from '@game/managers/enemy-motion/SecondLevelEnemyMotion';
+
+// Enums
+import { ENEMY_MOTION_ENUM } from '@game/common/enums/EnemyMotionEnum';
 
 interface EnemyMotionFactoryProps {
   type: ENEMY_MOTION_ENUM;

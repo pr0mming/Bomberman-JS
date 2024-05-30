@@ -214,6 +214,25 @@ export class Enemy extends Physics.Arcade.Sprite {
         this.play('destroy-enemy').once(
           Animations.Events.ANIMATION_COMPLETE,
           () => {
+            if (this.body) {
+              const rewardPoints = this.scene.add
+                .text(
+                  this.body?.center.x,
+                  this.body?.center.y,
+                  this.enemyData.rewardPoints.toString()
+                )
+                .setFontFamily('"BitBold", "Tahoma"')
+                .setFontSize(10)
+                .setColor('white')
+                .setStroke('black', 2.5);
+
+              this.scene.time.addEvent({
+                delay: 2000,
+                callback: () => rewardPoints.destroy(true),
+                callbackScope: this
+              });
+            }
+
             this.destroy(true);
           }
         );

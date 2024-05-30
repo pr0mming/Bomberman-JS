@@ -158,7 +158,7 @@ export class Preloader extends Scene {
     this.load.audio('game-over', '/game/music/stage/game-over.mp3');
     this.load.audio('menu-audio', '/game/music/stage/title-screen.mp3');
     this.load.audio('put-bomb', '/game/music/bomb/put-bomb.wav');
-    this.load.audio('power', '/game/music/character/power.wav');
+    this.load.audio('power-up', '/game/music/character/power-up.wav');
     this.load.audio('lose', '/game/music/character/lose.wav');
     this.load.audio('last-enemy', '/game/music/enemy/last-enemy.wav');
   }

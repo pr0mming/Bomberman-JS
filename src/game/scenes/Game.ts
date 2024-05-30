@@ -62,7 +62,7 @@ export class Game extends Scene {
       scene: this,
       world: this.physics.world,
       stage: this._gameStage.stage,
-      freePositions: this._mapManager.freePositions,
+      freePositions: this._mapManager.wallBuilderManager.freePositions,
       player: this._player
     });
 
@@ -240,27 +240,27 @@ export class Game extends Scene {
 
         const extraPoints = this._powerUpManager.addPowerUp(powerUpId);
 
-        this._gameStage.stageScore += extraPoints;
-
-        this._gameRulesManager.setLabelTextByKey(
-          'SCORE',
-          this._gameStage.stageScore.toString()
-        );
+        this._gameRulesManager.score += extraPoints;
 
         _powerUp.destroy();
       },
       (player, powerUp) => {
         const _player = player as Player;
-        const _powerUp = powerUp as Physics.Arcade.Sprite;
+        const _powerUp = powerUp as Physics.Arcade.Image;
 
-        return (
-          _player.body &&
-          _powerUp.body &&
-          Math.floor(_player.body.center.x) ===
-            Math.floor(_powerUp.body.center.x) &&
-          Math.floor(_player.body.center.y) ===
-            Math.floor(_powerUp.body.center.y)
-        );
+        if (_player.body && _powerUp.body) {
+          const playerCenterX = Math.round(_player.body.center.x);
+          const playerCenterY = Math.round(_player.body.center.y);
+          const powerUpCenterX = Math.round(_powerUp.body.center.x);
+          const powerUpCenterY = Math.round(_powerUp.body.center.y);
+
+          const deltaX = Math.abs(playerCenterX - powerUpCenterX);
+          const deltaY = Math.abs(playerCenterY - powerUpCenterY);
+
+          return deltaX <= 5 && deltaY <= 5;
+        }
+
+        return false;
       },
       this
     );
@@ -273,7 +273,7 @@ export class Game extends Scene {
       },
       (player, door) => {
         const _player = player as Player;
-        const _door = door as Physics.Arcade.Sprite;
+        const _door = door as Physics.Arcade.Image;
 
         return (
           _player.body &&
@@ -289,24 +289,18 @@ export class Game extends Scene {
     this.physics.add.overlap(
       this._bombGroup.explosionGroup,
       this._mapManager.door,
-      (_, door) => {
-        const _door = door as Physics.Arcade.Sprite;
+      () => {
+        const door = this._mapManager.door;
 
-        _door.disableBody(false);
-
-        setTimeout(() => {
-          _door.enableBody(false);
-        }, 2000);
-
-        if (_door.body) {
+        if (door.body) {
           this._enemiesGroup.addRandomByPosition(
-            _door.body.center.x,
-            _door.body.center.y
+            door.body.center.x,
+            door.body.center.y
           );
         }
       },
-      (_, door) => {
-        const _door = door as Physics.Arcade.Sprite;
+      () => {
+        const _door = this._mapManager.door;
 
         return _door.body?.enable && _door.visible;
       },
@@ -318,6 +312,8 @@ export class Game extends Scene {
       this._enemiesGroup,
       (_, enemy) => {
         const _enemy = enemy as Enemy;
+
+        this._gameRulesManager.score += _enemy.enemyData.rewardPoints;
 
         _enemy.kill();
       },
@@ -334,7 +330,15 @@ export class Game extends Scene {
         _wall.kill();
 
         if (_wall.getData('hasDoor')) {
-          this._mapManager.door.setVisible(true);
+          const door = this._mapManager.door;
+
+          door.disableBody(false);
+
+          setTimeout(() => {
+            door.enableBody(false);
+          }, 3000);
+
+          door.setVisible(true);
         }
 
         if (_wall.getData('hasPowerUp')) {

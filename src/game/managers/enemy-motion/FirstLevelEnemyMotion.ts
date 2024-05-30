@@ -1,7 +1,13 @@
-import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
-import { BaseEnemyMotion } from './BaseEnemyMotion';
-import { Player } from '@src/game/sprites/player/Player';
 import { Physics } from 'phaser';
+
+// Sprites
+import { Player } from '@game/sprites/player/Player';
+
+// Managers
+import { BaseEnemyMotion } from '@game/managers/enemy-motion/BaseEnemyMotion';
+
+// Enums
+import { ENEMY_DIRECTION_ENUM } from '@game/common/enums/EnemyDirectionEnum';
 
 export class FirstLevelEnemyMotion extends BaseEnemyMotion {
   constructor(

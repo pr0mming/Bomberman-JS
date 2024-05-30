@@ -46,9 +46,11 @@ export class GameRulesManager {
     this._labels = this._scene.add.group();
 
     this._timers = new Map<number, Time.TimerEvent>();
+
+    this._setUp();
   }
 
-  createStatistics() {
+  private _setUp() {
     const style = {
       font: '15px BitBold',
       fill: 'white',
@@ -107,7 +109,7 @@ export class GameRulesManager {
 
         this._gameStage.time = repeatCount;
 
-        this.setLabelTextByKey('TIME', `TIME: ${repeatCount}`);
+        this._setLabelTextByKey('TIME', `TIME: ${repeatCount}`);
       },
       callbackScope: this
     });
@@ -131,7 +133,7 @@ export class GameRulesManager {
     this._gameStage.totalScore = this._gameStage.stageScore;
     this._gameStage.status = GAME_STATUS_ENUM.NEXT_STAGE;
 
-    this.setLabelTextByKey('SCORE', this._gameStage.stageScore.toString());
+    this._setLabelTextByKey('SCORE', this._gameStage.stageScore.toString());
 
     this._scene.sound.play('level-complete');
 
@@ -186,11 +188,21 @@ export class GameRulesManager {
     this._scene.time.addEvent(_timerLose);
   }
 
-  public setLabelTextByKey(key: string, value: string) {
+  private _setLabelTextByKey(key: string, value: string) {
     const _label = getItemFromPhaserGroup(this._labels.getChildren(), key);
 
     if (_label) {
       (_label as GameObjects.Text).setText(value);
     }
+  }
+
+  public get score() {
+    return this._gameStage.stageScore;
+  }
+
+  public set score(v: number) {
+    this._gameStage.stageScore += v;
+
+    this._setLabelTextByKey('SCORE', this._gameStage.stageScore.toString());
   }
 }
