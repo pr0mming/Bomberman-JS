@@ -5,9 +5,10 @@ import { Player } from '@src/game/sprites/player/Player';
 import getEnemyLevels from '@src/game/common/helpers/getEnemyLevels';
 import getEnemyData from '@src/game/common/helpers/getEnemyData';
 
-import { IMapPosition } from '@src/game/common/interfaces/IMapPosition';
 import { IEnemy } from '@src/game/common/interfaces/IEnemy';
 import { IEnemyLevel } from '@src/game/common/interfaces/IEnemyLevel';
+
+import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
 
 import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
 import { GAME_STAGE_ENUM } from '@src/game/common/enums/GameStageEnum';
@@ -16,27 +17,27 @@ interface IEnemyGroupProps {
   world: Physics.Arcade.World;
   scene: Scene;
   stage: GAME_STAGE_ENUM;
-  freePositions: IMapPosition[];
+  wallBuilderManager: WallBuilderManager;
   player: Player;
 }
 
 export class EnemyGroup extends Physics.Arcade.Group {
   private _enemyLevel: IEnemyLevel[];
-  private _freePositions: IMapPosition[];
+  private _wallBuilderManager: WallBuilderManager;
   private _player: Player;
 
   constructor({
     world,
     scene,
     stage,
-    freePositions,
+    wallBuilderManager,
     player
   }: IEnemyGroupProps) {
     super(world, scene);
 
     this._enemyLevel = this._getEnemyLevelByKey(stage);
 
-    this._freePositions = freePositions;
+    this._wallBuilderManager = wallBuilderManager;
     this._player = player;
 
     this.classType = Enemy;
@@ -73,16 +74,12 @@ export class EnemyGroup extends Physics.Arcade.Group {
       this._createAnimations(enemyInput.type, enemyData);
 
       for (let i = 0; i < enemyInput.quantity; i++) {
-        const index = Phaser.Math.RND.between(
-          0,
-          this._freePositions.length - 1
-        );
-        const chosenPos = this._freePositions[index];
+        const { element } = this._wallBuilderManager.pickSafeRndFreePosition();
 
         const newEnemy = new Enemy({
           scene: this.scene,
-          x: chosenPos.x,
-          y: chosenPos.y,
+          x: element.x,
+          y: element.y,
           type: enemyInput.type,
           enemyData,
           player: this._player

@@ -1,35 +1,46 @@
 import { IExplosionFragment } from '../interfaces/IExplosionFragment';
 
 const getExplosionData = (): IExplosionFragment[] => {
-  const offsetAxis = 23;
+  const visualOffsetAxis = 33;
+  const tileOffsetAxis = 40;
 
   return [
     {
-      x: 0,
-      y: 0,
+      spriteXOffset: 0,
+      spriteYOffset: 0,
+      tileXOffset: 0,
+      tileYOffset: 0,
       textureKey: 'explosion-center'
     },
     {
-      x: 0,
-      y: -offsetAxis,
+      spriteXOffset: 0,
+      spriteYOffset: -visualOffsetAxis,
+      tileXOffset: 0,
+      tileYOffset: -tileOffsetAxis,
       textureKey: 'explosion-upper-lenght',
       textureKeyExtension: 'explosion-extension-vertical'
     },
     {
-      x: 0,
-      y: offsetAxis,
+      spriteXOffset: 0,
+      spriteYOffset: visualOffsetAxis,
+      tileXOffset: 0,
+      tileYOffset: tileOffsetAxis,
       textureKey: 'explosion-lower-lenght',
       textureKeyExtension: 'explosion-extension-vertical'
     },
     {
-      x: offsetAxis,
-      y: 0,
+      spriteXOffset: visualOffsetAxis,
+      spriteYOffset: 0,
+      tileXOffset: tileOffsetAxis,
+      tileYOffset: 0,
       textureKey: 'explosion-right-lenght',
       textureKeyExtension: 'explosion-extension-horizontal'
     },
     {
-      x: -offsetAxis,
-      y: 0,
+      spriteXOffset: -visualOffsetAxis,
+      spriteYOffset: 0,
+      tileXOffset: -tileOffsetAxis,
+      tileYOffset: 0,
       textureKey: 'explosion-left-lenght',
       textureKeyExtension: 'explosion-extension-horizontal'
     }

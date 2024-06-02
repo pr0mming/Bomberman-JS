@@ -191,14 +191,14 @@ export class Enemy extends Physics.Arcade.Sprite {
     }
   }
 
-  validateCrossroadOverlap(crossroadPosition: ISpritePosition): boolean {
+  validateCrossroadOverlap(tilePosition: ISpritePosition): boolean {
     if (this._motionManager && this._lastCrossroadTouched)
       return this._motionManager.validateCrossroadOverlap(
         {
           x: this._lastCrossroadTouched?.x,
           y: this._lastCrossroadTouched?.y
         },
-        crossroadPosition
+        tilePosition
       );
 
     return false;

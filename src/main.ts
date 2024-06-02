@@ -14,8 +14,8 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: '#000000',
   antialias: true,
   physics: {
-    default: 'arcade',
-    arcade: { debug: true }
+    default: 'arcade'
+    // arcade: { debug: true }
   },
   scene: [Boot, Preloader, MainMenu, ChangeStage, BombermanGame]
 };

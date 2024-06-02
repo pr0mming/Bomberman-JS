@@ -3,6 +3,12 @@ import { IMapPosition } from '../common/interfaces/IMapPosition';
 
 // Enums
 import { WALL_TO_BUILD_ENUM } from '../common/enums/WallToBuildEnum';
+import { Types } from 'phaser';
+
+interface ISafeRndFreePositionResult {
+  index: number;
+  element: IMapPosition;
+}
 
 interface IAllocateWallsInAxisParams {
   posWall: IMapPosition;
@@ -17,26 +23,60 @@ export class WallBuilderManager {
   private _maxWalls: number;
   private _wallTypes: WALL_TO_BUILD_ENUM[];
 
-  constructor(freePositions: IMapPosition[]) {
-    this._freePositions = this._excludeIllegalPositions(freePositions);
+  constructor(
+    roads: Types.Tilemaps.TiledObject[],
+    crossroads: Types.Tilemaps.TiledObject[]
+  ) {
+    this._freePositions = [];
 
-    this._minWalls = 90;
-    this._maxWalls = 130;
+    this._minWalls = 75;
+    this._maxWalls = 100;
 
     this._wallTypes = [
       WALL_TO_BUILD_ENUM.ISOLATED,
       WALL_TO_BUILD_ENUM.COLUMN,
       WALL_TO_BUILD_ENUM.ROW
     ];
+
+    this._setUp(roads, crossroads);
   }
 
-  private _excludeIllegalPositions(positions: IMapPosition[]): IMapPosition[] {
-    return positions.filter(
-      (pos) =>
-        !(pos.x === 60 && pos.y === 120) &&
-        !(pos.x === 60 && pos.y === 160) &&
-        !(pos.x === 100 && pos.y === 120)
+  private _setUp(
+    roads: Types.Tilemaps.TiledObject[],
+    crossroads: Types.Tilemaps.TiledObject[]
+  ) {
+    const freePositions = [
+      ...roads.map((item) => ({
+        x: item.x ?? 0,
+        y: item.y ?? 0
+      })),
+      ...crossroads.map((item) => ({
+        x: item.x ?? 0,
+        y: item.y ?? 0
+      }))
+    ];
+
+    this._freePositions = freePositions;
+  }
+
+  private _isIllegalPositions(position: IMapPosition): boolean {
+    return (
+      (position.x === 60 && position.y === 120) ||
+      (position.x === 60 && position.y === 160) ||
+      (position.x === 100 && position.y === 120)
     );
+  }
+
+  pickSafeRndFreePosition(): ISafeRndFreePositionResult {
+    const index = Phaser.Math.RND.between(0, this._freePositions.length - 1);
+
+    let element = this._freePositions[index];
+
+    if (this._isIllegalPositions(element)) {
+      return this.pickSafeRndFreePosition();
+    }
+
+    return { element, index };
   }
 
   buildWalls(addWallSpriteFn: (x: number, y: number) => void) {
@@ -48,26 +88,22 @@ export class WallBuilderManager {
       const indexTmp = Phaser.Math.RND.between(0, this._wallTypes.length - 1);
       const wallTypeToBuild = this._wallTypes[indexTmp];
 
-      const posWallIndex = Phaser.Math.RND.between(
-        0,
-        this._freePositions.length - 1
-      );
-      const posWall = this._freePositions[posWallIndex];
+      const { element, index } = this.pickSafeRndFreePosition();
 
       switch (wallTypeToBuild) {
         case WALL_TO_BUILD_ENUM.ISOLATED:
-          addWallSpriteFn(posWall.x, posWall.y);
+          addWallSpriteFn(element.x, element.y);
 
-          this._freePositions.splice(posWallIndex, 1);
+          this._freePositions.splice(index, 1);
           i++;
 
           break;
 
         case WALL_TO_BUILD_ENUM.ROW:
           i += this._allocateWallsInAxis({
-            posWall,
+            posWall: element,
             posWallsInAxis: this._freePositions.filter(
-              (wall) => wall.y === posWall.y
+              (wall) => wall.y === element.y
             ),
             addWallSpriteFn
           });
@@ -76,9 +112,9 @@ export class WallBuilderManager {
 
         case WALL_TO_BUILD_ENUM.COLUMN:
           i += this._allocateWallsInAxis({
-            posWall,
+            posWall: element,
             posWallsInAxis: this._freePositions.filter(
-              (wall) => wall.x === posWall.x
+              (wall) => wall.x === element.x
             ),
             addWallSpriteFn
           });
@@ -111,32 +147,48 @@ export class WallBuilderManager {
       i < posWallsInAxis.length && blockLenghtTmp > 0;
       i++
     ) {
+      if (this._isIllegalPositions(posWallsInAxis[i])) {
+        continue;
+      }
+
       addWallSpriteFn(posWallsInAxis[i].x, posWallsInAxis[i].y);
 
-      const indexToDelete = this.freePositions.findIndex(
-        (wall) =>
-          wall.x === posWallsInAxis[i].x && wall.y === posWallsInAxis[i].y
-      );
-
-      this._freePositions.splice(indexToDelete, 1);
+      this.deletePositionFree(posWallsInAxis[i].x, posWallsInAxis[i].y);
 
       blockLenghtTmp--;
     }
 
     for (let i = startIndex; i >= 0 && blockLenghtTmp > 0; i--) {
+      if (this._isIllegalPositions(posWallsInAxis[i])) {
+        continue;
+      }
+
       addWallSpriteFn(posWallsInAxis[i].x, posWallsInAxis[i].y);
 
-      const indexToDelete = this.freePositions.findIndex(
-        (wall) =>
-          wall.x === posWallsInAxis[i].x && wall.y === posWallsInAxis[i].y
-      );
-
-      this._freePositions.splice(indexToDelete, 1);
+      this.deletePositionFree(posWallsInAxis[i].x, posWallsInAxis[i].y);
 
       blockLenghtTmp--;
     }
 
     return blockLenght;
+  }
+
+  public isPositionFree(x: number, y: number) {
+    return (
+      this.freePositions.findIndex((item) => item.x === x && item.y === y) > -1
+    );
+  }
+
+  public addPositionFree(x: number, y: number) {
+    return this.freePositions.push({ x, y });
+  }
+
+  public deletePositionFree(x: number, y: number) {
+    const indexToDelete = this.freePositions.findIndex(
+      (item) => item.x === x && item.y === y
+    );
+
+    this._freePositions.splice(indexToDelete, 1);
   }
 
   public get freePositions() {

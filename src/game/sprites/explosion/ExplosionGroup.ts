@@ -8,23 +8,36 @@ import { IExplosionFragment } from '@game/common/interfaces/IExplosionFragment';
 
 // Helpers
 import getExplosionData from '@game/common/helpers/getExplosionData';
+import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
 
 interface IExplosionGroupProps {
   world: Physics.Arcade.World;
   scene: Scene;
+  wallBuilderManager: WallBuilderManager;
 }
 
-export class ExplosionGroup extends Physics.Arcade.StaticGroup {
+interface IExprosionSpriteProps {
+  spriteX: number;
+  spriteY: number;
+  tileX: number;
+  tileY: number;
+}
+
+export class ExplosionGroup extends Physics.Arcade.Group {
   private _explosionLength: number;
   private _explosionProperties: IExplosionFragment[];
 
-  constructor({ world, scene }: IExplosionGroupProps) {
+  private _wallBuilderManager: WallBuilderManager;
+
+  constructor({ world, scene, wallBuilderManager }: IExplosionGroupProps) {
     super(world, scene);
 
     this.classType = ExplosionFragment;
 
     this._explosionLength = 0;
     this._explosionProperties = getExplosionData();
+
+    this._wallBuilderManager = wallBuilderManager;
 
     this._setUpAnimations();
   }
@@ -34,7 +47,8 @@ export class ExplosionGroup extends Physics.Arcade.StaticGroup {
       this.scene.anims.create({
         key: explosionAnim.textureKey,
         frames: this.scene.anims.generateFrameNumbers(explosionAnim.textureKey),
-        frameRate: 6
+        frameRate: 12,
+        yoyo: true
       });
     }
 
@@ -48,43 +62,105 @@ export class ExplosionGroup extends Physics.Arcade.StaticGroup {
       this.scene.anims.create({
         key: explosionAnim,
         frames: this.scene.anims.generateFrameNumbers(explosionAnim),
-        frameRate: 6
+        frameRate: 12,
+        yoyo: true
       });
     }
   }
 
   addNewExplosion(bombX: number, bombY: number) {
-    for (const explosionProperty of this._explosionProperties) {
-      let x = bombX + explosionProperty.x;
-      let y = bombY + explosionProperty.y;
+    for (const explosionData of this._explosionProperties) {
+      let spriteX = bombX + explosionData.spriteXOffset;
+      let spriteY = bombY + explosionData.spriteYOffset;
 
-      if (explosionProperty.textureKeyExtension) {
-        for (let i = 0; i < this._explosionLength; i++) {
-          const explosion_extension = new ExplosionFragment({
-            scene: this.scene,
-            x,
-            y,
-            textureKey: explosionProperty.textureKeyExtension
-          });
+      let tileX = bombX + explosionData.tileXOffset;
+      let tileY = bombY + explosionData.tileYOffset;
 
-          x += explosionProperty.x;
-          y += explosionProperty.y;
+      const explosionProps = {
+        spriteX,
+        spriteY,
+        tileX,
+        tileY
+      };
 
-          this.add(explosion_extension, true);
-        }
+      const canAddFinalExtension = this._addExplosionExtension(
+        explosionProps,
+        explosionData
+      );
+
+      if (canAddFinalExtension) {
+        const isOrigin =
+          explosionData.tileXOffset === 0 && explosionData.tileYOffset === 0;
+
+        this._addExplosionSprite(
+          explosionProps,
+          explosionData.textureKey,
+          isOrigin
+        );
       }
-
-      const explosion_fragment = new ExplosionFragment({
-        scene: this.scene,
-        x,
-        y,
-        textureKey: explosionProperty.textureKey
-      });
-
-      this.add(explosion_fragment, true);
     }
 
     this.scene.sound.play('explosion');
+  }
+
+  private _addExplosionExtension(
+    explosionProps: IExprosionSpriteProps,
+    explosionData: IExplosionFragment
+  ): boolean {
+    if (explosionData.textureKeyExtension) {
+      for (let i = 0; i < this._explosionLength; i++) {
+        const canContinue = this._addExplosionSprite(
+          explosionProps,
+          explosionData.textureKeyExtension,
+          false
+        );
+
+        if (!canContinue) {
+          return false;
+        }
+
+        explosionProps.spriteX += explosionData.spriteXOffset;
+        explosionProps.spriteY += explosionData.spriteYOffset;
+
+        explosionProps.tileX += explosionData.tileXOffset;
+        explosionProps.tileY += explosionData.tileYOffset;
+      }
+    }
+
+    return true;
+  }
+
+  private _addExplosionSprite(
+    explosionProps: IExprosionSpriteProps,
+    textureKey: string,
+    isOrigin: boolean
+  ) {
+    let isBusyPosition = this._isBusyPosition(explosionProps);
+
+    if (isOrigin) {
+      isBusyPosition = false;
+    }
+
+    const gameObject = new ExplosionFragment({
+      scene: this.scene,
+      x: explosionProps.spriteX,
+      y: explosionProps.spriteY,
+      textureKey,
+      isVisible: !isBusyPosition
+    });
+
+    this.add(gameObject, true);
+
+    return !isBusyPosition;
+  }
+
+  private _isBusyPosition(explosionProps: IExprosionSpriteProps) {
+    const isPositionFree = this._wallBuilderManager.isPositionFree(
+      explosionProps.tileX,
+      explosionProps.tileY
+    );
+
+    return !isPositionFree;
   }
 
   public get explosionLength() {

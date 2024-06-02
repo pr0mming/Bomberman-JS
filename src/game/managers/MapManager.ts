@@ -4,9 +4,6 @@ import { Physics, Scene, Tilemaps } from 'phaser';
 import { WallGroup } from '@game/sprites/wall/WallGroup';
 import { Wall } from '@game/sprites/wall/Wall';
 
-// Interfaces
-import { IMapPosition } from '@game/common/interfaces/IMapPosition';
-
 // Helpers
 import getPlayerPowerUps from '@game/common/helpers/getPlayerPowerUps';
 
@@ -28,6 +25,7 @@ export class MapManager {
   private _wallBuilderManager!: WallBuilderManager;
   private _wallsGroup!: WallGroup;
 
+  private _roads!: Physics.Arcade.Group;
   private _crossroads!: Physics.Arcade.Group;
 
   private _powerUp!: Physics.Arcade.Image;
@@ -95,17 +93,12 @@ export class MapManager {
       this._map.objects.find((object) => object.name === 'Crossroads')
         ?.objects ?? [];
 
-    const freePositions: IMapPosition[] = [
-      ...roads.map((item) => ({ x: item.x ?? 0, y: item.y ?? 0 })),
-      ...crossroads.map((item) => ({ x: item.x ?? 0, y: item.y ?? 0 }))
-    ];
+    this._wallBuilderManager = new WallBuilderManager(roads, crossroads);
 
     this._wallsGroup = new WallGroup({
       scene: this._scene,
       world: this._world
     });
-
-    this._wallBuilderManager = new WallBuilderManager(freePositions);
 
     this._wallBuilderManager.buildWalls((x: number, y: number) => {
       this._wallsGroup.add(
@@ -120,13 +113,18 @@ export class MapManager {
   }
 
   private _setUpCrossroads() {
-    this._crossroads = this._scene.physics.add.group();
+    this._crossroads = this._setUpTileGroup('Crossroads');
+    this._roads = this._setUpTileGroup('Roads');
+  }
 
-    const _crossroadsTmp = this._map.createFromObjects('Crossroads', {
-      frame: 0
+  private _setUpTileGroup(key: string) {
+    const group = this._scene.physics.add.group();
+
+    const gameObjects = this._map.createFromObjects(key, {
+      classType: Physics.Arcade.Image
     });
 
-    this._crossroads.addMultiple(_crossroadsTmp);
+    return group.addMultiple(gameObjects).setVisible(false).scaleXY(1.2, 1.2);
   }
 
   private _setUpDoor() {
@@ -195,6 +193,10 @@ export class MapManager {
 
   public get crossroads() {
     return this._crossroads;
+  }
+
+  public get roads() {
+    return this._roads;
   }
 
   public get wallBuilderManager() {

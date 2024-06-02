@@ -63,7 +63,7 @@ export class GameRulesManager {
     const information = this._scene.add.text(
       distance,
       22,
-      `TIME: ${this._gameStage.time}`,
+      `TIME ${this._gameStage.time}`,
       style
     );
 
@@ -89,7 +89,7 @@ export class GameRulesManager {
     const lives = this._scene.add.text(
       distance,
       22,
-      `LEFT: ${this._gameStage.lives}`,
+      `LEFT ${this._gameStage.lives}`,
       style
     );
 
@@ -109,7 +109,7 @@ export class GameRulesManager {
 
         this._gameStage.time = repeatCount;
 
-        this._setLabelTextByKey('TIME', `TIME: ${repeatCount}`);
+        this._setLabelTextByKey('TIME', `TIME ${repeatCount}`);
       },
       callbackScope: this
     });
@@ -201,7 +201,7 @@ export class GameRulesManager {
   }
 
   public set score(v: number) {
-    this._gameStage.stageScore += v;
+    this._gameStage.stageScore = v;
 
     this._setLabelTextByKey('SCORE', this._gameStage.stageScore.toString());
   }

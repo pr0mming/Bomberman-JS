@@ -48,7 +48,8 @@ export class Game extends Scene {
 
     this._bombGroup = new BombGroup({
       scene: this,
-      world: this.physics.world
+      world: this.physics.world,
+      wallBuilderManager: this._mapManager.wallBuilderManager
     });
 
     this._player = new Player({
@@ -62,7 +63,7 @@ export class Game extends Scene {
       scene: this,
       world: this.physics.world,
       stage: this._gameStage.stage,
-      freePositions: this._mapManager.wallBuilderManager.freePositions,
+      wallBuilderManager: this._mapManager.wallBuilderManager,
       player: this._player
     });
 
@@ -108,6 +109,48 @@ export class Game extends Scene {
 
     this.physics.add.overlap(
       this._player,
+      this._mapManager.crossroads,
+      (_, tile) => {
+        const _tile = tile as Physics.Arcade.Image;
+
+        if (_tile.body) {
+          this._player.lastTilePassedPosition = {
+            x: Math.floor(_tile.body.center.x),
+            y: Math.floor(_tile.body.center.y)
+          };
+        }
+      },
+      (_, tile) => {
+        const _tile = tile as Physics.Arcade.Image;
+
+        return this._player.validateTileOverlap(_tile);
+      },
+      this
+    );
+
+    this.physics.add.overlap(
+      this._player,
+      this._mapManager.roads,
+      (_, tile) => {
+        const _tile = tile as Physics.Arcade.Image;
+
+        if (_tile.body) {
+          this._player.lastTilePassedPosition = {
+            x: Math.floor(_tile.body.center.x),
+            y: Math.floor(_tile.body.center.y)
+          };
+        }
+      },
+      (_, tile) => {
+        const _tile = tile as Physics.Arcade.Image;
+
+        return this._player.validateTileOverlap(_tile);
+      },
+      this
+    );
+
+    this.physics.add.overlap(
+      this._player,
       this._enemiesGroup,
       () => {
         this._gameRulesManager.lose();
@@ -122,25 +165,11 @@ export class Game extends Scene {
       () => {
         this._gameRulesManager.lose();
       },
-      (player, _) => {
-        const _player = player as Player;
-
-        return !_player.hasFlamePassPowerUp;
+      () => {
+        return !this._player.hasFlamePassPowerUp;
       },
       this
     );
-
-    // this.physics.add.overlap(
-    //   this._player,
-    //   this._mapManager.crossroads,
-    //   (enemy, crossroad) => {
-    //     const _crossroad = crossroad as Physics.Arcade.Sprite;
-
-    //     console.log(_crossroad.body?.x, _crossroad.body?.y);
-    //   },
-    //   undefined,
-    //   this
-    // );
 
     this.physics.add.collider(
       this._enemiesGroup,
@@ -206,14 +235,14 @@ export class Game extends Scene {
         const _enemy = enemy as Enemy;
         const _crossroad = crossroad as Physics.Arcade.Sprite;
 
-        const crossroadPos = {
+        const tilePos = {
           x: _crossroad.body?.x ?? 0,
           y: _crossroad.body?.y ?? 0
         };
 
         return _enemy.validateCrossroadOverlap({
-          x: crossroadPos.x,
-          y: crossroadPos.y
+          x: tilePos.x,
+          y: tilePos.y
         });
       },
       this
@@ -313,9 +342,9 @@ export class Game extends Scene {
       (_, enemy) => {
         const _enemy = enemy as Enemy;
 
-        this._gameRulesManager.score += _enemy.enemyData.rewardPoints;
-
         _enemy.kill();
+
+        this._gameRulesManager.score += _enemy.enemyData.rewardPoints;
       },
       undefined,
       this
@@ -343,6 +372,13 @@ export class Game extends Scene {
 
         if (_wall.getData('hasPowerUp')) {
           this._mapManager.powerUp.setVisible(true);
+        }
+
+        if (_wall.body) {
+          const posX = Math.floor(_wall.body.center.x);
+          const posY = Math.floor(_wall.body.center.y);
+
+          this._mapManager.wallBuilderManager.addPositionFree(posX, posY);
         }
       },
       undefined,

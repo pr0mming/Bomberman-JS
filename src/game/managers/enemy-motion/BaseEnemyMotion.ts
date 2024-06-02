@@ -54,8 +54,8 @@ export class BaseEnemyMotion implements IEnemyMotion {
   }
 
   validateCrossroadOverlap(
-    enemyCrossroad: ISpritePosition,
-    crossroadPosition: ISpritePosition
+    enemyPosition: ISpritePosition,
+    tilePosition: ISpritePosition
   ): boolean {
     // If we are performig or even calculating the new direction of the enemy it should be immovable
     // This is to avoid execute the rest of the logic in this scenario
@@ -63,16 +63,16 @@ export class BaseEnemyMotion implements IEnemyMotion {
       return false;
 
     const enemyCrossroadPos = {
-      x: enemyCrossroad.x ?? 0,
-      y: enemyCrossroad.y ?? 0
+      x: enemyPosition.x ?? 0,
+      y: enemyPosition.y ?? 0
     };
 
     // This is to avoid change the direction multiple times if the enemy is on the same crossroad
     // so that I save the last crossroad passed to verify
     if (
-      crossroadPosition &&
-      crossroadPosition.x === enemyCrossroadPos?.x &&
-      crossroadPosition.y === enemyCrossroadPos?.y
+      tilePosition &&
+      tilePosition.x === enemyCrossroadPos?.x &&
+      tilePosition.y === enemyCrossroadPos?.y
     )
       return false;
 
@@ -83,14 +83,17 @@ export class BaseEnemyMotion implements IEnemyMotion {
 
     // This validation asserts the enemy reaches the approximately x, y position of the crossroad
     // If this is true so we can tell to the enemy perform a new or the same movement (direction)
-    // Note: Idk but it wasn't good enough with "crossroadPos.x === enemyPos.x" because the enemy takes a decimals-offset positions
-    return (
-      crossroadPosition &&
-      enemyPos &&
-      (crossroadPosition.x === Math.floor(enemyPos.x) ||
-        crossroadPosition.x === Math.round(enemyPos.x)) &&
-      (crossroadPosition.y === Math.floor(enemyPos.y) ||
-        crossroadPosition.y === Math.round(enemyPos.y))
-    );
+    // Note: Is important to keep an offset between distances,
+    // the reason is because compare enemy.body.center.x === tile.body.center.x isn't gonna be always true
+
+    const enemyCenterX = Math.floor(enemyPos.x);
+    const enemyCenterY = Math.floor(enemyPos.y);
+    const tileCenterX = Math.floor(tilePosition.x);
+    const tileCenterY = Math.floor(tilePosition.y);
+
+    const deltaX = Math.abs(enemyCenterX - tileCenterX);
+    const deltaY = Math.abs(enemyCenterY - tileCenterY);
+
+    return deltaX <= 3 && deltaY <= 3;
   }
 }

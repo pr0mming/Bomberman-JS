@@ -43,6 +43,11 @@ button {
   transition: 500ms;
 }
 
+#bomberman-container {
+  width: 1024px;
+  height: 580px;
+}
+
 #game-controls {
   display: flex;
   flex-direction: column;

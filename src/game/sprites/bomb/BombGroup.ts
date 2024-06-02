@@ -4,12 +4,15 @@ import { Physics, Scene, Time } from 'phaser';
 import { Bomb } from '@game/sprites/bomb/Bomb';
 import { ExplosionGroup } from '@game/sprites/explosion/ExplosionGroup';
 
+import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
+
 // Enums
 import { TIMER_GAME_ENUM } from '@game/common/enums/TimerGameEnum';
 
 interface IBombGroupProps {
   world: Physics.Arcade.World;
   scene: Scene;
+  wallBuilderManager: WallBuilderManager;
 }
 
 export class BombGroup extends Physics.Arcade.StaticGroup {
@@ -23,7 +26,9 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
 
   private _explosionGroup: ExplosionGroup;
 
-  constructor({ world, scene }: IBombGroupProps) {
+  private _wallBuilderManager: WallBuilderManager;
+
+  constructor({ world, scene, wallBuilderManager }: IBombGroupProps) {
     super(world, scene);
 
     this.classType = Bomb;
@@ -33,19 +38,20 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     this._maxAmountBombs = 1;
     this._isActiveRemoteControl = false;
 
-    this._timePutBomb = 5;
-    this._timeExplosion = 5;
+    this._timePutBomb = 0;
+    this._timeExplosion = 3;
 
     this._explosionGroup = new ExplosionGroup({
       world: this.world,
-      scene: this.scene
+      scene: this.scene,
+      wallBuilderManager
     });
 
-    this._setUpTimers();
+    this._wallBuilderManager = wallBuilderManager;
   }
 
   putBomb(x: number, y: number) {
-    if (this._canPutBomb()) {
+    if (this._canPutBomb(x, y)) {
       this.scene.sound.play('put-bomb');
 
       const newBomb = new Bomb({
@@ -56,19 +62,13 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
 
       this.add(newBomb, true);
 
-      let _timerPutBomb = this._timers.get(TIMER_GAME_ENUM.PUT_BOMB);
+      this._wallBuilderManager.deletePositionFree(x, y);
 
-      if (_timerPutBomb) {
-        _timerPutBomb = new Phaser.Time.TimerEvent({
-          delay: 1000,
-          repeat: this._timePutBomb,
-          callbackScope: this
-        });
-
-        this._timers.set(TIMER_GAME_ENUM.PUT_BOMB, _timerPutBomb);
-
-        this.scene.time.addEvent(_timerPutBomb);
+      if (!this.isActiveRemoteControl) {
+        this._setExplodeBombTimer(false);
       }
+
+      this._setPutBombTimer(false);
     }
   }
 
@@ -81,49 +81,58 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
       const bomb = this.getFirstAlive() as Bomb;
 
       this._exploitBomb(bomb);
-
-      let _timerExloitBomb = this._timers.get(TIMER_GAME_ENUM.EXPLOIT_BOMB);
-
-      if (this.getTotalUsed() > 0 && _timerExloitBomb) {
-        _timerExloitBomb = new Phaser.Time.TimerEvent({
-          delay: 1000,
-          repeat: this._timeExplosion,
-          callbackScope: this
-        });
-
-        this._timers.set(TIMER_GAME_ENUM.EXPLOIT_BOMB, _timerExloitBomb);
-
-        this.scene.time.addEvent(_timerExloitBomb);
-      }
     }
   }
 
   private _exploitBomb(bomb: Bomb) {
     if (bomb.body) {
-      this._explosionGroup.addNewExplosion(
-        bomb.body.center.x,
-        bomb.body.center.y
-      );
-    }
+      const posX = Math.floor(bomb.body.center.x);
+      const posY = Math.floor(bomb.body.center.y);
 
-    bomb.destroy(true);
+      const timerFreePosition = new Phaser.Time.TimerEvent({
+        delay: 2000,
+        callback: () => {
+          this._wallBuilderManager.addPositionFree(posX, posY);
+        },
+        callbackScope: this
+      });
+
+      this.scene.time.addEvent(timerFreePosition);
+
+      this._explosionGroup.addNewExplosion(posX, posY);
+
+      bomb.destroy(true);
+    }
   }
 
-  private _setUpTimers() {
+  private _setPutBombTimer(isPaused: boolean) {
     const _timerPutBomb = new Phaser.Time.TimerEvent({
       delay: 1000,
       repeat: this._timePutBomb,
-      paused: true,
+      paused: isPaused,
       callbackScope: this
     });
 
     this.scene.time.addEvent(_timerPutBomb);
     this._timers.set(TIMER_GAME_ENUM.PUT_BOMB, _timerPutBomb);
+  }
 
+  private _setExplodeBombTimer(isPaused: boolean) {
     const _timerExploitBomb = new Phaser.Time.TimerEvent({
       delay: 1000,
       repeat: this._timeExplosion,
-      paused: true,
+      paused: isPaused,
+      callback: () => {
+        const { repeatCount } = _timerExploitBomb;
+
+        if (repeatCount <= 0) {
+          const bomb = this.getFirstAlive() as Bomb;
+
+          if (bomb) {
+            this.exploitByBomb(bomb);
+          }
+        }
+      },
       callbackScope: this
     });
 
@@ -131,8 +140,10 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     this._timers.set(TIMER_GAME_ENUM.EXPLOIT_BOMB, _timerExploitBomb);
   }
 
-  private _canPutBomb() {
+  private _canPutBomb(x: number, y: number) {
     const _timerPutBomb = this._timers.get(TIMER_GAME_ENUM.PUT_BOMB);
+
+    if (!this._wallBuilderManager.isPositionFree(x, y)) return false;
 
     return (
       _timerPutBomb?.paused ||
@@ -142,16 +153,7 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
   }
 
   private _canExploitBomb() {
-    if (this._isActiveRemoteControl) {
-      return true;
-    }
-
-    const _timerExloitBomb = this._timers.get(TIMER_GAME_ENUM.EXPLOIT_BOMB);
-
-    return (
-      (_timerExloitBomb?.paused || _timerExloitBomb?.repeatCount === 0) &&
-      this.getTotalUsed() > 0
-    );
+    return this._isActiveRemoteControl && this.getTotalUsed() > 0;
   }
 
   public get explosionGroup() {

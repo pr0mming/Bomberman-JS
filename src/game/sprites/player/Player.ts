@@ -8,6 +8,7 @@ import PlayerControlsManager from '@game/managers/PlayerControlsManager';
 
 // Enums
 import { PLAYER_DIRECTION_ENUM } from '@game/common/enums/PlayerDirectionEnum';
+import { ISpritePosition } from '@src/game/common/interfaces/ISpritePosition';
 
 interface IPlayerProps {
   scene: Scene;
@@ -27,6 +28,8 @@ export class Player extends Physics.Arcade.Sprite {
 
   private _bombGroup: BombGroup;
 
+  private _lastTilePassedPosition: ISpritePosition;
+
   constructor({ scene, x, y, bombGroup }: IPlayerProps) {
     super(scene, x, y, 'bomberman-move');
 
@@ -39,10 +42,13 @@ export class Player extends Physics.Arcade.Sprite {
 
     this._bombGroup = bombGroup;
 
+    this._lastTilePassedPosition = { x, y };
+
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this.setScale(2.0);
+    this.setBodySize(this.width - 5, this.height);
 
     this._setUpControls();
     this._setUpAnimations();
@@ -148,7 +154,10 @@ export class Player extends Physics.Arcade.Sprite {
 
       // Set up put bomb control
       if (this._controlsManager?.putBombControl?.isDown) {
-        this._bombGroup.putBomb(this.x, this.y);
+        this._bombGroup.putBomb(
+          this._lastTilePassedPosition.x,
+          this._lastTilePassedPosition.y
+        );
       }
 
       // Set up exploit bomb control
@@ -190,6 +199,22 @@ export class Player extends Physics.Arcade.Sprite {
     );
   }
 
+  validateTileOverlap(tile: Physics.Arcade.Image) {
+    if (tile.body && this.body) {
+      const playerCenterX = Math.round(this.body.center.x);
+      const playerCenterY = Math.round(this.body.center.y);
+      const tileCenterX = Math.floor(tile.body.center.x);
+      const tileCenterY = Math.floor(tile.body.center.y);
+
+      const deltaX = Math.abs(playerCenterX - tileCenterX);
+      const deltaY = Math.abs(playerCenterY - tileCenterY);
+
+      return deltaX <= 5 && deltaY <= 5;
+    }
+
+    return false;
+  }
+
   public get speed() {
     return this._speed;
   }
@@ -220,5 +245,13 @@ export class Player extends Physics.Arcade.Sprite {
 
   public set hasFlamePassPowerUp(v: boolean) {
     this._hasFlamePassPowerUp = v;
+  }
+
+  public get lastTilePassedPosition() {
+    return this._lastTilePassedPosition;
+  }
+
+  public set lastTilePassedPosition(v: ISpritePosition) {
+    this._lastTilePassedPosition = v;
   }
 }

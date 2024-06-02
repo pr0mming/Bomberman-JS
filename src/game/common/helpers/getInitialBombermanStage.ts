@@ -5,8 +5,8 @@ import { IGameStage } from '../interfaces/IGameStage';
 const getInitialBombermanStage = (): IGameStage => {
   return {
     stage: GAME_STAGE_ENUM.ONE,
-    lives: 3,
-    time: 190,
+    lives: 5,
+    time: 200,
     status: GAME_STATUS_ENUM.START,
     totalScore: 0,
     stageScore: 0,

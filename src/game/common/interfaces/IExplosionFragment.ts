@@ -1,6 +1,8 @@
 export interface IExplosionFragment {
-  x: number;
-  y: number;
+  spriteXOffset: number;
+  spriteYOffset: number;
+  tileXOffset: number;
+  tileYOffset: number;
   textureKey: string;
   textureKeyExtension?: string;
 }

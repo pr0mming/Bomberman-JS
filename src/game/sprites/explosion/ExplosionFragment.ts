@@ -5,13 +5,20 @@ interface IExplosionFragmentProps {
   x: number;
   y: number;
   textureKey: string;
+  isVisible: boolean;
 }
 
 export class ExplosionFragment extends Physics.Arcade.Sprite {
-  constructor({ scene, x, y, textureKey }: IExplosionFragmentProps) {
+  constructor({ scene, x, y, textureKey, isVisible }: IExplosionFragmentProps) {
     super(scene, x, y, textureKey);
 
-    this.setScale(1.6);
+    scene.physics.add.existing(this);
+
+    this.setScale(2.4);
+    this.setVisible(isVisible);
+
+    this.setImmovable(true);
+    this.setBodySize(this.width - 5, this.height - 5);
 
     this.play(textureKey).once(Animations.Events.ANIMATION_COMPLETE, () => {
       this.destroy(true);

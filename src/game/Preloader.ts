@@ -96,7 +96,7 @@ export class Preloader extends Scene {
       '/game/sprites/bomb/explosion/explosion-upper-lenght.png',
       {
         frameWidth: 18,
-        frameHeight: 18
+        frameHeight: 16
       }
     );
     this.load.spritesheet(
@@ -104,7 +104,7 @@ export class Preloader extends Scene {
       '/game/sprites/bomb/explosion/explosion-lower-lenght.png',
       {
         frameWidth: 18,
-        frameHeight: 18
+        frameHeight: 16
       }
     );
     this.load.spritesheet(
@@ -112,7 +112,7 @@ export class Preloader extends Scene {
       '/game/sprites/bomb/explosion/explosion-right-lenght.png',
       {
         frameWidth: 18,
-        frameHeight: 18
+        frameHeight: 16
       }
     );
     this.load.spritesheet(
@@ -120,7 +120,7 @@ export class Preloader extends Scene {
       '/game/sprites/bomb/explosion/explosion-left-lenght.png',
       {
         frameWidth: 18,
-        frameHeight: 18
+        frameHeight: 16
       }
     );
     this.load.spritesheet(
@@ -128,7 +128,7 @@ export class Preloader extends Scene {
       '/game/sprites/bomb/explosion/explosion-extension-horizontal.png',
       {
         frameWidth: 18,
-        frameHeight: 18
+        frameHeight: 16
       }
     );
     this.load.spritesheet(
@@ -136,7 +136,7 @@ export class Preloader extends Scene {
       '/game/sprites/bomb/explosion/explosion-extension-vertical.png',
       {
         frameWidth: 18,
-        frameHeight: 18
+        frameHeight: 16
       }
     );
     this.load.spritesheet(
