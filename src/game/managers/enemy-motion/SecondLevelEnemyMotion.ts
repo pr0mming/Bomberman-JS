@@ -17,8 +17,10 @@ export class SecondLevelEnemyMotion extends BaseEnemyMotion {
     super(player, enemyBody);
   }
 
-  computeNewDirection(): ENEMY_DIRECTION_ENUM {
+  computeNewDirection() {
     if (this.enemyBody && this.player.body) {
+      this.retracedMotions = 0;
+
       const playerCenterX = Math.round(this.player.body.center.x);
       const playerCenterY = Math.round(this.player.body.center.y);
       const enemyCenterX = Math.round(this.enemyBody.center.x);
@@ -28,26 +30,29 @@ export class SecondLevelEnemyMotion extends BaseEnemyMotion {
       const deltaY = playerCenterY - enemyCenterY;
 
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        return deltaX > 0
-          ? ENEMY_DIRECTION_ENUM.RIGHT
-          : ENEMY_DIRECTION_ENUM.LEFT;
-      } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
-        return deltaY > 0 ? ENEMY_DIRECTION_ENUM.UP : ENEMY_DIRECTION_ENUM.DOWN;
-      } else {
-        // If the player is exactly aligned in one direction
-        if (deltaX !== 0) {
-          return deltaX > 0
-            ? ENEMY_DIRECTION_ENUM.RIGHT
-            : ENEMY_DIRECTION_ENUM.LEFT;
-        }
-        if (deltaY !== 0) {
-          return deltaY > 0
-            ? ENEMY_DIRECTION_ENUM.UP
-            : ENEMY_DIRECTION_ENUM.DOWN;
-        }
+        this.direction =
+          deltaX > 0 ? ENEMY_DIRECTION_ENUM.RIGHT : ENEMY_DIRECTION_ENUM.LEFT;
+
+        return;
+      }
+
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        this.direction =
+          deltaY > 0 ? ENEMY_DIRECTION_ENUM.DOWN : ENEMY_DIRECTION_ENUM.UP;
+
+        return;
+      }
+
+      // If the player is exactly aligned in one direction
+      if (deltaX !== 0) {
+        this.direction =
+          deltaX > 0 ? ENEMY_DIRECTION_ENUM.RIGHT : ENEMY_DIRECTION_ENUM.LEFT;
+      }
+
+      if (deltaY !== 0) {
+        this.direction =
+          deltaY > 0 ? ENEMY_DIRECTION_ENUM.DOWN : ENEMY_DIRECTION_ENUM.UP;
       }
     }
-
-    return ENEMY_DIRECTION_ENUM.LEFT;
   }
 }

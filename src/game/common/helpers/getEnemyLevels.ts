@@ -8,15 +8,16 @@ const getEnemyLevels = () => {
     [
       GAME_STAGE_ENUM.TWO,
       [
-        { quantity: 10, type: ENEMY_ENUM.BALLOM },
-        { quantity: 5, type: ENEMY_ENUM.ONIL }
+        { quantity: 7, type: ENEMY_ENUM.BALLOM },
+        { quantity: 3, type: ENEMY_ENUM.ONIL }
       ]
     ],
     [
       GAME_STAGE_ENUM.THREE,
       [
-        { quantity: 8, type: ENEMY_ENUM.ONIL },
-        { quantity: 5, type: ENEMY_ENUM.DAHL }
+        { quantity: 2, type: ENEMY_ENUM.BALLOM },
+        { quantity: 6, type: ENEMY_ENUM.ONIL },
+        { quantity: 2, type: ENEMY_ENUM.DAHL }
       ]
     ],
     [
@@ -32,9 +33,10 @@ const getEnemyLevels = () => {
       [
         { quantity: 4, type: ENEMY_ENUM.MINVO },
         { quantity: 4, type: ENEMY_ENUM.OVAPE },
-        { quantity: 3, type: ENEMY_ENUM.PONTAN }
+        { quantity: 3, type: ENEMY_ENUM.PASS }
       ]
-    ]
+    ],
+    [GAME_STAGE_ENUM.FINAL_BONUS, [{ quantity: 10, type: ENEMY_ENUM.PONTAN }]]
   ]);
 };
 

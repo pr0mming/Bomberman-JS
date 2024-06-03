@@ -107,8 +107,23 @@ export class Player extends Physics.Arcade.Sprite {
     });
   }
 
+  private _playSoundByKey(key: string) {
+    let sound = this.scene.sound.get(key);
+
+    if (sound === null) {
+      sound = this.scene.sound.add(key);
+    }
+
+    if (!sound.isPlaying) {
+      sound.play();
+    }
+  }
+
   // Play animation or frame by movement (left, right, up, down)
-  private _playAnimationByKey(key: PLAYER_DIRECTION_ENUM) {
+  private _playAnimationByKey(
+    key: PLAYER_DIRECTION_ENUM,
+    soundWalkingKey: string
+  ) {
     if (this._direction != key) {
       this.play(key);
       this._direction = key;
@@ -117,6 +132,8 @@ export class Player extends Physics.Arcade.Sprite {
     }
 
     if (!this.anims.isPlaying) this.anims.nextFrame();
+
+    this._playSoundByKey(soundWalkingKey);
   }
 
   addControlsListener() {
@@ -126,28 +143,28 @@ export class Player extends Physics.Arcade.Sprite {
       // Set up cursor keys to move the player on the "update" function of the Scene
       if (this._controlsManager?.cursorKeys?.right.isDown) {
         this.setVelocityX(this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.RIGH);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.RIGH, 'walking-x');
 
         return;
       }
 
       if (this._controlsManager?.cursorKeys?.left.isDown) {
         this.setVelocityX(-this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.LEFT);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.LEFT, 'walking-x');
 
         return;
       }
 
       if (this._controlsManager?.cursorKeys?.up.isDown) {
         this.setVelocityY(-this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.UP);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.UP, 'walking-y');
 
         return;
       }
 
       if (this._controlsManager?.cursorKeys?.down.isDown) {
         this.setVelocityY(this._speed);
-        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.DOWN);
+        this._playAnimationByKey(PLAYER_DIRECTION_ENUM.DOWN, 'walking-y');
 
         return;
       }

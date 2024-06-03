@@ -3,5 +3,6 @@ export enum GAME_STAGE_ENUM {
   TWO,
   THREE,
   FOUR,
-  FIVE
+  FIVE,
+  FINAL_BONUS
 }

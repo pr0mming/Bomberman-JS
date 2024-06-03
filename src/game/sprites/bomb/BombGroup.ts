@@ -146,8 +146,9 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     if (!this._wallBuilderManager.isPositionFree(x, y)) return false;
 
     return (
-      _timerPutBomb?.paused ||
-      _timerPutBomb?.repeatCount === 0 ||
+      (_timerPutBomb === undefined ||
+        _timerPutBomb?.elapsed ||
+        _timerPutBomb?.repeatCount === 0) &&
       this.getTotalUsed() < this._maxAmountBombs
     );
   }

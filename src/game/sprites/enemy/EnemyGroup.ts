@@ -58,10 +58,10 @@ export class EnemyGroup extends Physics.Arcade.Group {
 
   private _getEnemyDataByKey(key: ENEMY_ENUM) {
     const enemies = getEnemyData();
-    const enemyData = enemies.get(key);
+    const enemyData = enemies.find((item) => item.type === key);
 
     if (enemyData === undefined) {
-      return Array.from(enemies.values())[0];
+      return enemies[0];
     }
 
     return enemyData;
@@ -71,7 +71,7 @@ export class EnemyGroup extends Physics.Arcade.Group {
     for (const enemyInput of this._enemyLevel) {
       const enemyData = this._getEnemyDataByKey(enemyInput.type);
 
-      this._createAnimations(enemyInput.type, enemyData);
+      this._createAnimations(enemyData);
 
       for (let i = 0; i < enemyInput.quantity; i++) {
         const { element } = this._wallBuilderManager.pickSafeRndFreePosition();
@@ -80,8 +80,8 @@ export class EnemyGroup extends Physics.Arcade.Group {
           scene: this.scene,
           x: element.x,
           y: element.y,
-          type: enemyInput.type,
           enemyData,
+          hasTemporalShield: false,
           player: this._player
         });
 
@@ -98,7 +98,7 @@ export class EnemyGroup extends Physics.Arcade.Group {
     ) {
       const enemyData = this._getEnemyDataByKey(ENEMY_ENUM.PONTAN);
 
-      this._createAnimations(ENEMY_ENUM.PONTAN, enemyData);
+      this._createAnimations(enemyData);
     }
 
     this.scene.anims.create({
@@ -109,7 +109,9 @@ export class EnemyGroup extends Physics.Arcade.Group {
     });
   }
 
-  private _createAnimations(type: ENEMY_ENUM, enemy: IEnemy) {
+  private _createAnimations(enemy: IEnemy) {
+    const { type } = enemy;
+
     const framesLeft = type === ENEMY_ENUM.PONTAN ? [0, 1, 2, 3, 4] : [0, 1, 2];
     const framesRight =
       type === ENEMY_ENUM.PONTAN ? [7, 8, 9, 10, 11] : [4, 5, 6];
@@ -153,8 +155,8 @@ export class EnemyGroup extends Physics.Arcade.Group {
         scene: this.scene,
         x,
         y,
-        type: enemyType.type,
         enemyData,
+        hasTemporalShield: true,
         player: this._player
       });
 
@@ -183,8 +185,8 @@ export class EnemyGroup extends Physics.Arcade.Group {
         scene: this.scene,
         x: enemyPos.x,
         y: enemyPos.y,
-        type: type,
         enemyData,
+        hasTemporalShield: false,
         player: this._player
       });
 

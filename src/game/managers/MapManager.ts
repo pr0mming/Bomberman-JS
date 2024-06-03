@@ -7,12 +7,17 @@ import { Wall } from '@game/sprites/wall/Wall';
 // Helpers
 import getPlayerPowerUps from '@game/common/helpers/getPlayerPowerUps';
 
+// Interfaces
+import { IGameStage } from '../common/interfaces/IGameStage';
+
 // Managers
 import { WallBuilderManager } from '@game/managers/WallBuilderManager';
+import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
 
 interface IMapManager {
   scene: Scene;
   world: Physics.Arcade.World;
+  stage: IGameStage;
 }
 
 export class MapManager {
@@ -31,9 +36,13 @@ export class MapManager {
   private _powerUp!: Physics.Arcade.Image;
   private _door!: Physics.Arcade.Image;
 
-  constructor({ scene, world }: IMapManager) {
+  private _stage: IGameStage;
+
+  constructor({ scene, world, stage }: IMapManager) {
     this._scene = scene;
     this._world = world;
+
+    this._stage = stage;
 
     this._scene.cameras.main.backgroundColor =
       Phaser.Display.Color.HexStringToColor('#1F8B00');
@@ -56,6 +65,7 @@ export class MapManager {
 
     this._setUpDoor();
     this._setUpPowerUp();
+    this._setUpMusic();
 
     this._scene.cameras.main.setBounds(
       0,
@@ -63,13 +73,11 @@ export class MapManager {
       this._map.widthInPixels,
       this._map.heightInPixels
     );
-
-    this._scene.sound.play('stage-theme', { loop: true, volume: 0.5 });
   }
 
   private _createMapLayer() {
     const _map = this._scene.add.tilemap('world');
-    const tilesMap = _map.addTilesetImage('playing-environment');
+    const tilesMap = _map.addTilesetImage('tilemap');
 
     if (tilesMap) {
       const _mapLayer = _map.createLayer('Map', tilesMap);
@@ -93,7 +101,14 @@ export class MapManager {
       this._map.objects.find((object) => object.name === 'Crossroads')
         ?.objects ?? [];
 
-    this._wallBuilderManager = new WallBuilderManager(roads, crossroads);
+    const { minWalls, maxWalls } = this._getAverageWalls();
+
+    this._wallBuilderManager = new WallBuilderManager({
+      roads,
+      crossroads,
+      minWalls,
+      maxWalls
+    });
 
     this._wallsGroup = new WallGroup({
       scene: this._scene,
@@ -110,6 +125,14 @@ export class MapManager {
         true
       );
     });
+  }
+
+  private _getAverageWalls() {
+    if (this._stage.stage === GAME_STAGE_ENUM.FINAL_BONUS) {
+      return { minWalls: 0, maxWalls: 0 };
+    }
+
+    return { minWalls: 60, maxWalls: 90 };
   }
 
   private _setUpCrossroads() {
@@ -177,6 +200,15 @@ export class MapManager {
     }
 
     return wall;
+  }
+
+  private _setUpMusic() {
+    const stageSong =
+      this._stage.stage === GAME_STAGE_ENUM.FINAL_BONUS
+        ? 'bonus-theme'
+        : 'stage-theme';
+
+    this._scene.sound.play(stageSong, { loop: true, volume: 0.5 });
   }
 
   public get map() {

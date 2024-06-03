@@ -11,30 +11,39 @@ import { ISpritePosition } from '@game/common/interfaces/ISpritePosition';
 import { ENEMY_DIRECTION_ENUM } from '@game/common/enums/EnemyDirectionEnum';
 
 export class BaseEnemyMotion implements IEnemyMotion {
-  player: Player;
-  enemyBody: Physics.Arcade.Body | Physics.Arcade.StaticBody | null;
-  directions: ENEMY_DIRECTION_ENUM[];
+  private _player: Player;
+  private _enemyBody: Physics.Arcade.Body | Physics.Arcade.StaticBody | null;
+
+  private _direction: ENEMY_DIRECTION_ENUM;
+  private _directions: ENEMY_DIRECTION_ENUM[];
+  private _retracedMotions: number;
+  private _maxRetracedMotions: number;
 
   constructor(
     player: Player,
     enemyBody: Physics.Arcade.Body | Physics.Arcade.StaticBody | null
   ) {
-    this.player = player;
-    this.enemyBody = enemyBody;
+    this._player = player;
+    this._enemyBody = enemyBody;
 
-    this.directions = [
+    this._direction = ENEMY_DIRECTION_ENUM.LEFT;
+    this._directions = [
       ENEMY_DIRECTION_ENUM.LEFT,
       ENEMY_DIRECTION_ENUM.RIGHT,
       ENEMY_DIRECTION_ENUM.UP,
       ENEMY_DIRECTION_ENUM.DOWN
     ];
+    this._retracedMotions = 0;
+    this._maxRetracedMotions = 5;
   }
 
-  computeNewDirection(): ENEMY_DIRECTION_ENUM {
+  computeNewDirection() {
     throw new Error('Method not implemented.');
   }
 
-  getOppositeDirection(direction: ENEMY_DIRECTION_ENUM): ENEMY_DIRECTION_ENUM {
+  private _getOppositeDirection(
+    direction: ENEMY_DIRECTION_ENUM
+  ): ENEMY_DIRECTION_ENUM {
     switch (direction) {
       case ENEMY_DIRECTION_ENUM.LEFT:
         return ENEMY_DIRECTION_ENUM.RIGHT;
@@ -53,13 +62,43 @@ export class BaseEnemyMotion implements IEnemyMotion {
     }
   }
 
+  private _getRndDirectionByExclusion(
+    directionExcluded: ENEMY_DIRECTION_ENUM
+  ): ENEMY_DIRECTION_ENUM {
+    const newDirections = this._directions.filter(
+      (item) => item !== directionExcluded
+    );
+
+    const index = Phaser.Math.RND.between(0, newDirections.length - 1);
+
+    return newDirections[index];
+  }
+
+  retraceMotion() {
+    const newDirection = this._getOppositeDirection(this._direction);
+
+    if (this._retracedMotions >= this._maxRetracedMotions) {
+      this._direction = this._getRndDirectionByExclusion(newDirection);
+
+      this._retracedMotions = 0;
+
+      return;
+    }
+
+    if (newDirection !== undefined) {
+      this._direction = newDirection;
+
+      this._retracedMotions++;
+    }
+  }
+
   validateCrossroadOverlap(
     enemyPosition: ISpritePosition,
     tilePosition: ISpritePosition
   ): boolean {
     // If we are performig or even calculating the new direction of the enemy it should be immovable
     // This is to avoid execute the rest of the logic in this scenario
-    if (this.enemyBody?.velocity.x === 0 && this.enemyBody?.velocity.y === 0)
+    if (this._enemyBody?.velocity.x === 0 && this._enemyBody?.velocity.y === 0)
       return false;
 
     const enemyCrossroadPos = {
@@ -77,8 +116,8 @@ export class BaseEnemyMotion implements IEnemyMotion {
       return false;
 
     const enemyPos = {
-      x: this.enemyBody?.center.x ?? 0,
-      y: this.enemyBody?.center.y ?? 0
+      x: this._enemyBody?.center.x ?? 0,
+      y: this._enemyBody?.center.y ?? 0
     };
 
     // This validation asserts the enemy reaches the approximately x, y position of the crossroad
@@ -86,14 +125,42 @@ export class BaseEnemyMotion implements IEnemyMotion {
     // Note: Is important to keep an offset between distances,
     // the reason is because compare enemy.body.center.x === tile.body.center.x isn't gonna be always true
 
-    const enemyCenterX = Math.floor(enemyPos.x);
-    const enemyCenterY = Math.floor(enemyPos.y);
+    const enemyCenterX = Math.round(enemyPos.x);
+    const enemyCenterY = Math.round(enemyPos.y);
     const tileCenterX = Math.floor(tilePosition.x);
     const tileCenterY = Math.floor(tilePosition.y);
 
     const deltaX = Math.abs(enemyCenterX - tileCenterX);
     const deltaY = Math.abs(enemyCenterY - tileCenterY);
 
-    return deltaX <= 3 && deltaY <= 3;
+    return deltaX <= 5 && deltaY <= 5;
+  }
+
+  public get direction() {
+    return this._direction;
+  }
+
+  public set direction(v: ENEMY_DIRECTION_ENUM) {
+    this._direction = v;
+  }
+
+  public get directions() {
+    return this._directions;
+  }
+
+  public get retracedMotions() {
+    return this._retracedMotions;
+  }
+
+  public set retracedMotions(v: number) {
+    this._retracedMotions = v;
+  }
+
+  public get player() {
+    return this._player;
+  }
+
+  public get enemyBody() {
+    return this._enemyBody;
   }
 }

@@ -1,9 +1,10 @@
+import { Types } from 'phaser';
+
 // Interfaces
 import { IMapPosition } from '../common/interfaces/IMapPosition';
 
 // Enums
 import { WALL_TO_BUILD_ENUM } from '../common/enums/WallToBuildEnum';
-import { Types } from 'phaser';
 
 interface ISafeRndFreePositionResult {
   index: number;
@@ -16,6 +17,13 @@ interface IAllocateWallsInAxisParams {
   addWallSpriteFn: (x: number, y: number) => void;
 }
 
+interface IWallBuilderManagerProps {
+  roads: Types.Tilemaps.TiledObject[];
+  crossroads: Types.Tilemaps.TiledObject[];
+  minWalls: number;
+  maxWalls: number;
+}
+
 export class WallBuilderManager {
   private _freePositions: IMapPosition[];
 
@@ -23,14 +31,16 @@ export class WallBuilderManager {
   private _maxWalls: number;
   private _wallTypes: WALL_TO_BUILD_ENUM[];
 
-  constructor(
-    roads: Types.Tilemaps.TiledObject[],
-    crossroads: Types.Tilemaps.TiledObject[]
-  ) {
+  constructor({
+    roads,
+    crossroads,
+    minWalls,
+    maxWalls
+  }: IWallBuilderManagerProps) {
     this._freePositions = [];
 
-    this._minWalls = 75;
-    this._maxWalls = 100;
+    this._minWalls = minWalls;
+    this._maxWalls = maxWalls;
 
     this._wallTypes = [
       WALL_TO_BUILD_ENUM.ISOLATED,

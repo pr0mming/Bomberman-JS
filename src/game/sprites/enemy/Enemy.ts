@@ -14,20 +14,17 @@ import { EnemyMotionFactory } from '@src/game/managers/enemy-motion/EnemyMotionF
 // Enums
 import { ENEMY_MOTION_ENUM } from '@src/game/common/enums/EnemyMotionEnum';
 import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
-import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
 
 interface IEnemyProps {
   scene: Scene;
   x: number;
   y: number;
-  type: ENEMY_ENUM;
   enemyData: IEnemy;
+  hasTemporalShield: boolean;
   player: Player;
 }
 
 export class Enemy extends Physics.Arcade.Sprite {
-  private _type: ENEMY_ENUM;
-  private _direction: ENEMY_DIRECTION_ENUM;
   private _enemyData: IEnemy;
   private _player: Player;
 
@@ -35,36 +32,66 @@ export class Enemy extends Physics.Arcade.Sprite {
   private _animRightKey: string;
   private _animDeadKey: string;
 
-  private _retracedMotionsAmmount: number;
+  private _hasTemporalShield: boolean;
   private _mapCrossroadOffset: number;
   private _lastCrossroadTouched?: ISpritePosition;
 
   private _motionManager?: IEnemyMotion;
 
-  constructor({ scene, x, y, type, enemyData, player }: IEnemyProps) {
+  constructor({
+    scene,
+    x,
+    y,
+    enemyData,
+    hasTemporalShield,
+    player
+  }: IEnemyProps) {
     super(scene, x, y, enemyData.textureKey);
 
     scene.physics.add.existing(this);
 
-    this._type = type;
-    this._direction = ENEMY_DIRECTION_ENUM.LEFT;
     this._enemyData = enemyData;
     this._player = player;
 
-    this._animLeftKey = `${this._type}-left`;
-    this._animRightKey = `${this._type}-right`;
-    this._animDeadKey = `${this._type}-dead`;
+    this._animLeftKey = `${this._enemyData.type}-left`;
+    this._animRightKey = `${this._enemyData.type}-right`;
+    this._animDeadKey = `${this._enemyData.type}-dead`;
 
-    this._retracedMotionsAmmount = 0;
+    this._hasTemporalShield = hasTemporalShield;
     this._mapCrossroadOffset = 50;
     this._lastCrossroadTouched = { x, y };
 
     this.setScale(2.0);
+
+    this._setUpTemporalShield();
+  }
+
+  private _setUpTemporalShield() {
+    if (this._hasTemporalShield) {
+      const _temporalShieldTimer = new Phaser.Time.TimerEvent({
+        delay: 100,
+        repeat: 40,
+        callback: () => {
+          const { repeatCount } = _temporalShieldTimer;
+
+          this.setVisible(!this.visible);
+
+          if (repeatCount <= 0) {
+            this.setVisible(true);
+
+            this._hasTemporalShield = false;
+          }
+        },
+        callbackScope: this
+      });
+
+      this.scene.time.addEvent(_temporalShieldTimer);
+    }
   }
 
   private _updateSpriteMotion(fromPosition: ISpritePosition) {
     if (this.body?.enable) {
-      switch (this._direction) {
+      switch (this._motionManager?.direction) {
         case ENEMY_DIRECTION_ENUM.LEFT:
           this.play(this._animLeftKey);
           this.scene.physics.moveTo(
@@ -115,21 +142,6 @@ export class Enemy extends Physics.Arcade.Sprite {
     }
   }
 
-  private _computeNewDirection(fromPosition: ISpritePosition) {
-    const newDirection = this._motionManager?.computeNewDirection();
-
-    if (newDirection !== undefined) {
-      this._direction = newDirection;
-
-      this._updateSpriteMotion({
-        x: fromPosition.x,
-        y: fromPosition.y
-      });
-
-      this._retracedMotionsAmmount = 0;
-    }
-  }
-
   setMotionManager(type: ENEMY_MOTION_ENUM) {
     this._motionManager = EnemyMotionFactory.getInstance({
       type,
@@ -151,12 +163,12 @@ export class Enemy extends Physics.Arcade.Sprite {
         this._lastCrossroadTouched.y
       );
 
-      this._computeNewDirection({
+      this._motionManager?.computeNewDirection();
+
+      this._updateSpriteMotion({
         x: this._lastCrossroadTouched.x,
         y: this._lastCrossroadTouched.y
       });
-
-      this._retracedMotionsAmmount = 0;
     }
   }
 
@@ -164,30 +176,13 @@ export class Enemy extends Physics.Arcade.Sprite {
     // Stop the motion ...
     this.setVelocity(0);
 
-    if (this._retracedMotionsAmmount >= 5 && this.body) {
-      this._computeNewDirection({
-        x: this.body.center.x,
-        y: this.body.center.y
-      });
-
-      this._retracedMotionsAmmount = 0;
-
-      return;
-    }
-
-    const newDirection = this._motionManager?.getOppositeDirection(
-      this._direction
-    );
-
-    if (newDirection !== undefined && this.body) {
-      this._direction = newDirection;
+    if (this.body) {
+      this._motionManager?.retraceMotion();
 
       this._updateSpriteMotion({
-        x: this.body.center.x,
-        y: this.body.center.y
+        x: this.body?.center.x,
+        y: this.body?.center.y
       });
-
-      this._retracedMotionsAmmount++;
     }
   }
 
@@ -250,5 +245,9 @@ export class Enemy extends Physics.Arcade.Sprite {
 
   public set lastCrossroadTouched(v: ISpritePosition) {
     this._lastCrossroadTouched = v;
+  }
+
+  public get hasTemporalShield() {
+    return this._hasTemporalShield;
   }
 }

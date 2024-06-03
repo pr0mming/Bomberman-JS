@@ -6,9 +6,10 @@ import { ISpritePosition } from './ISpritePosition';
 export interface IEnemyMotion {
   player: Player;
   enemyBody: Physics.Arcade.Body | Physics.Arcade.StaticBody | null;
+  direction: ENEMY_DIRECTION_ENUM;
   directions: ENEMY_DIRECTION_ENUM[];
-  computeNewDirection(): ENEMY_DIRECTION_ENUM;
-  getOppositeDirection(direction: ENEMY_DIRECTION_ENUM): ENEMY_DIRECTION_ENUM;
+  computeNewDirection(): void;
+  retraceMotion(): void;
   validateCrossroadOverlap(
     enemyCrossroad: ISpritePosition,
     crossroadPosition: ISpritePosition

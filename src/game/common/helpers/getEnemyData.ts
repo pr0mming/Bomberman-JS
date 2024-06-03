@@ -2,79 +2,67 @@ import { ENEMY_ENUM } from '../enums/EnemyEnum';
 import { ENEMY_MOTION_ENUM } from '../enums/EnemyMotionEnum';
 import { IEnemy } from '../interfaces/IEnemy';
 
-const getEnemyData = () => {
-  return new Map<ENEMY_ENUM, IEnemy>([
-    [
-      ENEMY_ENUM.BALLOM,
-      {
-        textureKey: 'ballom',
-        velocity: 30,
-        hasWallPassPowerUp: false,
-        rewardPoints: 100,
-        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
-      }
-    ],
-    [
-      ENEMY_ENUM.ONIL,
-      {
-        textureKey: 'onil',
-        velocity: 60,
-        hasWallPassPowerUp: false,
-        rewardPoints: 150,
-        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
-      }
-    ],
-    [
-      ENEMY_ENUM.MINVO,
-      {
-        textureKey: 'minvo',
-        velocity: 90,
-        hasWallPassPowerUp: false,
-        rewardPoints: 200,
-        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
-      }
-    ],
-    [
-      ENEMY_ENUM.DAHL,
-      {
-        textureKey: 'dahl',
-        velocity: 60,
-        hasWallPassPowerUp: false,
-        rewardPoints: 250,
-        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
-      }
-    ],
-    [
-      ENEMY_ENUM.OVAPE,
-      {
-        textureKey: 'ovape',
-        velocity: 20,
-        hasWallPassPowerUp: true,
-        rewardPoints: 300,
-        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
-      }
-    ],
-    [
-      ENEMY_ENUM.PASS,
-      {
-        textureKey: 'pass',
-        velocity: 80,
-        hasWallPassPowerUp: false,
-        rewardPoints: 350,
-        motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
-      }
-    ],
-    [
-      ENEMY_ENUM.PONTAN,
-      {
-        textureKey: 'pontan',
-        velocity: 90,
-        hasWallPassPowerUp: true,
-        rewardPoints: 400,
-        motionEnemyType: ENEMY_MOTION_ENUM.SECOND_LEVEL
-      }
-    ]
-  ]);
+const getEnemyData = (): IEnemy[] => {
+  return [
+    {
+      type: ENEMY_ENUM.BALLOM,
+      textureKey: 'ballom',
+      velocity: 30,
+      hasWallPassPowerUp: false,
+      rewardPoints: 100,
+      motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
+    },
+    {
+      type: ENEMY_ENUM.ONIL,
+      textureKey: 'onil',
+      velocity: 65,
+      hasWallPassPowerUp: false,
+      rewardPoints: 150,
+      motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
+    },
+    {
+      type: ENEMY_ENUM.MINVO,
+      textureKey: 'minvo',
+      velocity: 100,
+      hasWallPassPowerUp: false,
+      rewardPoints: 200,
+      motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
+    },
+    {
+      type: ENEMY_ENUM.DAHL,
+      textureKey: 'dahl',
+      velocity: 70,
+      hasWallPassPowerUp: false,
+      rewardPoints: 250,
+      motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
+    },
+
+    {
+      type: ENEMY_ENUM.OVAPE,
+      textureKey: 'ovape',
+      velocity: 50,
+      hasWallPassPowerUp: true,
+      rewardPoints: 300,
+      motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
+    },
+    {
+      type: ENEMY_ENUM.PASS,
+      textureKey: 'pass',
+      velocity: 95,
+      hasWallPassPowerUp: false,
+      rewardPoints: 350,
+      motionEnemyType: ENEMY_MOTION_ENUM.FIRST_LEVEL
+    },
+
+    {
+      type: ENEMY_ENUM.PONTAN,
+      textureKey: 'pontan',
+      velocity: 100,
+      hasWallPassPowerUp: true,
+      rewardPoints: 400,
+      motionEnemyType: ENEMY_MOTION_ENUM.SECOND_LEVEL
+    }
+  ];
 };
 
 export default getEnemyData;

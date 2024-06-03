@@ -10,10 +10,10 @@ export class Preloader extends Scene {
 
   preload() {
     // Load map of tiles
-    this.load.tilemapTiledJSON('world', '/game/map/playing-environment.json');
+    this.load.tilemapTiledJSON('world', '/game/map/tilemap.json');
+    this.load.image('tilemap', '/game/map/hard-wall.png');
 
     // Load spritesheets and other assets
-    this.load.image('playing-environment', '/game/map/environment.png');
     this.load.image('door', '/game/images/door.png');
     this.load.image('bomb-up', '/game/images/power-up/bomb-up.png');
     this.load.image('fire-up', '/game/images/power-up/fire-up.png');
@@ -40,7 +40,7 @@ export class Preloader extends Scene {
       }
     );
     this.load.spritesheet('bomb', '/game/sprites/bomb/bomb.png', {
-      frameWidth: 18,
+      frameWidth: 17,
       frameHeight: 18
     });
     this.load.spritesheet('wall', '/game/sprites/wall/wall.png', {
@@ -57,7 +57,7 @@ export class Preloader extends Scene {
     );
     this.load.spritesheet('ballom', '/game/sprites/enemies/ballom.png', {
       frameWidth: 16,
-      frameHeight: 18
+      frameHeight: 16
     });
     this.load.spritesheet('onil', '/game/sprites/enemies/onil.png', {
       frameWidth: 16,
@@ -150,6 +150,7 @@ export class Preloader extends Scene {
 
     // Load all the sounds
     this.load.audio('stage-theme', '/game/music/stage/stage-theme.mp3');
+    this.load.audio('bonus-theme', '/game/music/stage/bonus-theme.mp3');
     this.load.audio('level-start', '/game/music/stage/level-start.mp3');
     this.load.audio('level-complete', '/game/music/stage/level-complete.mp3');
     this.load.audio('just-died', '/game/music/character/just-died.mp3');
@@ -157,6 +158,8 @@ export class Preloader extends Scene {
     this.load.audio('find-the-door', '/game/music/character/find_the_door.mp3');
     this.load.audio('game-over', '/game/music/stage/game-over.mp3');
     this.load.audio('menu-audio', '/game/music/stage/title-screen.mp3');
+    this.load.audio('walking-y', '/game/music/character/walk.mp3');
+    this.load.audio('walking-x', '/game/music/character/walk-2.mp3');
     this.load.audio('put-bomb', '/game/music/bomb/put-bomb.wav');
     this.load.audio('power-up', '/game/music/character/power-up.wav');
     this.load.audio('lose', '/game/music/character/lose.wav');

@@ -25,6 +25,7 @@ export class ChangeStage extends Scene {
 
   create() {
     this.sound.stopAll();
+
     this.cameras.main.backgroundColor =
       Phaser.Display.Color.HexStringToColor('#000000');
 

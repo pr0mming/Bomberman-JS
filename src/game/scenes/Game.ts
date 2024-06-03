@@ -43,7 +43,8 @@ export class Game extends Scene {
   create() {
     this._mapManager = new MapManager({
       scene: this,
-      world: this.physics.world
+      world: this.physics.world,
+      stage: this._gameStage
     });
 
     this._bombGroup = new BombGroup({
@@ -62,9 +63,9 @@ export class Game extends Scene {
     this._enemiesGroup = new EnemyGroup({
       scene: this,
       world: this.physics.world,
-      stage: this._gameStage.stage,
+      player: this._player,
       wallBuilderManager: this._mapManager.wallBuilderManager,
-      player: this._player
+      stage: this._gameStage.stage
     });
 
     this._powerUpManager = new PowerUpManager({
@@ -219,8 +220,8 @@ export class Game extends Scene {
         const _enemy = enemy as Enemy;
 
         const crossroadPos = {
-          x: _crossroad.body?.x ?? 0,
-          y: _crossroad.body?.y ?? 0
+          x: _crossroad.body?.center.x ?? 0,
+          y: _crossroad.body?.center.y ?? 0
         };
 
         _enemy.lastCrossroadTouched = {
@@ -236,8 +237,8 @@ export class Game extends Scene {
         const _crossroad = crossroad as Physics.Arcade.Sprite;
 
         const tilePos = {
-          x: _crossroad.body?.x ?? 0,
-          y: _crossroad.body?.y ?? 0
+          x: _crossroad.body?.center.x ?? 0,
+          y: _crossroad.body?.center.y ?? 0
         };
 
         return _enemy.validateCrossroadOverlap({
@@ -280,8 +281,8 @@ export class Game extends Scene {
         if (_player.body && _powerUp.body) {
           const playerCenterX = Math.round(_player.body.center.x);
           const playerCenterY = Math.round(_player.body.center.y);
-          const powerUpCenterX = Math.round(_powerUp.body.center.x);
-          const powerUpCenterY = Math.round(_powerUp.body.center.y);
+          const powerUpCenterX = Math.floor(_powerUp.body.center.x);
+          const powerUpCenterY = Math.floor(_powerUp.body.center.y);
 
           const deltaX = Math.abs(playerCenterX - powerUpCenterX);
           const deltaY = Math.abs(playerCenterY - powerUpCenterY);
@@ -321,6 +322,12 @@ export class Game extends Scene {
       () => {
         const door = this._mapManager.door;
 
+        door.disableBody(false);
+
+        setTimeout(() => {
+          door.enableBody(false);
+        }, 3000);
+
         if (door.body) {
           this._enemiesGroup.addRandomByPosition(
             door.body.center.x,
@@ -346,7 +353,11 @@ export class Game extends Scene {
 
         this._gameRulesManager.score += _enemy.enemyData.rewardPoints;
       },
-      undefined,
+      (_, enemy) => {
+        const _enemy = enemy as Enemy;
+
+        return !_enemy.hasTemporalShield;
+      },
       this
     );
 
