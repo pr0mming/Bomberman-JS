@@ -39,7 +39,7 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     this._isActiveRemoteControl = false;
 
     this._timePutBomb = 0;
-    this._timeExplosion = 3;
+    this._timeExplosion = 2;
 
     this._explosionGroup = new ExplosionGroup({
       world: this.world,

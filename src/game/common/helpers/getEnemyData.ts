@@ -57,7 +57,7 @@ const getEnemyData = (): IEnemy[] => {
     {
       type: ENEMY_ENUM.PONTAN,
       textureKey: 'pontan',
-      velocity: 100,
+      velocity: 120,
       hasWallPassPowerUp: true,
       rewardPoints: 400,
       motionEnemyType: ENEMY_MOTION_ENUM.SECOND_LEVEL

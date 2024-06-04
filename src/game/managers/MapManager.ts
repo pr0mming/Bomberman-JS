@@ -6,18 +6,25 @@ import { Wall } from '@game/sprites/wall/Wall';
 
 // Helpers
 import getPlayerPowerUps from '@game/common/helpers/getPlayerPowerUps';
+import getStagesData from '../common/helpers/getStagesData';
 
 // Interfaces
-import { IGameStage } from '../common/interfaces/IGameStage';
+import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
+import { IPowerUp } from '../common/interfaces/IPowerUp';
 
 // Managers
 import { WallBuilderManager } from '@game/managers/WallBuilderManager';
+
+// Enums
 import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
+import { IGameSaved, IMapSaved } from '../common/interfaces/IGameSaved';
+import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
 
 interface IMapManager {
   scene: Scene;
   world: Physics.Arcade.World;
-  stage: IGameStage;
+  gameStage: IGameInitialStage;
+  savedGame: IGameSaved | null;
 }
 
 export class MapManager {
@@ -33,16 +40,24 @@ export class MapManager {
   private _roads!: Physics.Arcade.Group;
   private _crossroads!: Physics.Arcade.Group;
 
+  private _DEFAULT_MIN_WALLS: number;
+  private _DEFAULT_MAX_WALLS: number;
+
   private _powerUp!: Physics.Arcade.Image;
   private _door!: Physics.Arcade.Image;
 
-  private _stage: IGameStage;
+  private _savedGame: IGameSaved | null;
+  private _gameStage: IGameInitialStage;
 
-  constructor({ scene, world, stage }: IMapManager) {
+  constructor({ scene, world, gameStage, savedGame }: IMapManager) {
     this._scene = scene;
     this._world = world;
 
-    this._stage = stage;
+    this._gameStage = gameStage;
+    this._savedGame = savedGame;
+
+    this._DEFAULT_MIN_WALLS = 50;
+    this._DEFAULT_MAX_WALLS = 65;
 
     this._scene.cameras.main.backgroundColor =
       Phaser.Display.Color.HexStringToColor('#1F8B00');
@@ -62,9 +77,8 @@ export class MapManager {
 
     this._setUpWalls();
     this._setUpCrossroads();
+    this._setUpSpecialObjects();
 
-    this._setUpDoor();
-    this._setUpPowerUp();
     this._setUpMusic();
 
     this._scene.cameras.main.setBounds(
@@ -115,7 +129,7 @@ export class MapManager {
       world: this._world
     });
 
-    this._wallBuilderManager.buildWalls((x: number, y: number) => {
+    this._validateSavedWalls((x: number, y: number) => {
       this._wallsGroup.add(
         new Wall({
           scene: this._scene,
@@ -127,12 +141,29 @@ export class MapManager {
     });
   }
 
+  private _validateSavedWalls(addWallSpriteFn: (x: number, y: number) => void) {
+    if (
+      this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
+      this._savedGame
+    ) {
+      this._wallBuilderManager.buildWallsFromArray(
+        this._savedGame.map.walls,
+        addWallSpriteFn
+      );
+    } else {
+      this._wallBuilderManager.buildWalls(addWallSpriteFn);
+    }
+  }
+
   private _getAverageWalls() {
-    if (this._stage.stage === GAME_STAGE_ENUM.FINAL_BONUS) {
+    if (this._gameStage.stage === GAME_STAGE_ENUM.FINAL_BONUS) {
       return { minWalls: 0, maxWalls: 0 };
     }
 
-    return { minWalls: 60, maxWalls: 90 };
+    return {
+      minWalls: this._DEFAULT_MIN_WALLS,
+      maxWalls: this._DEFAULT_MAX_WALLS
+    };
   }
 
   private _setUpCrossroads() {
@@ -150,21 +181,28 @@ export class MapManager {
     return group.addMultiple(gameObjects).setVisible(false).scaleXY(1.2, 1.2);
   }
 
+  private _setUpSpecialObjects() {
+    if (this._gameStage.stage !== GAME_STAGE_ENUM.FINAL_BONUS) {
+      this._setUpDoor();
+      this._setUpPowerUp();
+    }
+  }
+
   private _setUpDoor() {
-    const wall = this._pickRndWall();
+    const wall = this._getPositionByObject('door');
 
     wall.setData('hasDoor', true);
 
     this._door = this._scene.physics.add
       .image(wall.x, wall.y, 'door')
       .setScale(2.5)
-      .setVisible(false);
+      .setVisible(this._getVisibilityByObject('door'));
   }
 
   private _setUpPowerUp() {
-    const powerUpType = this._pickPowerUp();
+    const powerUpType = this._getPowerUp();
 
-    const wall = this._pickRndWall();
+    const wall = this._getPositionByObject('powerUp');
 
     wall.setData('hasPowerUp', true);
 
@@ -172,17 +210,49 @@ export class MapManager {
       .image(wall.x, wall.y, powerUpType.textureKey)
       .setScale(2.5)
       .setData('powerUpId', powerUpType.id)
-      .setVisible(false);
+      .setVisible(this._getVisibilityByObject('powerUp'));
   }
 
-  private _pickPowerUp() {
+  private _getPositionByObject(objectKey: 'door' | 'powerUp') {
+    const wall = this._pickSafeRndWall();
+
+    if (
+      this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
+      this._savedGame
+    ) {
+      const position = this._savedGame.map[objectKey];
+      wall.setPosition(position.x, position.y);
+    }
+
+    return wall;
+  }
+
+  private _getVisibilityByObject(objectKey: 'door' | 'powerUp') {
+    if (
+      this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
+      this._savedGame
+    ) {
+      const object = this._savedGame.map[objectKey];
+      return object.isVisible;
+    }
+
+    return false;
+  }
+
+  private _getPowerUp(): IPowerUp {
+    const stages = getStagesData();
     const powerUps = getPlayerPowerUps();
-    const index = Phaser.Math.RND.between(0, powerUps.length - 1);
 
-    return powerUps[index];
+    let stage = stages.find((item) => item.stage === this._gameStage.stage);
+
+    if (stage === undefined) {
+      stage = stages[0];
+    }
+
+    return powerUps.find((item) => item.id === stage.powerUp) ?? powerUps[0];
   }
 
-  private _pickRndWall(): Physics.Arcade.Sprite {
+  private _pickSafeRndWall(): Physics.Arcade.Sprite {
     const indexTmp = Phaser.Math.RND.between(
       0,
       this.wallsGroup.getLength() - 1
@@ -196,7 +266,7 @@ export class MapManager {
       (wall.getData('hasPowerUp') as boolean) ||
       (wall.getData('hasDoor') as boolean)
     ) {
-      return this._pickRndWall();
+      return this._pickSafeRndWall();
     }
 
     return wall;
@@ -204,11 +274,34 @@ export class MapManager {
 
   private _setUpMusic() {
     const stageSong =
-      this._stage.stage === GAME_STAGE_ENUM.FINAL_BONUS
+      this._gameStage.stage === GAME_STAGE_ENUM.FINAL_BONUS
         ? 'bonus-theme'
         : 'stage-theme';
 
     this._scene.sound.play(stageSong, { loop: true, volume: 0.5 });
+  }
+
+  getSavedState(): IMapSaved {
+    return {
+      walls: this.wallsGroup.getChildren().map((wall) => {
+        const _wall = wall as Wall;
+
+        return {
+          x: Math.floor(_wall.body?.center.x ?? 0),
+          y: Math.floor(_wall.body?.center.y ?? 0)
+        };
+      }),
+      door: {
+        x: Math.floor(this.door.body?.center.x ?? 0),
+        y: Math.floor(this.door.body?.center.y ?? 0),
+        isVisible: this.door.visible
+      },
+      powerUp: {
+        x: Math.floor(this.powerUp.body?.center.x ?? 0),
+        y: Math.floor(this.powerUp.body?.center.y ?? 0),
+        isVisible: this.powerUp.visible
+      }
+    };
   }
 
   public get map() {

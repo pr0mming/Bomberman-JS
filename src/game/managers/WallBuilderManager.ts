@@ -80,13 +80,24 @@ export class WallBuilderManager {
   pickSafeRndFreePosition(): ISafeRndFreePositionResult {
     const index = Phaser.Math.RND.between(0, this._freePositions.length - 1);
 
-    let element = this._freePositions[index];
+    const element = this._freePositions[index];
 
     if (this._isIllegalPositions(element)) {
       return this.pickSafeRndFreePosition();
     }
 
     return { element, index };
+  }
+
+  buildWallsFromArray(
+    walls: IMapPosition[],
+    addWallSpriteFn: (x: number, y: number) => void
+  ) {
+    for (const position of walls) {
+      addWallSpriteFn(position.x, position.y);
+
+      this.deletePositionFree(position.x, position.y);
+    }
   }
 
   buildWalls(addWallSpriteFn: (x: number, y: number) => void) {

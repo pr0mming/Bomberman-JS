@@ -4,7 +4,6 @@ class PlayerControlsManager {
   private _cursorKeys?: Types.Input.Keyboard.CursorKeys;
   private _putBombControl?: Input.Keyboard.Key;
   private _exploitBombControl?: Input.Keyboard.Key;
-  private _saveGameControl?: Input.Keyboard.Key;
 
   constructor(scene: Scene) {
     this._setUpControls(scene);
@@ -20,9 +19,6 @@ class PlayerControlsManager {
       this._exploitBombControl = scene.input.keyboard.addKey(
         Input.Keyboard.KeyCodes.SPACE
       );
-      this._saveGameControl = scene.input.keyboard.addKey(
-        Input.Keyboard.KeyCodes.S
-      );
     }
   }
 
@@ -36,10 +32,6 @@ class PlayerControlsManager {
 
   public get exploitBombControl() {
     return this._exploitBombControl;
-  }
-
-  public get saveGameControl() {
-    return this._saveGameControl;
   }
 }
 

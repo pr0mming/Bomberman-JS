@@ -4,33 +4,42 @@ import { Animations, Physics, Scene } from 'phaser';
 import BombGroup from '@game/sprites/bomb/BombGroup';
 
 // Helpers
-import PlayerControlsManager from '@game/managers/PlayerControlsManager';
+import PlayerControlsManager from '@game/managers/controls-manager/PlayerControlsManager';
+
+// Interfaces
+import { ISpritePosition } from '@src/game/common/interfaces/ISpritePosition';
+import { IGameSaved } from '@src/game/common/interfaces/IGameSaved';
+import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
 
 // Enums
 import { PLAYER_DIRECTION_ENUM } from '@game/common/enums/PlayerDirectionEnum';
-import { ISpritePosition } from '@src/game/common/interfaces/ISpritePosition';
+import { GAME_STATUS_ENUM } from '@src/game/common/enums/GameStatusEnum';
 
 interface IPlayerProps {
   scene: Scene;
   x: number;
   y: number;
+  gameStage: IGameInitialStage;
   bombGroup: BombGroup;
+  savedGame: IGameSaved | null;
 }
 
 export class Player extends Physics.Arcade.Sprite {
-  private _controlsManager?: PlayerControlsManager;
   private _direction: PLAYER_DIRECTION_ENUM;
+
+  private _controlsManager?: PlayerControlsManager;
 
   private _speed: number;
   private _hasWallPassPowerUp: boolean;
   private _hasBombPassPowerUp: boolean;
   private _hasFlamePassPowerUp: boolean;
+  private _lastTilePassedPosition: ISpritePosition;
+
+  private _savedGame: IGameSaved | null;
 
   private _bombGroup: BombGroup;
 
-  private _lastTilePassedPosition: ISpritePosition;
-
-  constructor({ scene, x, y, bombGroup }: IPlayerProps) {
+  constructor({ scene, x, y, bombGroup, gameStage, savedGame }: IPlayerProps) {
     super(scene, x, y, 'bomberman-move');
 
     this._direction = PLAYER_DIRECTION_ENUM.LEFT;
@@ -39,10 +48,11 @@ export class Player extends Physics.Arcade.Sprite {
     this._hasWallPassPowerUp = false;
     this._hasBombPassPowerUp = false;
     this._hasFlamePassPowerUp = false;
+    this._lastTilePassedPosition = { x, y };
 
     this._bombGroup = bombGroup;
 
-    this._lastTilePassedPosition = { x, y };
+    this._savedGame = savedGame;
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -50,11 +60,20 @@ export class Player extends Physics.Arcade.Sprite {
     this.setScale(2.0);
     this.setBodySize(this.width - 5, this.height);
 
+    this._validateSavedPlayer(gameStage);
     this._setUpControls();
     this._setUpAnimations();
 
     // The camera follows always the player in the map
     this.scene.cameras.main.startFollow(this);
+  }
+
+  private _validateSavedPlayer(gameStage: IGameInitialStage) {
+    if (gameStage.status === GAME_STATUS_ENUM.LOADED_GAME && this._savedGame) {
+      const { player } = this._savedGame;
+
+      this.setPosition(player.x, player.y);
+    }
   }
 
   // Prepare keys to move the player
@@ -115,7 +134,7 @@ export class Player extends Physics.Arcade.Sprite {
     }
 
     if (!sound.isPlaying) {
-      sound.play();
+      sound.play({ volume: 0.4 });
     }
   }
 
@@ -226,10 +245,17 @@ export class Player extends Physics.Arcade.Sprite {
       const deltaX = Math.abs(playerCenterX - tileCenterX);
       const deltaY = Math.abs(playerCenterY - tileCenterY);
 
-      return deltaX <= 5 && deltaY <= 5;
+      return deltaX <= 10 && deltaY <= 10;
     }
 
     return false;
+  }
+
+  getSavedState(): ISpritePosition {
+    return {
+      x: this.body?.center.x ?? 0,
+      y: this.body?.center.y ?? 0
+    };
   }
 
   public get speed() {

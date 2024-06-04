@@ -1,7 +1,12 @@
 import { Scene, VERSION } from 'phaser';
 
 // Helpers
-import getInitialBombermanStage from '@src/game/common/helpers/getInitialBombermanStage';
+import getInitialGameStage from '@src/game/common/helpers/getInitialGameStage';
+
+import { SaveGameManager } from '../managers/SaveGameManager';
+
+// Enums
+import { LOCAL_STORAGE_KEYS_ENUM } from '../common/enums/LocalStorageKeysEnum';
 
 /**
  * The menu screen to choose any option to start the game
@@ -57,7 +62,7 @@ export class MainMenu extends Scene {
         () => {
           this.sound.stopAll();
 
-          const stageBomberman = getInitialBombermanStage();
+          const stageBomberman = getInitialGameStage();
 
           this.scene.start('ChangeStage', stageBomberman);
         },
@@ -89,9 +94,18 @@ export class MainMenu extends Scene {
           continueButton.setFontSize(20).setColor('white');
         },
         this
-      );
+      )
+      .on(
+        Phaser.Input.Events.POINTER_DOWN,
+        () => {
+          const state = SaveGameManager.getLoadedGame();
 
-    //continueGame.events.onInputDown.add(function () {}, this);
+          if (state) {
+            this.scene.start('ChangeStage', state.gameStage);
+          }
+        },
+        this
+      );
 
     this.add
       .text(
@@ -105,7 +119,8 @@ export class MainMenu extends Scene {
       .setStroke('black', 2.5);
 
     // Show highest score
-    const highScore = localStorage.getItem('HightScore') ?? 0;
+    const highScore =
+      localStorage.getItem(LOCAL_STORAGE_KEYS_ENUM.HIGHEST_SCORE_KEY) ?? 0;
 
     this.add
       .text(

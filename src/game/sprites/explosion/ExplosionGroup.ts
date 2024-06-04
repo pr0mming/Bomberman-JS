@@ -52,7 +52,7 @@ export class ExplosionGroup extends Physics.Arcade.Group {
       });
     }
 
-    let explosionExtensions = new Set(
+    const explosionExtensions = new Set(
       this._explosionProperties
         .filter((item) => item.textureKeyExtension !== undefined)
         .map((item) => item.textureKeyExtension ?? '')
@@ -70,11 +70,11 @@ export class ExplosionGroup extends Physics.Arcade.Group {
 
   addNewExplosion(bombX: number, bombY: number) {
     for (const explosionData of this._explosionProperties) {
-      let spriteX = bombX + explosionData.spriteXOffset;
-      let spriteY = bombY + explosionData.spriteYOffset;
+      const spriteX = bombX + explosionData.spriteXOffset;
+      const spriteY = bombY + explosionData.spriteYOffset;
 
-      let tileX = bombX + explosionData.tileXOffset;
-      let tileY = bombY + explosionData.tileYOffset;
+      const tileX = bombX + explosionData.tileXOffset;
+      const tileY = bombY + explosionData.tileYOffset;
 
       const explosionProps = {
         spriteX,

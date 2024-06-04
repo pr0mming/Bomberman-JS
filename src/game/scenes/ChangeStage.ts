@@ -1,26 +1,28 @@
 import { Scene } from 'phaser';
 
 // Interfaces
-import { IGameStage } from '../common/interfaces/IGameStage';
+import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
 
 // Enums
 import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
+import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
 
 interface IPrepareUIParameters {
   text: string;
   delay: number;
   soundKey: string;
+  sceneKey: string;
 }
 
 export class ChangeStage extends Scene {
-  gameStage?: IGameStage;
+  private _gameStage?: IGameInitialStage;
 
   constructor() {
     super('ChangeStage');
   }
 
-  init(gameStage: IGameStage) {
-    this.gameStage = gameStage;
+  init(gameStage: IGameInitialStage) {
+    this._gameStage = gameStage;
   }
 
   create() {
@@ -29,34 +31,49 @@ export class ChangeStage extends Scene {
     this.cameras.main.backgroundColor =
       Phaser.Display.Color.HexStringToColor('#000000');
 
-    if (this.gameStage) {
-      switch (this.gameStage?.status) {
+    if (this._gameStage) {
+      switch (this._gameStage?.status) {
         case GAME_STATUS_ENUM.START:
         case GAME_STATUS_ENUM.RESTART:
-          this.prepareUI({
-            text: `STAGE ${this.gameStage?.stage + 1}`,
+        case GAME_STATUS_ENUM.LOADED_GAME:
+          this._prepareUI({
+            text: this._getStageText(),
             delay: 4,
-            soundKey: 'level-start'
+            soundKey: 'level-start',
+            sceneKey: 'Game'
           });
 
           break;
 
         case GAME_STATUS_ENUM.GAME_OVER:
-          this.prepareUI({
+          this._prepareUI({
             text: 'GAME OVER',
             delay: 7,
-            soundKey: 'game-over'
+            soundKey: 'game-over',
+            sceneKey: 'Game'
           });
 
           break;
 
         case GAME_STATUS_ENUM.NEXT_STAGE:
-          this.gameStage.stage++;
+          this._gameStage.stage++;
 
-          this.prepareUI({
-            text: `STAGE ${this.gameStage?.stage + 1}`,
+          this._prepareUI({
+            text: this._getStageText(),
             delay: 4,
-            soundKey: 'level-start'
+            soundKey: 'level-start',
+            sceneKey: 'Game'
+          });
+          break;
+
+        case GAME_STATUS_ENUM.COMPLETED:
+          this._gameStage.stage++;
+
+          this._prepareUI({
+            text: 'Amazing! \n Thanks for playing!',
+            delay: 10,
+            soundKey: 'level-complete',
+            sceneKey: 'MainMenu'
           });
           break;
 
@@ -66,21 +83,17 @@ export class ChangeStage extends Scene {
     }
   }
 
-  prepareUI(parameters: IPrepareUIParameters) {
+  private _prepareUI(parameters: IPrepareUIParameters) {
     const { text, delay, soundKey } = parameters;
 
-    this.add.text(
-      this.cameras.main.width / 2,
-      this.cameras.main.height / 2,
-      text,
-
-      {
-        font: '15px BitBold',
-        color: 'white',
-        stroke: 'black',
-        strokeThickness: 2.5
-      }
-    );
+    this.add
+      .text(this.cameras.main.centerX, this.cameras.main.centerY, text)
+      .setFontFamily('"BitBold", "Tahoma"')
+      .setFontSize(15)
+      .setColor('white')
+      .setStroke('black', 2.5)
+      .setOrigin(0.5)
+      .setAlign('center');
 
     this.sound.play(soundKey);
 
@@ -91,11 +104,18 @@ export class ChangeStage extends Scene {
         const { repeatCount } = _sceneTimer;
 
         if (repeatCount <= 0) {
-          _sceneTimer.paused = true;
-          this.scene.start('Game', this.gameStage);
+          this.scene.start(parameters.sceneKey, this._gameStage);
         }
       },
       callbackScope: this
     });
+  }
+
+  private _getStageText() {
+    if (this._gameStage?.stage === GAME_STAGE_ENUM.FINAL_BONUS) {
+      return 'BONUS STAGE';
+    }
+
+    return `STAGE ${(this._gameStage?.stage ?? 0) + 1}`;
   }
 }

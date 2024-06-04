@@ -5,14 +5,14 @@
  * NOTE: It would be strange use this file again, you should use it if you're gonna modify the tilemap (make it bigger, modify sizes, etc.)
  */
 
-const calculateCrossroads = () => {
-  var distance = 40 * 2,
+const _calculateCrossroads = () => {
+  const distance = 40 * 2,
     rows = 11 / 2,
     cols = Math.floor(35 / 2),
     map = [];
 
-  for (var i = 0, y = 120, id = 0; i < rows; i++, y += distance)
-    for (var j = 0, x = 60; j <= cols; j++, x += distance, id++) {
+  for (let i = 0, y = 120, id = 0; i < rows; i++, y += distance)
+    for (let j = 0, x = 60; j <= cols; j++, x += distance, id++) {
       map.push({
         height: 1.6,
         id: id,
@@ -36,17 +36,17 @@ const calculateCrossroads = () => {
  * NOTE: It would be strange use this file again, you should use it if you're gonna modify the tilemap (make it bigger, modify sizes, etc.)
  */
 
-const calculateRoads = () => {
-  var distance = 40,
+const _calculateRoads = () => {
+  const distance = 40,
     rows = 11,
     cols = Math.floor(35 / 2),
     map = [];
 
-  for (var i = 0, y = 120, id = 0; i < rows; i++, y += distance) {
-    var startX = i % 2 === 0 ? 60 + distance : 60;
-    var colsTmp = i % 2 === 0 ? cols : cols + 1;
+  for (let i = 0, y = 120, id = 0; i < rows; i++, y += distance) {
+    const startX = i % 2 === 0 ? 60 + distance : 60;
+    const colsTmp = i % 2 === 0 ? cols : cols + 1;
 
-    for (var j = 0, x = startX; j < colsTmp; j++, x += distance * 2, id++) {
+    for (let j = 0, x = startX; j < colsTmp; j++, x += distance * 2, id++) {
       map.push({
         height: 1.6,
         id: id,

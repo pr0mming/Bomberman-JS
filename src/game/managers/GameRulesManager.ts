@@ -5,7 +5,7 @@ import { Player } from '@game/sprites/player/Player';
 import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
 
 // Interfaces
-import { IGameStage } from '@game/common/interfaces/IGameStage';
+import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
 
 // Helpers
 import getItemFromPhaserGroup from '@game/common/helpers/getItemFromPhaserGroup';
@@ -14,17 +14,19 @@ import getItemFromPhaserGroup from '@game/common/helpers/getItemFromPhaserGroup'
 import { ENEMY_ENUM } from '@game/common/enums/EnemyEnum';
 import { TIMER_GAME_ENUM } from '@game/common/enums/TimerGameEnum';
 import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
+import { LOCAL_STORAGE_KEYS_ENUM } from '../common/enums/LocalStorageKeysEnum';
+import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
 
 interface GameRulesManagerProps {
   scene: Scene;
-  gameStage: IGameStage;
+  gameStage: IGameInitialStage;
   player: Player;
   enemiesGroup: EnemyGroup;
 }
 
 export class GameRulesManager {
   private _scene: Scene;
-  private _gameStage: IGameStage;
+  private _gameStage: IGameInitialStage;
   private _player: Player;
   private _enemiesGroup: EnemyGroup;
 
@@ -58,10 +60,10 @@ export class GameRulesManager {
       strokeThickness: 2.5
     };
 
-    let distance = 22;
+    let distanceX = 22;
 
     const information = this._scene.add.text(
-      distance,
+      distanceX,
       22,
       `TIME ${this._gameStage.time}`,
       style
@@ -71,10 +73,10 @@ export class GameRulesManager {
     information.name = 'TIME';
     this._labels.add(information);
 
-    distance += 170;
+    distanceX += 170;
 
     const score = this._scene.add.text(
-      distance,
+      distanceX,
       22,
       this._gameStage.stageScore.toString(),
       style
@@ -84,10 +86,10 @@ export class GameRulesManager {
     score.name = 'SCORE';
     this._labels.add(score);
 
-    distance += 128;
+    distanceX += 128;
 
     const lives = this._scene.add.text(
-      distance,
+      distanceX,
       22,
       `LEFT ${this._gameStage.lives}`,
       style
@@ -121,10 +123,14 @@ export class GameRulesManager {
   win() {
     this._scene.game.sound.stopAll();
 
-    const highScore = localStorage.getItem('HightScore') ?? 0;
+    const highScore =
+      localStorage.getItem(LOCAL_STORAGE_KEYS_ENUM.HIGHEST_SCORE_KEY) ?? 0;
 
     if (highScore < localStorage.stage_points)
-      localStorage.setItem('HightScore', localStorage.stage_points);
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS_ENUM.HIGHEST_SCORE_KEY,
+        localStorage.stage_points
+      );
 
     this._player.disableBody(false);
     this._player.setImmovable(true);
@@ -144,6 +150,10 @@ export class GameRulesManager {
         const { repeatCount } = _timerNextStage;
 
         if (repeatCount <= 0) {
+          if (this._gameStage.stage === GAME_STAGE_ENUM.FINAL_BONUS) {
+            this._gameStage.status = GAME_STATUS_ENUM.COMPLETED;
+          }
+
           this._scene.scene.start('ChangeStage', this._gameStage);
         }
       },

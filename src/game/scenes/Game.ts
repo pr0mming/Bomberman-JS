@@ -1,10 +1,7 @@
 import { Physics, Scene } from 'phaser';
 
 // Interfaces
-import { IGameStage } from '@game/common/interfaces/IGameStage';
-
-// Helpers
-import getInitialBombermanStage from '@game/common/helpers/getInitialBombermanStage';
+import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
 
 // Sprites
 import { Player } from '@game/sprites/player/Player';
@@ -15,16 +12,23 @@ import { Enemy } from '@game/sprites/enemy/Enemy';
 import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
 
 // Managers
+import { GameRulesManager } from '@game/managers/GameRulesManager';
 import { MapManager } from '@game/managers/MapManager';
 import { PowerUpManager } from '@game/managers/PowerUpManager';
-import { GameRulesManager } from '@game/managers/GameRulesManager';
+
+// Enums
+import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
+import { SaveGameManager } from '../managers/SaveGameManager';
+import { IGameSaved } from '../common/interfaces/IGameSaved';
 
 export class Game extends Scene {
-  private _gameStage: IGameStage;
+  private _gameStage!: IGameInitialStage;
+  private _savedGame: IGameSaved | null;
 
   private _gameRulesManager!: GameRulesManager;
   private _mapManager!: MapManager;
   private _powerUpManager!: PowerUpManager;
+  private _saveGameManager!: SaveGameManager;
 
   private _player!: Player;
   private _bombGroup!: BombGroup;
@@ -33,18 +37,20 @@ export class Game extends Scene {
   constructor() {
     super('Game');
 
-    this._gameStage = getInitialBombermanStage();
+    this._savedGame = null;
   }
 
-  init(gameStage: IGameStage) {
+  init(gameStage: IGameInitialStage) {
     this._gameStage = gameStage;
+    this._savedGame = SaveGameManager.getLoadedGame();
   }
 
   create() {
     this._mapManager = new MapManager({
       scene: this,
       world: this.physics.world,
-      stage: this._gameStage
+      gameStage: this._gameStage,
+      savedGame: this._savedGame
     });
 
     this._bombGroup = new BombGroup({
@@ -57,7 +63,9 @@ export class Game extends Scene {
       scene: this,
       x: 60,
       y: 120,
-      bombGroup: this._bombGroup
+      bombGroup: this._bombGroup,
+      gameStage: this._gameStage,
+      savedGame: this._savedGame
     });
 
     this._enemiesGroup = new EnemyGroup({
@@ -65,7 +73,8 @@ export class Game extends Scene {
       world: this.physics.world,
       player: this._player,
       wallBuilderManager: this._mapManager.wallBuilderManager,
-      stage: this._gameStage.stage
+      gameStage: this._gameStage,
+      savedGame: this._savedGame
     });
 
     this._powerUpManager = new PowerUpManager({
@@ -76,9 +85,17 @@ export class Game extends Scene {
 
     this._gameRulesManager = new GameRulesManager({
       scene: this,
+      gameStage: this._gameStage,
+      player: this._player,
+      enemiesGroup: this._enemiesGroup
+    });
+
+    this._saveGameManager = new SaveGameManager({
+      scene: this,
+      gameStage: this._gameStage,
       player: this._player,
       enemiesGroup: this._enemiesGroup,
-      gameStage: this._gameStage
+      mapManager: this._mapManager
     });
 
     // Set up colliders and overlap events
@@ -175,7 +192,7 @@ export class Game extends Scene {
     this.physics.add.collider(
       this._enemiesGroup,
       this._bombGroup,
-      (enemy) => {
+      (enemy, _) => {
         const _enemy = enemy as Enemy;
 
         _enemy.retraceMotion();
@@ -187,7 +204,7 @@ export class Game extends Scene {
     this.physics.add.collider(
       this._enemiesGroup,
       this._mapManager.mapLayer,
-      (enemy) => {
+      (enemy, _) => {
         const _enemy = enemy as Enemy;
 
         _enemy.retraceMotion();
@@ -199,12 +216,12 @@ export class Game extends Scene {
     this.physics.add.collider(
       this._enemiesGroup,
       this._mapManager.wallsGroup,
-      (enemy) => {
+      (enemy, _) => {
         const _enemy = enemy as Enemy;
 
         _enemy.retraceMotion();
       },
-      (enemy) => {
+      (enemy, _) => {
         const _enemy = enemy as Enemy;
 
         return !_enemy.enemyData.hasWallPassPowerUp;
@@ -352,6 +369,13 @@ export class Game extends Scene {
         _enemy.kill();
 
         this._gameRulesManager.score += _enemy.enemyData.rewardPoints;
+
+        if (
+          this._enemiesGroup.getTotalUsed() === 0 &&
+          this._gameStage.stage === GAME_STAGE_ENUM.FINAL_BONUS
+        ) {
+          this._gameRulesManager.win();
+        }
       },
       (_, enemy) => {
         const _enemy = enemy as Enemy;
@@ -364,6 +388,7 @@ export class Game extends Scene {
     this.physics.add.collider(
       this._bombGroup.explosionGroup,
       this._mapManager.wallsGroup,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (_, wall) => {
         const _wall = wall as Wall;
 
@@ -398,10 +423,7 @@ export class Game extends Scene {
   }
 
   update() {
-    //if (this._save.isDown) {
-    //coming soon
-    //}
-
-    this._player?.addControlsListener();
+    this._player.addControlsListener();
+    this._saveGameManager.addControlsListener();
   }
 }

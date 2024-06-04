@@ -1,18 +1,10 @@
-import { Tilemaps } from 'phaser';
-import { GAME_STATUS_ENUM } from '../enums/GameStatusEnum';
-import { GAME_STAGE_ENUM } from '../enums/GameStageEnum';
+import { IEnemyLevel } from './IEnemyLevel';
 
-interface IPlayerPositions {
-  x: number;
-  y: number;
-}
+import { GAME_STAGE_ENUM } from '../enums/GameStageEnum';
+import { PLAYER_POWER_UP_ENUM } from '../enums/PlayerPowerUpEnum';
+
 export interface IGameStage {
   stage: GAME_STAGE_ENUM;
-  lives: number;
-  time: number;
-  status: GAME_STATUS_ENUM;
-  totalScore: number;
-  stageScore: number;
-  map: Tilemaps.ObjectLayer[];
-  playerPositions?: IPlayerPositions;
+  powerUp?: PLAYER_POWER_UP_ENUM;
+  enemies: IEnemyLevel[];
 }
