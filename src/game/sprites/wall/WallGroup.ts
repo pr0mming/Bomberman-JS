@@ -18,10 +18,11 @@ export class WallGroup extends Physics.Arcade.StaticGroup {
   }
 
   private _setUpAnimations() {
-    this.scene.anims.create({
-      key: 'wall-explosion',
-      frames: this.scene.anims.generateFrameNumbers('wall-explosion'),
-      frameRate: 12
-    });
+    if (!this.scene.anims.exists('wall-explosion'))
+      this.scene.anims.create({
+        key: 'wall-explosion',
+        frames: this.scene.anims.generateFrameNumbers('wall-explosion'),
+        frameRate: 12
+      });
   }
 }

@@ -8,13 +8,13 @@ const getStagesData = (): IGameStage[] => {
     {
       stage: GAME_STAGE_ENUM.ONE,
       powerUp: PLAYER_POWER_UP_ENUM.BOMB_UP,
-      enemies: [{ quantity: 7, type: ENEMY_ENUM.BALLOM }]
+      enemies: [{ quantity: 4, type: ENEMY_ENUM.BALLOM }]
     },
     {
       stage: GAME_STAGE_ENUM.TWO,
       powerUp: PLAYER_POWER_UP_ENUM.FIRE_UP,
       enemies: [
-        { quantity: 4, type: ENEMY_ENUM.BALLOM },
+        { quantity: 2, type: ENEMY_ENUM.BALLOM },
         { quantity: 3, type: ENEMY_ENUM.ONIL }
       ]
     },

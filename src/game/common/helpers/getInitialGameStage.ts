@@ -9,7 +9,8 @@ const getInitialGameStage = (): IGameInitialStage => {
     time: 200,
     status: GAME_STATUS_ENUM.START,
     totalScore: 0,
-    stageScore: 0
+    stageScore: 0,
+    powerUps: []
   };
 };
 

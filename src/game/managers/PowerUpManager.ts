@@ -4,6 +4,8 @@ import { Scene } from 'phaser';
 import BombGroup from '@game/sprites/bomb/BombGroup';
 import { Player } from '@game/sprites/player/Player';
 
+import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
+
 // Enums
 import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 
@@ -11,17 +13,28 @@ interface IPowerUpManagerProps {
   scene: Scene;
   player: Player;
   bombGroup: BombGroup;
+  gameStage: IGameInitialStage;
 }
 
 export class PowerUpManager {
   private _player: Player;
   private _bombGroup: BombGroup;
   private _scene: Scene;
+  private _gameStage: IGameInitialStage;
 
-  constructor({ scene, player, bombGroup }: IPowerUpManagerProps) {
+  constructor({ scene, player, bombGroup, gameStage }: IPowerUpManagerProps) {
     this._scene = scene;
     this._player = player;
     this._bombGroup = bombGroup;
+    this._gameStage = gameStage;
+
+    this._setUp();
+  }
+
+  private _setUp() {
+    for (const powerUp of this._gameStage.powerUps) {
+      this._enablePowerUp(powerUp);
+    }
   }
 
   addPowerUp(powerUp: PLAYER_POWER_UP_ENUM): number {
@@ -30,6 +43,12 @@ export class PowerUpManager {
     this._scene.sound.play('power-up');
     this._scene.sound.play('find-the-door', { loop: true });
 
+    this._gameStage.powerUps.push(powerUp);
+
+    return this._enablePowerUp(powerUp);
+  }
+
+  private _enablePowerUp(powerUp: PLAYER_POWER_UP_ENUM) {
     switch (powerUp) {
       case PLAYER_POWER_UP_ENUM.BOMB_UP:
         this._bombGroup.maxAmountBombs++;

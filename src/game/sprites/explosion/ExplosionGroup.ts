@@ -44,12 +44,15 @@ export class ExplosionGroup extends Physics.Arcade.Group {
 
   private _setUpAnimations() {
     for (const explosionAnim of this._explosionProperties) {
-      this.scene.anims.create({
-        key: explosionAnim.textureKey,
-        frames: this.scene.anims.generateFrameNumbers(explosionAnim.textureKey),
-        frameRate: 12,
-        yoyo: true
-      });
+      if (!this.scene.anims.exists(explosionAnim.textureKey))
+        this.scene.anims.create({
+          key: explosionAnim.textureKey,
+          frames: this.scene.anims.generateFrameNumbers(
+            explosionAnim.textureKey
+          ),
+          frameRate: 12,
+          yoyo: true
+        });
     }
 
     const explosionExtensions = new Set(
@@ -59,12 +62,13 @@ export class ExplosionGroup extends Physics.Arcade.Group {
     );
 
     for (const explosionAnim of explosionExtensions) {
-      this.scene.anims.create({
-        key: explosionAnim,
-        frames: this.scene.anims.generateFrameNumbers(explosionAnim),
-        frameRate: 12,
-        yoyo: true
-      });
+      if (!this.scene.anims.exists(explosionAnim))
+        this.scene.anims.create({
+          key: explosionAnim,
+          frames: this.scene.anims.generateFrameNumbers(explosionAnim),
+          frameRate: 12,
+          yoyo: true
+        });
     }
   }
 

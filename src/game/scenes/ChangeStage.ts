@@ -6,6 +6,7 @@ import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
 // Enums
 import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
 import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
+import getInitialGameStage from '../common/helpers/getInitialGameStage';
 
 interface IPrepareUIParameters {
   text: string;
@@ -35,6 +36,17 @@ export class ChangeStage extends Scene {
       switch (this._gameStage?.status) {
         case GAME_STATUS_ENUM.START:
         case GAME_STATUS_ENUM.RESTART:
+          this._gameStage = getInitialGameStage();
+
+          this._prepareUI({
+            text: this._getStageText(),
+            delay: 4,
+            soundKey: 'level-start',
+            sceneKey: 'Game'
+          });
+
+          break;
+
         case GAME_STATUS_ENUM.LOADED_GAME:
           this._prepareUI({
             text: this._getStageText(),
@@ -46,11 +58,13 @@ export class ChangeStage extends Scene {
           break;
 
         case GAME_STATUS_ENUM.GAME_OVER:
+          localStorage.clear();
+
           this._prepareUI({
             text: 'GAME OVER',
             delay: 7,
             soundKey: 'game-over',
-            sceneKey: 'Game'
+            sceneKey: 'MainMenu'
           });
 
           break;
@@ -67,7 +81,7 @@ export class ChangeStage extends Scene {
           break;
 
         case GAME_STATUS_ENUM.COMPLETED:
-          this._gameStage.stage++;
+          localStorage.clear();
 
           this._prepareUI({
             text: 'Amazing! \n Thanks for playing!',

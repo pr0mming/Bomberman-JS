@@ -90,7 +90,7 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
       const posY = Math.floor(bomb.body.center.y);
 
       const timerFreePosition = new Phaser.Time.TimerEvent({
-        delay: 2000,
+        delay: 1000,
         callback: () => {
           this._wallBuilderManager.addPositionFree(posX, posY);
         },

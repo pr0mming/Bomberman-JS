@@ -56,8 +56,8 @@ export class MapManager {
     this._gameStage = gameStage;
     this._savedGame = savedGame;
 
-    this._DEFAULT_MIN_WALLS = 50;
-    this._DEFAULT_MAX_WALLS = 65;
+    this._DEFAULT_MIN_WALLS = 45;
+    this._DEFAULT_MAX_WALLS = 60;
 
     this._scene.cameras.main.backgroundColor =
       Phaser.Display.Color.HexStringToColor('#1F8B00');
@@ -189,12 +189,10 @@ export class MapManager {
   }
 
   private _setUpDoor() {
-    const wall = this._getPositionByObject('door');
-
-    wall.setData('hasDoor', true);
+    const position = this._getPositionByObject('door', 'hasDoor');
 
     this._door = this._scene.physics.add
-      .image(wall.x, wall.y, 'door')
+      .image(position.x, position.y, 'door')
       .setScale(2.5)
       .setVisible(this._getVisibilityByObject('door'));
   }
@@ -202,29 +200,47 @@ export class MapManager {
   private _setUpPowerUp() {
     const powerUpType = this._getPowerUp();
 
-    const wall = this._getPositionByObject('powerUp');
-
-    wall.setData('hasPowerUp', true);
+    const position = this._getPositionByObject('powerUp', 'hasPowerUp');
 
     this._powerUp = this._scene.physics.add
-      .image(wall.x, wall.y, powerUpType.textureKey)
+      .image(position.x, position.y, powerUpType.textureKey)
       .setScale(2.5)
       .setData('powerUpId', powerUpType.id)
       .setVisible(this._getVisibilityByObject('powerUp'));
   }
 
-  private _getPositionByObject(objectKey: 'door' | 'powerUp') {
-    const wall = this._pickSafeRndWall();
-
+  private _getPositionByObject(
+    objectKey: 'door' | 'powerUp',
+    wallDataKey: string
+  ) {
     if (
       this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
       this._savedGame
     ) {
-      const position = this._savedGame.map[objectKey];
-      wall.setPosition(position.x, position.y);
+      const object = this._savedGame.map[objectKey];
+
+      if (!object.isVisible) {
+        const wall = this.wallsGroup.getChildren().find((item) => {
+          const _item = item as Wall;
+
+          return (
+            Math.floor(_item.body?.center.x ?? 0) === object.x &&
+            Math.floor(_item.body?.center.y ?? 0) === object.y
+          );
+        });
+
+        if (wall) {
+          wall.setData(wallDataKey, true);
+        }
+      }
+
+      return { x: object.x, y: object.y };
     }
 
-    return wall;
+    const wall = this._pickSafeRndWall();
+    wall.setData(wallDataKey, true);
+
+    return { x: wall.x, y: wall.y };
   }
 
   private _getVisibilityByObject(objectKey: 'door' | 'powerUp') {
@@ -287,18 +303,18 @@ export class MapManager {
         const _wall = wall as Wall;
 
         return {
-          x: Math.floor(_wall.body?.center.x ?? 0),
-          y: Math.floor(_wall.body?.center.y ?? 0)
+          x: Math.round(_wall.body?.center.x ?? 0),
+          y: Math.round(_wall.body?.center.y ?? 0)
         };
       }),
       door: {
-        x: Math.floor(this.door.body?.center.x ?? 0),
-        y: Math.floor(this.door.body?.center.y ?? 0),
+        x: Math.round(this.door.body?.center.x ?? 0),
+        y: Math.round(this.door.body?.center.y ?? 0),
         isVisible: this.door.visible
       },
       powerUp: {
-        x: Math.floor(this.powerUp.body?.center.x ?? 0),
-        y: Math.floor(this.powerUp.body?.center.y ?? 0),
+        x: Math.round(this.powerUp.body?.center.x ?? 0),
+        y: Math.round(this.powerUp.body?.center.y ?? 0),
         isVisible: this.powerUp.visible
       }
     };

@@ -80,7 +80,8 @@ export class Game extends Scene {
     this._powerUpManager = new PowerUpManager({
       scene: this,
       player: this._player,
-      bombGroup: this._bombGroup
+      bombGroup: this._bombGroup,
+      gameStage: this._gameStage
     });
 
     this._gameRulesManager = new GameRulesManager({
@@ -388,7 +389,6 @@ export class Game extends Scene {
     this.physics.add.collider(
       this._bombGroup.explosionGroup,
       this._mapManager.wallsGroup,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (_, wall) => {
         const _wall = wall as Wall;
 
