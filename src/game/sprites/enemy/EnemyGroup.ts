@@ -1,21 +1,27 @@
 import { Physics, Scene } from 'phaser';
+
+// Sprites
 import { Enemy } from '@src/game/sprites/enemy/Enemy';
 import { Player } from '@src/game/sprites/player/Player';
 
+// Helpers
 import getStagesData from '@src/game/common/helpers/getStagesData';
 import getEnemyData from '@src/game/common/helpers/getEnemyData';
 
+// Interfaces
 import { IEnemy } from '@src/game/common/interfaces/IEnemy';
 import { IEnemyLevel } from '@src/game/common/interfaces/IEnemyLevel';
+import { IEnemySaved } from '@src/game/common/interfaces/IEnemySaved';
 import { IMapPosition } from '@src/game/common/interfaces/IMapPosition';
+import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
+import { IGameSaved } from '@src/game/common/interfaces/IGameSaved';
 
+// Managers
 import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
 
+// Enums
 import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
 import { GAME_STAGE_ENUM } from '@src/game/common/enums/GameStageEnum';
-import { IEnemySaved } from '@src/game/common/interfaces/IEnemySaved';
-import { IGameSaved } from '@src/game/common/interfaces/IGameSaved';
-import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
 import { GAME_STATUS_ENUM } from '@src/game/common/enums/GameStatusEnum';
 
 interface IEnemyGroupProps {

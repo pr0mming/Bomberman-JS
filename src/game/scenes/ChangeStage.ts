@@ -1,12 +1,14 @@
 import { Scene } from 'phaser';
 
 // Interfaces
-import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
+
+// Helpers
+import getInitialGameStage from '@game/common/helpers/getInitialGameStage';
 
 // Enums
-import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
-import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
-import getInitialGameStage from '../common/helpers/getInitialGameStage';
+import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
 
 interface IPrepareUIParameters {
   text: string;

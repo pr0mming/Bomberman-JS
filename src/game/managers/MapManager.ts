@@ -6,19 +6,19 @@ import { Wall } from '@game/sprites/wall/Wall';
 
 // Helpers
 import getPlayerPowerUps from '@game/common/helpers/getPlayerPowerUps';
-import getStagesData from '../common/helpers/getStagesData';
+import getStagesData from '@game/common/helpers/getStagesData';
 
 // Interfaces
-import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
-import { IPowerUp } from '../common/interfaces/IPowerUp';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
+import { IPowerUp } from '@game/common/interfaces/IPowerUp';
+import { IGameSaved, IMapSaved } from '@game/common/interfaces/IGameSaved';
 
 // Managers
 import { WallBuilderManager } from '@game/managers/WallBuilderManager';
 
 // Enums
-import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
-import { IGameSaved, IMapSaved } from '../common/interfaces/IGameSaved';
-import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
+import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
 
 interface IMapManager {
   scene: Scene;
@@ -27,6 +27,9 @@ interface IMapManager {
   savedGame: IGameSaved | null;
 }
 
+/**
+ * This class build the map (use the tilemap and the soft walls)
+ */
 export class MapManager {
   private _scene: Scene;
   private _world: Physics.Arcade.World;
@@ -34,16 +37,21 @@ export class MapManager {
   private _map!: Tilemaps.Tilemap;
   private _mapLayer!: Tilemaps.TilemapLayer;
 
+  // This manager performs the logic to put the soft walls
   private _wallBuilderManager!: WallBuilderManager;
   private _wallsGroup!: WallGroup;
 
   private _roads!: Physics.Arcade.Group;
   private _crossroads!: Physics.Arcade.Group;
 
+  // Constants to use in a Random function
   private _DEFAULT_MIN_WALLS: number;
   private _DEFAULT_MAX_WALLS: number;
 
+  // The power up is different per stage, it is used only by the player
   private _powerUp!: Physics.Arcade.Image;
+
+  // The door is used to know when to win
   private _door!: Physics.Arcade.Image;
 
   private _savedGame: IGameSaved | null;
@@ -65,6 +73,9 @@ export class MapManager {
     this._createMap();
   }
 
+  /**
+   * This method create the layer map and put elements like soft walls, the door and powerup
+   */
   private _createMap() {
     const mapResult = this._createMapLayer();
 
@@ -97,6 +108,7 @@ export class MapManager {
       const _mapLayer = _map.createLayer('Map', tilesMap);
 
       if (_mapLayer) {
+        // Important: This line allows the sprites collide with the map layer
         _mapLayer.setCollisionByExclusion([-1]);
 
         return { _map, _mapLayer };
@@ -106,17 +118,23 @@ export class MapManager {
     return null;
   }
 
+  /**
+   * This method put the soft walls
+   */
   private _setUpWalls() {
+    // Roads: positions saved in the tilemap, those are positions that follows only two ways
     const roads =
       this._map.objects.find((object) => object.name === 'Roads')?.objects ??
       [];
 
+    // Crossroads: positions saved in the tilemap, those are positions that follows up to 4 ways
     const crossroads =
       this._map.objects.find((object) => object.name === 'Crossroads')
         ?.objects ?? [];
 
     const { minWalls, maxWalls } = this._getAverageWalls();
 
+    // Use manager ...
     this._wallBuilderManager = new WallBuilderManager({
       roads,
       crossroads,
@@ -141,6 +159,12 @@ export class MapManager {
     });
   }
 
+  /**
+   * This method put the soft walls,
+   * But if the stage is loaded (game saved) it will take the walls in local storage
+   * Otherwise it will put the walls using a particular way ...
+   * @param addWallSpriteFn it's a callback, this function perform the action of put the sprite (soft wall) on the map
+   */
   private _validateSavedWalls(addWallSpriteFn: (x: number, y: number) => void) {
     if (
       this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
@@ -155,6 +179,11 @@ export class MapManager {
     }
   }
 
+  /**
+   * This method checks if the stage is a bonus
+   * Normally, a bonus stage doesn't have soft walls so that is returned 0 walls, otherwise is returned the default value
+   * @returns the min and max of walls to put in the map
+   */
   private _getAverageWalls() {
     if (this._gameStage.stage === GAME_STAGE_ENUM.FINAL_BONUS) {
       return { minWalls: 0, maxWalls: 0 };
@@ -171,6 +200,12 @@ export class MapManager {
     this._roads = this._setUpTileGroup('Roads');
   }
 
+  /**
+   * This method convert an array of elements (x, y) of the tilemap to sprites
+   * This is useful to save the roads and crossroads
+   * @param key is the key of the array of objects of the tilemap
+   * @returns a group of sprites
+   */
   private _setUpTileGroup(key: string) {
     const group = this._scene.physics.add.group();
 
@@ -181,6 +216,9 @@ export class MapManager {
     return group.addMultiple(gameObjects).setVisible(false).scaleXY(1.2, 1.2);
   }
 
+  /**
+   * This method assign the door and power up, the bonus stage doesn't have any of these ones
+   */
   private _setUpSpecialObjects() {
     if (this._gameStage.stage !== GAME_STAGE_ENUM.FINAL_BONUS) {
       this._setUpDoor();
@@ -198,6 +236,7 @@ export class MapManager {
   }
 
   private _setUpPowerUp() {
+    // Pick powerup by stage
     const powerUpType = this._getPowerUp();
 
     const position = this._getPositionByObject('powerUp', 'hasPowerUp');
@@ -209,6 +248,12 @@ export class MapManager {
       .setVisible(this._getVisibilityByObject('powerUp'));
   }
 
+  /**
+   * This method is used to get a free position of the map and place the door or powerup sprite
+   * @param objectKey key of the saved game object, it's used to access the property
+   * @param wallDataKey key that is used to mark a wall as the allocator of the door or powerup
+   * @returns free position to being used by a sprite
+   */
   private _getPositionByObject(
     objectKey: 'door' | 'powerUp',
     wallDataKey: string
@@ -217,9 +262,12 @@ export class MapManager {
       this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
       this._savedGame
     ) {
+      // If is a saved game the position of the element is taken first (from local storage)
       const object = this._savedGame.map[objectKey];
 
+      // If the element isn't visible it means there is a wall over
       if (!object.isVisible) {
+        // Look up the wall with the position
         const wall = this.wallsGroup.getChildren().find((item) => {
           const _item = item as Wall;
 
@@ -230,6 +278,7 @@ export class MapManager {
         });
 
         if (wall) {
+          // Set the flag
           wall.setData(wallDataKey, true);
         }
       }
@@ -237,13 +286,19 @@ export class MapManager {
       return { x: object.x, y: object.y };
     }
 
+    // Pick random position
     const wall = this._pickSafeRndWall();
     wall.setData(wallDataKey, true);
 
     return { x: wall.x, y: wall.y };
   }
 
-  private _getVisibilityByObject(objectKey: 'door' | 'powerUp') {
+  /**
+   * This method decides if the object is visible or not
+   * @param objectKey key of the saved game object, it's used to access the property
+   * @returns if is visible or not
+   */
+  private _getVisibilityByObject(objectKey: 'door' | 'powerUp'): boolean {
     if (
       this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
       this._savedGame
@@ -255,6 +310,10 @@ export class MapManager {
     return false;
   }
 
+  /**
+   * This method pick the powerup id by stage
+   * @returns Power Up Id
+   */
   private _getPowerUp(): IPowerUp {
     const stages = getStagesData();
     const powerUps = getPlayerPowerUps();
@@ -268,6 +327,11 @@ export class MapManager {
     return powerUps.find((item) => item.id === stage.powerUp) ?? powerUps[0];
   }
 
+  /**
+   * This method get a random free position of the map to place the door or powerup
+   * It also validates don't take any position taken before by any of the elements
+   * @returns Sprite of wall
+   */
   private _pickSafeRndWall(): Physics.Arcade.Sprite {
     const indexTmp = Phaser.Math.RND.between(
       0,
@@ -297,6 +361,10 @@ export class MapManager {
     this._scene.sound.play(stageSong, { loop: true, volume: 0.5 });
   }
 
+  /**
+   * This method returns the walls and elements positions for local storage
+   * @returns object ready to being save in local storage
+   */
   getSavedState(): IMapSaved {
     return {
       walls: this.wallsGroup.getChildren().map((wall) => {

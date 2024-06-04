@@ -6,9 +6,11 @@ import { ExplosionFragment } from '@game/sprites/explosion/ExplosionFragment';
 // Interfaces
 import { IExplosionFragment } from '@game/common/interfaces/IExplosionFragment';
 
+// Managers
+import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
+
 // Helpers
 import getExplosionData from '@game/common/helpers/getExplosionData';
-import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
 
 interface IExplosionGroupProps {
   world: Physics.Arcade.World;

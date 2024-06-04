@@ -137,7 +137,6 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     });
 
     this.scene.time.addEvent(_timerExploitBomb);
-    this._timers.set(TIMER_GAME_ENUM.EXPLOIT_BOMB, _timerExploitBomb);
   }
 
   private _canPutBomb(x: number, y: number) {
@@ -146,9 +145,7 @@ export class BombGroup extends Physics.Arcade.StaticGroup {
     if (!this._wallBuilderManager.isPositionFree(x, y)) return false;
 
     return (
-      (_timerPutBomb === undefined ||
-        _timerPutBomb?.elapsed ||
-        _timerPutBomb?.repeatCount === 0) &&
+      (_timerPutBomb === undefined || _timerPutBomb?.repeatCount === 0) &&
       this.getTotalUsed() < this._maxAmountBombs
     );
   }

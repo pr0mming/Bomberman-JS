@@ -69,7 +69,6 @@ export class MainMenu extends Scene {
         this
       );
 
-    // New feature
     const continueButton = this.add
       .text(
         this.cameras.main.centerX + 50,

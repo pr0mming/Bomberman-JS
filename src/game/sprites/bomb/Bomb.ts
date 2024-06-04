@@ -16,7 +16,6 @@ export class Bomb extends Physics.Arcade.Sprite {
     this.play('wait');
   }
 
-  // Prepare all the animations for the player
   private _setUpAnimations() {
     this.anims.create({
       key: 'wait',

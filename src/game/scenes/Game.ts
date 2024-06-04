@@ -2,6 +2,7 @@ import { Physics, Scene } from 'phaser';
 
 // Interfaces
 import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
+import { IGameSaved } from '@game/common/interfaces/IGameSaved';
 
 // Sprites
 import { Player } from '@game/sprites/player/Player';
@@ -15,21 +16,26 @@ import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
 import { GameRulesManager } from '@game/managers/GameRulesManager';
 import { MapManager } from '@game/managers/MapManager';
 import { PowerUpManager } from '@game/managers/PowerUpManager';
+import { SaveGameManager } from '@game/managers/SaveGameManager';
 
 // Enums
-import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
-import { SaveGameManager } from '../managers/SaveGameManager';
-import { IGameSaved } from '../common/interfaces/IGameSaved';
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
 
+/**
+ * This class is the codebase of the game
+ */
 export class Game extends Scene {
+  // Core variables to set up the game and player (number of lifes, time, powerups, etc.)
   private _gameStage!: IGameInitialStage;
   private _savedGame: IGameSaved | null;
 
+  // Elemens different to sprites or groups are called "Managers"
   private _gameRulesManager!: GameRulesManager;
   private _mapManager!: MapManager;
   private _powerUpManager!: PowerUpManager;
   private _saveGameManager!: SaveGameManager;
 
+  // Sprites
   private _player!: Player;
   private _bombGroup!: BombGroup;
   private _enemiesGroup!: EnemyGroup;
@@ -46,6 +52,8 @@ export class Game extends Scene {
   }
 
   create() {
+    // Add core instances of the game
+
     this._mapManager = new MapManager({
       scene: this,
       world: this.physics.world,
@@ -101,7 +109,10 @@ export class Game extends Scene {
 
     // Set up colliders and overlap events
 
+    // Add boundaries between the layermap and player
     this.physics.add.collider(this._player, this._mapManager.mapLayer);
+
+    // Add boundaries between the any bomb and player
     this.physics.add.collider(
       this._player,
       this._bombGroup,
@@ -114,6 +125,7 @@ export class Game extends Scene {
       this
     );
 
+    // Add boundaries between the any soft wall and player
     this.physics.add.collider(
       this._player,
       this._mapManager.wallsGroup,
@@ -126,6 +138,9 @@ export class Game extends Scene {
       this
     );
 
+    // These two events are the same for "crossroads" and "roads"
+    // It allows save the last tile (little part of the map) passed by the player
+    // it allow know where to put the bomb using the right center position ...
     this.physics.add.overlap(
       this._player,
       this._mapManager.crossroads,
@@ -168,6 +183,7 @@ export class Game extends Scene {
       this
     );
 
+    // If player touches any enemy, it dies
     this.physics.add.overlap(
       this._player,
       this._enemiesGroup,
@@ -178,6 +194,7 @@ export class Game extends Scene {
       this
     );
 
+    // If player touches is reached out by any explosion, it dies
     this.physics.add.overlap(
       this._player,
       this._bombGroup.explosionGroup,
@@ -190,6 +207,8 @@ export class Game extends Scene {
       this
     );
 
+    // These events avoid the enemies stay in the same position forever
+    // It moves the enemy in the opposite direction
     this.physics.add.collider(
       this._enemiesGroup,
       this._bombGroup,
@@ -230,6 +249,7 @@ export class Game extends Scene {
       this
     );
 
+    // If any enemy is aligned with the center of a "crossroad" it can perform movements in any direction
     this.physics.add.overlap(
       this._enemiesGroup,
       this._mapManager.crossroads,
@@ -247,7 +267,7 @@ export class Game extends Scene {
           y: crossroadPos.y
         };
 
-        // Perform movement so that the enemy isn't immovable
+        // Perform motion
         _enemy.dispatchMotion();
       },
       (enemy, crossroad) => {
@@ -259,6 +279,7 @@ export class Game extends Scene {
           y: _crossroad.body?.center.y ?? 0
         };
 
+        // Is enemy center aligned with the tile center?
         return _enemy.validateCrossroadOverlap({
           x: tilePos.x,
           y: tilePos.y
@@ -267,6 +288,7 @@ export class Game extends Scene {
       this
     );
 
+    // If the explosion reaches out any bomb it will explode
     this.physics.add.overlap(
       this._bombGroup.explosionGroup,
       this._bombGroup,
@@ -279,6 +301,8 @@ export class Game extends Scene {
       this
     );
 
+    // Tese two events do the same,
+    // Detect if the center of the player is aligned with the door or powerup, then is taken
     this.physics.add.overlap(
       this._player,
       this._mapManager.powerUp,
@@ -334,12 +358,14 @@ export class Game extends Scene {
       this
     );
 
+    // If the explosion touches the door it will free a random number of enemies
     this.physics.add.overlap(
       this._bombGroup.explosionGroup,
       this._mapManager.door,
       () => {
         const door = this._mapManager.door;
 
+        // Disable physics on the door temporary
         door.disableBody(false);
 
         setTimeout(() => {
@@ -354,6 +380,8 @@ export class Game extends Scene {
         }
       },
       () => {
+        // This validation is to execute the event only once!
+        // Otherwise there will be too many enemies there!
         const _door = this._mapManager.door;
 
         return _door.body?.enable && _door.visible;
@@ -361,6 +389,7 @@ export class Game extends Scene {
       this
     );
 
+    // If the explosion reaches out any enemy, it dies
     this.physics.add.overlap(
       this._bombGroup.explosionGroup,
       this._enemiesGroup,
@@ -386,6 +415,7 @@ export class Game extends Scene {
       this
     );
 
+    // If the explosion reaches out any enemy, it will be destroyed
     this.physics.add.collider(
       this._bombGroup.explosionGroup,
       this._mapManager.wallsGroup,
@@ -394,6 +424,7 @@ export class Game extends Scene {
 
         _wall.kill();
 
+        // Check if the wall hides the door ot powerup, then show it
         if (_wall.getData('hasDoor')) {
           const door = this._mapManager.door;
 
@@ -410,6 +441,8 @@ export class Game extends Scene {
           this._mapManager.powerUp.setVisible(true);
         }
 
+        // Update map of free positions
+        // It's important to know there to put the bomb or control the explosion range
         if (_wall.body) {
           const posX = Math.floor(_wall.body.center.x);
           const posY = Math.floor(_wall.body.center.y);

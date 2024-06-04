@@ -1,12 +1,20 @@
 import { Scene } from 'phaser';
-import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
-import { EnemyGroup } from '../sprites/enemy/EnemyGroup';
-import { Player } from '../sprites/player/Player';
+
+// Interfaces
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
+import { IGameSaved } from '@game/common/interfaces/IGameSaved';
+
+// Sprites
+import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
+import { Player } from '@game/sprites/player/Player';
+
+// Managers
 import { MapManager } from './MapManager';
-import { IGameSaved } from '../common/interfaces/IGameSaved';
-import { LOCAL_STORAGE_KEYS_ENUM } from '../common/enums/LocalStorageKeysEnum';
-import { GameRulesControlManager } from './controls-manager/GameRulesControlManager';
-import { GAME_STATUS_ENUM } from '../common/enums/GameStatusEnum';
+import { GameRulesControlManager } from '@game/managers/controls-manager/GameRulesControlManager';
+
+// Enums
+import { LOCAL_STORAGE_KEYS_ENUM } from '@game/common/enums/LocalStorageKeysEnum';
+import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
 
 interface SaveGameManagerProps {
   scene: Scene;
@@ -41,6 +49,10 @@ export class SaveGameManager {
     this._controlsManager = new GameRulesControlManager(scene);
   }
 
+  /**
+   * This method is static to allow be executed from any scene (like MainMenu) and get the last saved game instance
+   * @returns instance of saved game
+   */
   static getLoadedGame(): IGameSaved | null {
     const state = localStorage.getItem(LOCAL_STORAGE_KEYS_ENUM.SAVED_GAME);
 
@@ -52,10 +64,12 @@ export class SaveGameManager {
   }
 
   addControlsListener() {
+    // If the player is dead this feature is disabled
     if (
       this._player.body?.enable &&
       this._controlsManager?.saveGameControl?.isDown
     ) {
+      // Add little label ...
       const tempText = this._scene.add
         .text(850, 22, 'SAVING GAME ...')
         .setFontFamily('"BitBold", "Tahoma"')
@@ -74,6 +88,9 @@ export class SaveGameManager {
     }
   }
 
+  /**
+   * This method gather the necessary elements of the game to save in local storage
+   */
   private _saveGame() {
     const gameStage = { ...this._gameStage };
 
