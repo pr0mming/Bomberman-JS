@@ -1,4 +1,4 @@
-![gameimg](https://user-images.githubusercontent.com/20020612/43007716-c1ba24e0-8bfe-11e8-85f6-45b7c6da2689.png)
+![gameimg](https://github.com/pr0mming/Bomberman-JS/assets/20020612/a1cf0725-91d7-4447-91c3-e93e2d23189a)
 
 ## Bomberman JS
 
