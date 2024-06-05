@@ -17,6 +17,9 @@ interface IPrepareUIParameters {
   sceneKey: string;
 }
 
+/**
+ * This scene is showed before the Game scene, it's the black screen ith white texts
+ */
 export class ChangeStage extends Scene {
   private _gameStage?: IGameInitialStage;
 
@@ -38,6 +41,7 @@ export class ChangeStage extends Scene {
       switch (this._gameStage?.status) {
         case GAME_STATUS_ENUM.START:
         case GAME_STATUS_ENUM.RESTART:
+          // This line is important to keep always the same data of the initial stage
           this._gameStage = getInitialGameStage();
 
           this._prepareUI({
@@ -99,6 +103,10 @@ export class ChangeStage extends Scene {
     }
   }
 
+  /**
+   * This method prepares the text to show and the scene to execute after a delay
+   * @param parameters data to prepare the scene
+   */
   private _prepareUI(parameters: IPrepareUIParameters) {
     const { text, delay, soundKey } = parameters;
 
@@ -120,6 +128,7 @@ export class ChangeStage extends Scene {
         const { repeatCount } = _sceneTimer;
 
         if (repeatCount <= 0) {
+          // Show new scene ...
           this.scene.start(parameters.sceneKey, this._gameStage);
         }
       },

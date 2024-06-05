@@ -53,7 +53,6 @@ export class Game extends Scene {
 
   create() {
     // Add core instances of the game
-
     this._mapManager = new MapManager({
       scene: this,
       world: this.physics.world,

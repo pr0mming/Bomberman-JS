@@ -1,7 +1,13 @@
-import { GAME_STAGE_ENUM } from '../enums/GameStageEnum';
-import { GAME_STATUS_ENUM } from '../enums/GameStatusEnum';
-import { IGameInitialStage } from '../interfaces/IGameInitialStage';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
 
+// Enums
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
+import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
+
+/**
+ * Feel free to play with this data, this parameters will be loaded in the first match
+ * @returns
+ */
 const getInitialGameStage = (): IGameInitialStage => {
   return {
     stage: GAME_STAGE_ENUM.ONE,

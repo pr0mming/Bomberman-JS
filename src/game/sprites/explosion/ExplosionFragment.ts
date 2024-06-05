@@ -18,6 +18,8 @@ export class ExplosionFragment extends Physics.Arcade.Sprite {
     this.setVisible(isVisible);
 
     this.setImmovable(true);
+
+    // Important: This line reduces a bit the physics body to make a bit bigger the explosion effect
     this.setBodySize(this.width - 5, this.height - 5);
 
     this.play(textureKey).once(Animations.Events.ANIMATION_COMPLETE, () => {

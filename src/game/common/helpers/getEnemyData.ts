@@ -1,6 +1,6 @@
-import { ENEMY_ENUM } from '../enums/EnemyEnum';
-import { ENEMY_MOTION_ENUM } from '../enums/EnemyMotionEnum';
-import { IEnemy } from '../interfaces/IEnemy';
+import { ENEMY_ENUM } from '@game/common/enums/EnemyEnum';
+import { ENEMY_MOTION_ENUM } from '@game/common/enums/EnemyMotionEnum';
+import { IEnemy } from '@game/common/interfaces/IEnemy';
 
 const getEnemyData = (): IEnemy[] => {
   return [

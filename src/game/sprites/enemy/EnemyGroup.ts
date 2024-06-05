@@ -33,6 +33,9 @@ interface IEnemyGroupProps {
   savedGame: IGameSaved | null;
 }
 
+/**
+ * This class orchestrate all related to enemies
+ */
 export class EnemyGroup extends Physics.Arcade.Group {
   private _enemyLevel: IEnemyLevel[];
   private _wallBuilderManager: WallBuilderManager;
@@ -51,6 +54,7 @@ export class EnemyGroup extends Physics.Arcade.Group {
   }: IEnemyGroupProps) {
     super(world, scene);
 
+    // Initial data: enemies per stage
     this._enemyLevel = this._getEnemyLevelByKey(gameStage.stage);
 
     this._wallBuilderManager = wallBuilderManager;
@@ -86,6 +90,9 @@ export class EnemyGroup extends Physics.Arcade.Group {
     return enemyData;
   }
 
+  /**
+   * This method created the enemies from a saved game or from the stage to play
+   */
   private _setUp() {
     if (
       this._gameStage.status === GAME_STATUS_ENUM.LOADED_GAME &&
@@ -101,18 +108,26 @@ export class EnemyGroup extends Physics.Arcade.Group {
 
   private _createEnemies() {
     for (const enemyInput of this._enemyLevel) {
+      // Get properties like textureKey, velocity, reward points, etc.
       const enemyData = this._getEnemyDataByKey(enemyInput.type);
 
+      // Create animations only once!
       this._createAnimationByEnemy(enemyData);
 
+      // Put enemy by enemy ...
       for (let i = 0; i < enemyInput.quantity; i++) {
         const { element } = this._wallBuilderManager.pickSafeRndFreePosition();
 
+        // Normally the enemies of the stage don't have shield
         this._createNewEnemy(element, enemyData, false);
       }
     }
   }
 
+  /**
+   * This method is only used for a saved game and is pretty similar to _createEnemies but with slight variations
+   * @param enemies array fo enemies to create
+   */
   private _createEnemiesFromData(enemies: IEnemySaved[]) {
     for (const enemyInput of enemies) {
       const enemyData = this._getEnemyDataByKey(enemyInput.enemyData.type);
@@ -125,6 +140,9 @@ export class EnemyGroup extends Physics.Arcade.Group {
     }
   }
 
+  /**
+   * This method created aditional animations: the pink coin can appear at any stage (when the time is run out)
+   */
   private _setUpAnimations() {
     if (
       this._enemyLevel.find((item) => item.type === ENEMY_ENUM.PONTAN) ===
@@ -144,9 +162,14 @@ export class EnemyGroup extends Physics.Arcade.Group {
       });
   }
 
+  /**
+   * This method creates the animation for a type of enemy with a slight variation
+   * @param enemy data of enemy type
+   */
   private _createAnimationByEnemy(enemy: IEnemy) {
     const { type } = enemy;
 
+    // If you see the sprites, the PONTAN (pink coin) enemy has more frames to show, this validation controls that ...
     const framesLeft = type === ENEMY_ENUM.PONTAN ? [0, 1, 2, 3, 4] : [0, 1, 2];
     const framesRight =
       type === ENEMY_ENUM.PONTAN ? [7, 8, 9, 10, 11] : [4, 5, 6];
@@ -199,14 +222,20 @@ export class EnemyGroup extends Physics.Arcade.Group {
 
     this.add(newEnemy, true);
 
+    // Set up type of motion
     newEnemy.setMotionManager(enemyData.motionEnemyType);
+    // Move the enemy
     newEnemy.dispatchMotion();
   }
 
+  /**
+   * This method is used to place the pink coin
+   * @returns set of positions
+   */
   private _getEnemiesPosition(): IMapPosition[] {
     const positions: IMapPosition[] = [];
 
-    if (this.getLength() > 0) {
+    if (this.getTotalUsed() > 0) {
       this.getChildren().forEach((enemy) => {
         const _enemy = enemy as Enemy;
 
@@ -220,6 +249,8 @@ export class EnemyGroup extends Physics.Arcade.Group {
 
       return positions;
     }
+
+    // In case there aren't any enemies alive but time is run out ...
 
     const enemiesToAdd = 7;
 
@@ -235,6 +266,11 @@ export class EnemyGroup extends Physics.Arcade.Group {
     return positions;
   }
 
+  /**
+   * This method is used to place enemies when a explosion collides with the door
+   * @param x position in axis X
+   * @param y position in axis Y
+   */
   addRandomByPosition(x: number, y: number) {
     const enemiesNumber = Phaser.Math.RND.between(3, 6);
     const enemyType = this._enemyLevel[this._enemyLevel.length - 1];
@@ -245,9 +281,14 @@ export class EnemyGroup extends Physics.Arcade.Group {
     }
   }
 
+  /**
+   * This method will put more enemies when the time is run out
+   * @param type normally should be PONTAN type
+   */
   replaceAllByType(type: ENEMY_ENUM) {
     const enemyData = this._getEnemyDataByKey(type);
 
+    // Destroy all enemies!
     this.clear(true, true);
 
     const enemyPositions = this._getEnemiesPosition();
@@ -257,6 +298,10 @@ export class EnemyGroup extends Physics.Arcade.Group {
     }
   }
 
+  /**
+   * This method returns the data for a saved game
+   * @returns data with enemies
+   */
   getSavedState(): IEnemySaved[] {
     return this.getChildren().map((enemy) => {
       const _enemy = enemy as Enemy;

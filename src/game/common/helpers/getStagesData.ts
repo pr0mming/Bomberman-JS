@@ -1,7 +1,9 @@
-import { ENEMY_ENUM } from '../enums/EnemyEnum';
-import { GAME_STAGE_ENUM } from '../enums/GameStageEnum';
-import { PLAYER_POWER_UP_ENUM } from '../enums/PlayerPowerUpEnum';
-import { IGameStage } from '../interfaces/IGameStage';
+import { IGameStage } from '@game/common/interfaces/IGameStage';
+
+// Enums
+import { ENEMY_ENUM } from '@game/common/enums/EnemyEnum';
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
+import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 
 const getStagesData = (): IGameStage[] => {
   return [

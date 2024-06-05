@@ -31,7 +31,7 @@ const _calculateCrossroads = () => {
 
 /**
  * Uncomment this block to calculate the roads (positions in the tilemap where any sprite CAN'T take a direction)
- * Run this an any JS interpreter (like https://runjs.co) to print the results and parte it in your "tilemap.json" file, the section "Roads"
+ * Run this an any JS interpreter (like https://runjs.co) to print the results and paste it in your "tilemap.json" file, the section "Roads"
  *
  * NOTE: It would be strange use this file again, you should use it if you're gonna modify the tilemap (make it bigger, modify sizes, etc.)
  */

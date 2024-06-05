@@ -24,6 +24,9 @@ interface IPlayerProps {
   savedGame: IGameSaved | null;
 }
 
+/**
+ * This class represents the player with properties (powerUps, control keys, etc.)
+ */
 export class Player extends Physics.Arcade.Sprite {
   private _direction: PLAYER_DIRECTION_ENUM;
 
@@ -48,6 +51,9 @@ export class Player extends Physics.Arcade.Sprite {
     this._hasWallPassPowerUp = false;
     this._hasBombPassPowerUp = false;
     this._hasFlamePassPowerUp = false;
+
+    // Last tile passed: is a position taken from the "free positions" (MapManager)
+    // With this value it makes easy where to put the bomb and control the explosion collisions ...
     this._lastTilePassedPosition = { x, y };
 
     this._bombGroup = bombGroup;
@@ -58,6 +64,8 @@ export class Player extends Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.setScale(2.0);
+
+    // This line reduce the physics body, it is to reduce the friction when the player is walking
     this.setBodySize(this.width - 5, this.height);
 
     this._validateSavedPlayer(gameStage);
@@ -68,6 +76,10 @@ export class Player extends Physics.Arcade.Sprite {
     this.scene.cameras.main.startFollow(this);
   }
 
+  /**
+   * This method set the position of the player if the stage is a saved game
+   * @param gameStage instance of game stage
+   */
   private _validateSavedPlayer(gameStage: IGameInitialStage) {
     if (gameStage.status === GAME_STATUS_ENUM.LOADED_GAME && this._savedGame) {
       const { player } = this._savedGame;
@@ -76,17 +88,15 @@ export class Player extends Physics.Arcade.Sprite {
     }
   }
 
-  // Prepare keys to move the player
   private _setUpControls() {
     this._controlsManager = new PlayerControlsManager(this.scene);
   }
 
-  // Prepare all the animations for the player
   private _setUpAnimations() {
     this.anims.create({
       key: PLAYER_DIRECTION_ENUM.LEFT,
       frames: this.anims.generateFrameNumbers('bomberman-move', {
-        frames: [0, 1, 2]
+        frames: [0, 1, 2] // Take a look to the sprite to check what are these numbers ...
       }),
       frameRate: 10,
       repeat: -1
@@ -126,6 +136,11 @@ export class Player extends Physics.Arcade.Sprite {
     });
   }
 
+  /**
+   * This is a little workaround, it fix a problem when the "walking" audio is playing over and over
+   * Using the approach of this.scene.sound.play() doesn't work well
+   * @param key key of the audio to play
+   */
   private _playSoundByKey(key: string) {
     let sound = this.scene.sound.get(key);
 
@@ -159,7 +174,6 @@ export class Player extends Physics.Arcade.Sprite {
     if (this.body?.enable) {
       this.setVelocity(0);
 
-      // Set up cursor keys to move the player on the "update" function of the Scene
       if (this._controlsManager?.cursorKeys?.right.isDown) {
         this.setVelocityX(this._speed);
         this._playAnimationByKey(PLAYER_DIRECTION_ENUM.RIGH, 'walking-x');
@@ -209,7 +223,6 @@ export class Player extends Physics.Arcade.Sprite {
     }
   }
 
-  // Destroy player with "style" of the scene
   kill() {
     // Stop motion!
     this.setVelocity(0);
@@ -235,7 +248,12 @@ export class Player extends Physics.Arcade.Sprite {
     );
   }
 
-  validateTileOverlap(tile: Physics.Arcade.Image) {
+  /**
+   * This method verifies if the player is on the center of tile
+   * @param tile body of the tile
+   * @returns if the center of the player is aligned or not
+   */
+  validateTileOverlap(tile: Physics.Arcade.Image): boolean {
     if (tile.body && this.body) {
       const playerCenterX = Math.round(this.body.center.x);
       const playerCenterY = Math.round(this.body.center.y);
@@ -251,6 +269,10 @@ export class Player extends Physics.Arcade.Sprite {
     return false;
   }
 
+  /**
+   * This method returns the position of the player for local storage
+   * @returns position in x, y
+   */
   getSavedState(): ISpritePosition {
     return {
       x: this.body?.center.x ?? 0,

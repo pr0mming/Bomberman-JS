@@ -4,7 +4,8 @@ import { Scene } from 'phaser';
 import BombGroup from '@game/sprites/bomb/BombGroup';
 import { Player } from '@game/sprites/player/Player';
 
-import { IGameInitialStage } from '../common/interfaces/IGameInitialStage';
+// Interfaces
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
 
 // Enums
 import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
@@ -31,12 +32,20 @@ export class PowerUpManager {
     this._setUp();
   }
 
+  /**
+   * This method update the player with the powerUps captured so far
+   */
   private _setUp() {
     for (const powerUp of this._gameStage.powerUps) {
       this._enablePowerUp(powerUp);
     }
   }
 
+  /**
+   * This method is used by the game scene in case the player gets a new power-up
+   * @param powerUp powerUp Id
+   * @returns the score of the powerUp
+   */
   addPowerUp(powerUp: PLAYER_POWER_UP_ENUM): number {
     this._scene.sound.stopByKey('stage-theme');
 
@@ -48,6 +57,11 @@ export class PowerUpManager {
     return this._enablePowerUp(powerUp);
   }
 
+  /**
+   * This method update the game with the powerUp
+   * @param powerUp powerUp Id
+   * @returns the score of the powerUp
+   */
   private _enablePowerUp(powerUp: PLAYER_POWER_UP_ENUM) {
     switch (powerUp) {
       case PLAYER_POWER_UP_ENUM.BOMB_UP:

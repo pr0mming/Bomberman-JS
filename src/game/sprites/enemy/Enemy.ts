@@ -24,6 +24,9 @@ interface IEnemyProps {
   player: Player;
 }
 
+/**
+ * This class represents one enemy
+ */
 export class Enemy extends Physics.Arcade.Sprite {
   private _enemyData: IEnemy;
   private _player: Player;
@@ -32,7 +35,9 @@ export class Enemy extends Physics.Arcade.Sprite {
   private _animRightKey: string;
   private _animDeadKey: string;
 
+  // This shield is used when are generated enemies from the door
   private _hasTemporalShield: boolean;
+  // Offset of distance to reach
   private _mapCrossroadOffset: number;
   private _lastCrossroadTouched?: ISpritePosition;
 
@@ -66,6 +71,9 @@ export class Enemy extends Physics.Arcade.Sprite {
     this._setUpTemporalShield();
   }
 
+  /**
+   * This method gives a blink to the sprite and avoid any explosion affects the sprite for a short time
+   */
   private _setUpTemporalShield() {
     if (this._hasTemporalShield) {
       const _temporalShieldTimer = new Phaser.Time.TimerEvent({
@@ -94,6 +102,7 @@ export class Enemy extends Physics.Arcade.Sprite {
       switch (this._motionManager?.direction) {
         case ENEMY_DIRECTION_ENUM.LEFT:
           this.play(this._animLeftKey);
+          // It performs movement to a point X,Y
           this.scene.physics.moveTo(
             this,
             fromPosition.x - this._mapCrossroadOffset,
@@ -142,6 +151,10 @@ export class Enemy extends Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * This method is used to change the type of motion engine to move the enemy
+   * @param type
+   */
   setMotionManager(type: ENEMY_MOTION_ENUM) {
     this._motionManager = EnemyMotionFactory.getInstance({
       type,
@@ -172,6 +185,9 @@ export class Enemy extends Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * This method is used when enemy collides with the map layer, soft wall or a bomb (to avoid stay quiet forever)
+   */
   retraceMotion() {
     // Stop the motion ...
     this.setVelocity(0);
@@ -186,6 +202,11 @@ export class Enemy extends Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * This method validates if the enemy is aligned with the center of a tile
+   * @param tilePosition position X, Y of tile
+   * @returns true if is aligned
+   */
   validateCrossroadOverlap(tilePosition: ISpritePosition): boolean {
     if (this._motionManager && this._lastCrossroadTouched)
       return this._motionManager.validateCrossroadOverlap(
@@ -210,6 +231,7 @@ export class Enemy extends Physics.Arcade.Sprite {
           Animations.Events.ANIMATION_COMPLETE,
           () => {
             if (this.body) {
+              // Show for a short time the points earned by the player ...
               const rewardPoints = this.scene.add
                 .text(
                   this.body?.center.x,

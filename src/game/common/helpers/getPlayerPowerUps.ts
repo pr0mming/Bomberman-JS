@@ -1,5 +1,7 @@
-import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 import { IPowerUp } from '@game/common/interfaces/IPowerUp';
+
+// Enums
+import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 
 const getPlayerPowerUps = (): IPowerUp[] => {
   return [

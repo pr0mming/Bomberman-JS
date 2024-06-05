@@ -7,15 +7,12 @@ import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
 // Interfaces
 import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
 
-// Helpers
-import getItemFromPhaserGroup from '@game/common/helpers/getItemFromPhaserGroup';
-
 // Enums
 import { ENEMY_ENUM } from '@game/common/enums/EnemyEnum';
 import { TIMER_GAME_ENUM } from '@game/common/enums/TimerGameEnum';
 import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
-import { LOCAL_STORAGE_KEYS_ENUM } from '../common/enums/LocalStorageKeysEnum';
-import { GAME_STAGE_ENUM } from '../common/enums/GameStageEnum';
+import { LOCAL_STORAGE_KEYS_ENUM } from '@game/common/enums/LocalStorageKeysEnum';
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
 
 interface GameRulesManagerProps {
   scene: Scene;
@@ -24,6 +21,9 @@ interface GameRulesManagerProps {
   enemiesGroup: EnemyGroup;
 }
 
+/**
+ * This class manage the logic when the player wins or loses the game, it also organize the statistics to show (time, lifes, etc.)
+ */
 export class GameRulesManager {
   private _scene: Scene;
   private _gameStage: IGameInitialStage;
@@ -52,6 +52,9 @@ export class GameRulesManager {
     this._setUp();
   }
 
+  /**
+   * This method places the time, score and lifes of the player
+   */
   private _setUp() {
     const style = {
       font: '15px BitBold',
@@ -105,6 +108,7 @@ export class GameRulesManager {
       callback: () => {
         const { repeatCount } = _timerGame;
 
+        // If the game time is run out then all the enemies are PONTAN (pink coin)
         if (repeatCount <= 0) {
           this._enemiesGroup.replaceAllByType(ENEMY_ENUM.PONTAN);
         }
@@ -123,6 +127,7 @@ export class GameRulesManager {
   win() {
     this._scene.game.sound.stopAll();
 
+    // Check highest score
     const highScore =
       localStorage.getItem(LOCAL_STORAGE_KEYS_ENUM.HIGHEST_SCORE_KEY) ?? 0;
 
@@ -132,9 +137,11 @@ export class GameRulesManager {
         localStorage.stage_points
       );
 
+    // Freeze player
     this._player.disableBody(false);
     this._player.setImmovable(true);
 
+    // Update game object
     this._gameStage.stageScore += 450;
     this._gameStage.totalScore = this._gameStage.stageScore;
     this._gameStage.status = GAME_STATUS_ENUM.NEXT_STAGE;
@@ -150,10 +157,12 @@ export class GameRulesManager {
         const { repeatCount } = _timerNextStage;
 
         if (repeatCount <= 0) {
+          // Validate final stage
           if (this._gameStage.stage === GAME_STAGE_ENUM.FINAL_BONUS) {
             this._gameStage.status = GAME_STATUS_ENUM.COMPLETED;
           }
 
+          // Or show next stage
           this._scene.scene.start('ChangeStage', this._gameStage);
         }
       },
@@ -183,6 +192,7 @@ export class GameRulesManager {
         if (repeatCount <= 0) {
           this._gameStage.lives--;
 
+          // Restart of Game Over
           if (this._gameStage.lives >= 0) {
             this._gameStage.status = GAME_STATUS_ENUM.RESTART;
           } else {
@@ -198,8 +208,13 @@ export class GameRulesManager {
     this._scene.time.addEvent(_timerLose);
   }
 
-  private _setLabelTextByKey(key: string, value: string) {
-    const _label = getItemFromPhaserGroup(this._labels.getChildren(), key);
+  /**
+   * Simple method with boilerplate to change the text of a label
+   * @param keyName key of the label to access
+   * @param value new value to change
+   */
+  private _setLabelTextByKey(keyName: string, value: string) {
+    const _label = this._labels.getMatching('name', keyName)[0];
 
     if (_label) {
       (_label as GameObjects.Text).setText(value);

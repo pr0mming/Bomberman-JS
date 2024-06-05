@@ -1,7 +1,11 @@
-import { IExplosionFragment } from '../interfaces/IExplosionFragment';
+import { IExplosionFragment } from '@game/common/interfaces/IExplosionFragment';
 
 const getExplosionData = (): IExplosionFragment[] => {
+  // Visual distance bettween sprites (center of the explosion and the other fragments)
   const visualOffsetAxis = 33;
+
+  // NOTE: This offset is used to check if a position (center, top, right, left and bottom) is occupied (by a bomb or even a explosion fragment)
+  // You shouldn't modify this value unless you're doing changes in the tilemap
   const tileOffsetAxis = 40;
 
   return [

@@ -9,6 +9,19 @@ export class Preloader extends Scene {
   }
 
   preload() {
+    // Little label to show loading process
+    this.add
+      .text(
+        this.cameras.main.centerX,
+        this.cameras.main.centerY,
+        'LOADING GAME ...'
+      )
+      .setFontFamily('"BitBold", "Tahoma"')
+      .setFontSize(15)
+      .setColor('white')
+      .setStroke('black', 2.5)
+      .setOrigin(0.5, 0.5);
+
     // Load map of tiles
     this.load.tilemapTiledJSON('world', '/game/map/tilemap.json');
     this.load.image('tilemap', '/game/map/hard-wall.png');
