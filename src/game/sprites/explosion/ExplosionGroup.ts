@@ -7,7 +7,7 @@ import { ExplosionFragment } from '@game/sprites/explosion/ExplosionFragment';
 import { IExplosionFragment } from '@game/common/interfaces/IExplosionFragment';
 
 // Managers
-import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
+import { WallBuilderManager } from '@game/managers/WallBuilderManager';
 
 // Helpers
 import getExplosionData from '@game/common/helpers/getExplosionData';

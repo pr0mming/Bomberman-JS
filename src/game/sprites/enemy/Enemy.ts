@@ -1,19 +1,19 @@
 import { Animations, Physics, Scene } from 'phaser';
 
 // Sprites
-import { Player } from '@src/game/sprites/player/Player';
+import { Player } from '@game/sprites/player/Player';
 
 // Interfaces
-import { IEnemy } from '@src/game/common/interfaces/IEnemy';
-import { IEnemyMotion } from '@src/game/common/interfaces/IEnemyMotion';
-import { ISpritePosition } from '@src/game/common/interfaces/ISpritePosition';
+import { IEnemy } from '@game/common/interfaces/IEnemy';
+import { IEnemyMotion } from '@game/common/interfaces/IEnemyMotion';
+import { ISpritePosition } from '@game/common/interfaces/ISpritePosition';
 
 // Helpers
-import { EnemyMotionFactory } from '@src/game/managers/enemy-motion/EnemyMotionFactory';
+import { EnemyMotionFactory } from '@game/managers/enemy-motion/EnemyMotionFactory';
 
 // Enums
-import { ENEMY_MOTION_ENUM } from '@src/game/common/enums/EnemyMotionEnum';
-import { ENEMY_DIRECTION_ENUM } from '@src/game/common/enums/EnemyDirectionEnum';
+import { ENEMY_MOTION_ENUM } from '@game/common/enums/EnemyMotionEnum';
+import { ENEMY_DIRECTION_ENUM } from '@game/common/enums/EnemyDirectionEnum';
 
 interface IEnemyProps {
   scene: Scene;

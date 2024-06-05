@@ -9,6 +9,9 @@ import { BaseEnemyMotion } from '@game/managers/enemy-motion/BaseEnemyMotion';
 // Enums
 import { ENEMY_DIRECTION_ENUM } from '@game/common/enums/EnemyDirectionEnum';
 
+/**
+ * It's the kinda logic that uses the enemy PONTAN, the purpose is chase the player around the map
+ */
 export class SecondLevelEnemyMotion extends BaseEnemyMotion {
   constructor(
     player: Player,

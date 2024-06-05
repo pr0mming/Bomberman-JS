@@ -7,13 +7,13 @@ import BombGroup from '@game/sprites/bomb/BombGroup';
 import PlayerControlsManager from '@game/managers/controls-manager/PlayerControlsManager';
 
 // Interfaces
-import { ISpritePosition } from '@src/game/common/interfaces/ISpritePosition';
-import { IGameSaved } from '@src/game/common/interfaces/IGameSaved';
-import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
+import { ISpritePosition } from '@game/common/interfaces/ISpritePosition';
+import { IGameSaved } from '@game/common/interfaces/IGameSaved';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
 
 // Enums
 import { PLAYER_DIRECTION_ENUM } from '@game/common/enums/PlayerDirectionEnum';
-import { GAME_STATUS_ENUM } from '@src/game/common/enums/GameStatusEnum';
+import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
 
 interface IPlayerProps {
   scene: Scene;

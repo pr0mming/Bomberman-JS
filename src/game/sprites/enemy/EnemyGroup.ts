@@ -1,28 +1,28 @@
 import { Physics, Scene } from 'phaser';
 
 // Sprites
-import { Enemy } from '@src/game/sprites/enemy/Enemy';
-import { Player } from '@src/game/sprites/player/Player';
+import { Enemy } from '@game/sprites/enemy/Enemy';
+import { Player } from '@game/sprites/player/Player';
 
 // Helpers
-import getStagesData from '@src/game/common/helpers/getStagesData';
-import getEnemyData from '@src/game/common/helpers/getEnemyData';
+import getStagesData from '@game/common/helpers/getStagesData';
+import getEnemyData from '@game/common/helpers/getEnemyData';
 
 // Interfaces
-import { IEnemy } from '@src/game/common/interfaces/IEnemy';
-import { IEnemyLevel } from '@src/game/common/interfaces/IEnemyLevel';
-import { IEnemySaved } from '@src/game/common/interfaces/IEnemySaved';
-import { IMapPosition } from '@src/game/common/interfaces/IMapPosition';
-import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
-import { IGameSaved } from '@src/game/common/interfaces/IGameSaved';
+import { IEnemy } from '@game/common/interfaces/IEnemy';
+import { IEnemyLevel } from '@game/common/interfaces/IEnemyLevel';
+import { IEnemySaved } from '@game/common/interfaces/IEnemySaved';
+import { IMapPosition } from '@game/common/interfaces/IMapPosition';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
+import { IGameSaved } from '@game/common/interfaces/IGameSaved';
 
 // Managers
-import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
+import { WallBuilderManager } from '@game/managers/WallBuilderManager';
 
 // Enums
-import { ENEMY_ENUM } from '@src/game/common/enums/EnemyEnum';
-import { GAME_STAGE_ENUM } from '@src/game/common/enums/GameStageEnum';
-import { GAME_STATUS_ENUM } from '@src/game/common/enums/GameStatusEnum';
+import { ENEMY_ENUM } from '@game/common/enums/EnemyEnum';
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
+import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
 
 interface IEnemyGroupProps {
   world: Physics.Arcade.World;

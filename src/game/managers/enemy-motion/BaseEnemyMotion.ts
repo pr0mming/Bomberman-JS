@@ -17,7 +17,8 @@ export class BaseEnemyMotion implements IEnemyMotion {
   private _direction: ENEMY_DIRECTION_ENUM;
   private _directions: ENEMY_DIRECTION_ENUM[];
   private _retracedMotions: number;
-  private _maxRetracedMotions: number;
+
+  private _MAX_RETRACED_MOTIONS: number;
 
   constructor(
     player: Player,
@@ -34,7 +35,8 @@ export class BaseEnemyMotion implements IEnemyMotion {
       ENEMY_DIRECTION_ENUM.DOWN
     ];
     this._retracedMotions = 0;
-    this._maxRetracedMotions = 5;
+
+    this._MAX_RETRACED_MOTIONS = 5;
   }
 
   computeNewDirection() {
@@ -62,6 +64,11 @@ export class BaseEnemyMotion implements IEnemyMotion {
     }
   }
 
+  /**
+   * This method is used to get a random direction, but don't take the parameter
+   * @param directionExcluded direction to don't take in account
+   * @returns new direction
+   */
   private _getRndDirectionByExclusion(
     directionExcluded: ENEMY_DIRECTION_ENUM
   ): ENEMY_DIRECTION_ENUM {
@@ -74,10 +81,14 @@ export class BaseEnemyMotion implements IEnemyMotion {
     return newDirections[index];
   }
 
+  /**
+   * This method take the current direction and set the opposite one, for example, the opposite of left is right and so on ...
+   */
   retraceMotion() {
     const newDirection = this._getOppositeDirection(this._direction);
 
-    if (this._retracedMotions >= this._maxRetracedMotions) {
+    // Is possible reach a limit, so is taken a different new direction
+    if (this._retracedMotions >= this._MAX_RETRACED_MOTIONS) {
       this._direction = this._getRndDirectionByExclusion(newDirection);
 
       this._retracedMotions = 0;

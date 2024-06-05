@@ -1,5 +1,6 @@
 import { IEnemyLevel } from './IEnemyLevel';
 
+// Enums
 import { GAME_STAGE_ENUM } from '../enums/GameStageEnum';
 import { PLAYER_POWER_UP_ENUM } from '../enums/PlayerPowerUpEnum';
 

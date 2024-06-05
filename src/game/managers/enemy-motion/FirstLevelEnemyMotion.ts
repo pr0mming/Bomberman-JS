@@ -6,6 +6,9 @@ import { Player } from '@game/sprites/player/Player';
 // Managers
 import { BaseEnemyMotion } from '@game/managers/enemy-motion/BaseEnemyMotion';
 
+/**
+ * It's the most simple logic that uses any enemy like BALLOM, it just execute random movements
+ */
 export class FirstLevelEnemyMotion extends BaseEnemyMotion {
   constructor(
     player: Player,

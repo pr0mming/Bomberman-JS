@@ -1,7 +1,7 @@
-import { IEnemySaved } from './IEnemySaved';
-import { IGameInitialStage } from './IGameInitialStage';
-import { IMapPosition } from './IMapPosition';
-import { ISpritePosition } from './ISpritePosition';
+import { IEnemySaved } from '@game/common/interfaces/IEnemySaved';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
+import { IMapPosition } from '@game/common/interfaces/IMapPosition';
+import { ISpritePosition } from '@game/common/interfaces/ISpritePosition';
 
 interface ISpecialObject {
   x: number;

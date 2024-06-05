@@ -4,7 +4,7 @@ import { Physics, Scene, Time } from 'phaser';
 import { Bomb } from '@game/sprites/bomb/Bomb';
 import { ExplosionGroup } from '@game/sprites/explosion/ExplosionGroup';
 
-import { WallBuilderManager } from '@src/game/managers/WallBuilderManager';
+import { WallBuilderManager } from '@game/managers/WallBuilderManager';
 
 // Enums
 import { TIMER_GAME_ENUM } from '@game/common/enums/TimerGameEnum';

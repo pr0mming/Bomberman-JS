@@ -5,7 +5,7 @@ import { Player } from '@game/sprites/player/Player';
 import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
 
 // Interfaces
-import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
 
 // Enums
 import { ENEMY_ENUM } from '@game/common/enums/EnemyEnum';

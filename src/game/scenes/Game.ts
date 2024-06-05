@@ -1,7 +1,7 @@
 import { Physics, Scene } from 'phaser';
 
 // Interfaces
-import { IGameInitialStage } from '@src/game/common/interfaces/IGameInitialStage';
+import { IGameInitialStage } from '@game/common/interfaces/IGameInitialStage';
 import { IGameSaved } from '@game/common/interfaces/IGameSaved';
 
 // Sprites

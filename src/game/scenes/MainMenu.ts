@@ -1,7 +1,7 @@
 import { Scene, VERSION } from 'phaser';
 
 // Helpers
-import getInitialGameStage from '@src/game/common/helpers/getInitialGameStage';
+import getInitialGameStage from '@game/common/helpers/getInitialGameStage';
 
 import { SaveGameManager } from '../managers/SaveGameManager';
 

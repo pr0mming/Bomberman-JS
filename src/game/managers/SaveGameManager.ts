@@ -9,7 +9,7 @@ import { EnemyGroup } from '@game/sprites/enemy/EnemyGroup';
 import { Player } from '@game/sprites/player/Player';
 
 // Managers
-import { MapManager } from './MapManager';
+import { MapManager } from '@game/managers/MapManager';
 import { GameRulesControlManager } from '@game/managers/controls-manager/GameRulesControlManager';
 
 // Enums

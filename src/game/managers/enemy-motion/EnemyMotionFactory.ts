@@ -16,6 +16,9 @@ interface EnemyMotionFactoryProps {
   enemyBody: Physics.Arcade.Body | Physics.Arcade.StaticBody | null;
 }
 
+/**
+ * This method is a little factory to return a new instance of a EnemyMotion class
+ */
 export class EnemyMotionFactory {
   static getInstance({ type, player, enemyBody }: EnemyMotionFactoryProps) {
     switch (type) {

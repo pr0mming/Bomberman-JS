@@ -43,6 +43,7 @@ npm run preview
 - **Direction Keys:** Move the character
 - **X Key:** Put an bomb
 - **Space Bar:** Exploit an bomb
+- **S Key:** Save the game
 
 ## Demo :sunglasses:
 
