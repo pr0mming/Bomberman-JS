@@ -1,4 +1,4 @@
-import { ENEMY_ENUM } from '../enums/EnemyEnum';
+import { ENEMY_ENUM } from '@game/common/enums/EnemyEnum';
 
 export interface IEnemyLevel {
   quantity: number;

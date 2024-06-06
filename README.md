@@ -26,6 +26,8 @@ npm i
 npm run dev
 ```
 
+Other commands:
+
 - Make a build ready for deploy:
 
 ```bash
@@ -40,7 +42,7 @@ npm run preview
 
 ## Controls :video_game:
 
-- **Direction Keys:** Move the character
+- **Direction Keys:** Move the player
 - **X Key:** Put an bomb
 - **Space Bar:** Exploit an bomb
 - **S Key:** Save the game

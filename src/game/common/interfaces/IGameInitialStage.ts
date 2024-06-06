@@ -1,6 +1,6 @@
-import { GAME_STATUS_ENUM } from '../enums/GameStatusEnum';
-import { GAME_STAGE_ENUM } from '../enums/GameStageEnum';
-import { PLAYER_POWER_UP_ENUM } from '../enums/PlayerPowerUpEnum';
+import { GAME_STATUS_ENUM } from '@game/common/enums/GameStatusEnum';
+import { GAME_STAGE_ENUM } from '@game/common/enums/GameStageEnum';
+import { PLAYER_POWER_UP_ENUM } from '@game/common/enums/PlayerPowerUpEnum';
 
 export interface IGameInitialStage {
   stage: GAME_STAGE_ENUM;

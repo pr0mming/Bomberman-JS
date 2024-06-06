@@ -3,10 +3,11 @@ import { Scene, VERSION } from 'phaser';
 // Helpers
 import getInitialGameStage from '@game/common/helpers/getInitialGameStage';
 
-import { SaveGameManager } from '../managers/SaveGameManager';
+// Managers
+import { SaveGameManager } from '@game/managers/SaveGameManager';
 
 // Enums
-import { LOCAL_STORAGE_KEYS_ENUM } from '../common/enums/LocalStorageKeysEnum';
+import { LOCAL_STORAGE_KEYS_ENUM } from '@game/common/enums/LocalStorageKeysEnum';
 
 /**
  * The menu screen to choose any option to start the game

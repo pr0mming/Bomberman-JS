@@ -17,6 +17,9 @@ interface IPowerUpManagerProps {
   gameStage: IGameInitialStage;
 }
 
+/**
+ * This class manage all related to the powerUps of the player and assign a score by each powerUp
+ */
 export class PowerUpManager {
   private _player: Player;
   private _bombGroup: BombGroup;
