@@ -10,3 +10,6 @@ trim_trailing_whitespace = true
 
 [*.ts]
 quote_type = single
+
+[*.js]
+quote_type = single
